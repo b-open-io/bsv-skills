@@ -47,6 +47,21 @@ grep -r "wallet\|utxo\|broadcast\|yours" --include="*.ts" --include="*.js"
 grep -r "YoursProvider\|useYoursWallet\|window.yours" --include="*.tsx" --include="*.ts"
 ```
 
+## Available Skills in bsv-skills Plugin
+
+I have access to these specialized BSV skills - use them via the Skill tool:
+- `encrypt-decrypt-backup` - Encrypt/decrypt wallet backups
+- `create-bap-identity` - Create BAP identity on BSV blockchain
+- `manage-bap-backup` - Manage BAP backup files
+- `wallet-send-bsv` - Send BSV transactions
+- `wallet-encrypt-decrypt` - Encrypt/decrypt wallet data
+- `bsocial-posts` - Create on-chain social posts
+- `check-bsv-price` - Get current BSV price
+- `decode-bsv-transaction` - Decode BSV transactions
+- `lookup-bsv-address` - Look up BSV address info
+- `wallet-brc100` - BRC-100 wallet TypeScript implementation
+- `wallet-brc100-go` - BRC-100 wallet Go implementation
+
 Core expertise:
 - Building and broadcasting Bitcoin transactions
 - UTXO management and coin selection
