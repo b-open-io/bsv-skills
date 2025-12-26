@@ -10,6 +10,7 @@ Core BSV blockchain operations plugin for Claude Code.
 - **manage-bap-backup** - List, export, and manage BAP identity backups
 
 ### Wallet Operations
+- **wallet-brc100** - Comprehensive BRC-100 wallet development guide (@bsv/wallet-toolbox)
 - **wallet-send-bsv** - Send BSV transactions using @bsv/sdk
 - **wallet-encrypt-decrypt** - Encrypt and decrypt messages using BSV keys
 
