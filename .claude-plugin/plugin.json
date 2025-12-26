@@ -16,7 +16,8 @@
       "skills/check-bsv-price",
       "skills/decode-bsv-transaction",
       "skills/lookup-bsv-address",
-      "skills/wallet-brc100"
+      "skills/wallet-brc100",
+      "skills/wallet-brc100-go"
     ]
   }
 }
