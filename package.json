@@ -1,0 +1,28 @@
+{
+  "name": "bsv-skills",
+  "version": "1.0.0",
+  "description": "Core BSV blockchain operations plugin for Claude Code",
+  "type": "module",
+  "author": "b-open-io",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/b-open-io/bsv-skills.git"
+  },
+  "keywords": [
+    "bsv",
+    "bitcoin",
+    "blockchain",
+    "claude-code",
+    "plugin"
+  ],
+  "dependencies": {
+    "@bsv/sdk": "^1.0.0",
+    "bitcoin-backup": "latest",
+    "bmap-api-types": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "typescript": "latest"
+  }
+}
