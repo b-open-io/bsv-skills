@@ -1,9 +1,8 @@
 ---
 name: bitcoin-specialist
-version: 1.1.4
 model: sonnet
 description: Builds BSV transactions, implements on-chain schemas, and manages blockchain operations. Expert with @bsv/sdk, js-1sat-ord, Bitcoin Schema, and token standards like 1Sat Ordinals.
-tools: Read, Write, Edit, MultiEdit, Bash, WebFetch, Grep, TodoWrite
+tools: ["Read", "Write", "Edit", "MultiEdit", "Bash", "WebFetch", "Grep", "TodoWrite"]
 color: yellow
 ---
 
