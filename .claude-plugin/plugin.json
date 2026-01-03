@@ -1,23 +1,13 @@
 {
   "name": "bsv-skills",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Core BSV blockchain operations including BRC-100 wallet development, backup management, wallet operations, BAP identity management, on-chain social media (BSocial), and blockchain utilities.",
-  "author": "b-open-io",
+  "author": {
+    "name": "b-open-io",
+    "url": "https://github.com/b-open-io"
+  },
   "repository": "https://github.com/b-open-io/bsv-skills",
-  "tags": ["bsv", "bitcoin", "blockchain", "wallet", "bap", "identity", "bsocial", "backup"],
-  "components": {
-    "skills": [
-      "skills/encrypt-decrypt-backup",
-      "skills/create-bap-identity",
-      "skills/manage-bap-backup",
-      "skills/wallet-send-bsv",
-      "skills/wallet-encrypt-decrypt",
-      "skills/bsocial-posts",
-      "skills/check-bsv-price",
-      "skills/decode-bsv-transaction",
-      "skills/lookup-bsv-address",
-      "skills/wallet-brc100",
-      "skills/wallet-brc100-go"
-    ]
-  }
+  "keywords": ["bsv", "bitcoin", "blockchain", "wallet", "bap", "identity", "bsocial", "backup"],
+  "skills": "./skills",
+  "agents": "./agents"
 }
