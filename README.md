@@ -18,6 +18,10 @@ Core BSV blockchain operations plugin for Claude Code.
 ### On-Chain Social
 - **bsocial-posts** - Create and read posts on BSocial protocol
 
+### Mining (Stratum Protocol)
+- **stratum-v1** - Stratum v1 mining protocol implementation guide (JSON-RPC over TCP)
+- **stratum-v2** - Stratum v2 binary protocol overview (encryption, job declaration)
+
 ### Utilities
 - **check-bsv-price** - Get current BSV price from WhatsOnChain API
 - **decode-bsv-transaction** - Decode BSV transaction hex

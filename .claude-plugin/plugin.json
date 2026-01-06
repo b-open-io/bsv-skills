@@ -7,5 +7,5 @@
     "url": "https://github.com/b-open-io"
   },
   "repository": "https://github.com/b-open-io/bsv-skills",
-  "keywords": ["bsv", "bitcoin", "blockchain", "wallet", "bap", "identity", "bsocial", "backup"]
+  "keywords": ["bsv", "bitcoin", "blockchain", "wallet", "bap", "identity", "bsocial", "backup", "stratum", "mining", "pool"]
 }
