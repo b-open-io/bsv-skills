@@ -1,0 +1,9 @@
+# Ralph Loop Progress for stratum-v1
+# Append after EVERY iteration
+
+=== Iteration 1 (2026-01-07) ===
+Tests: 9 pass / 0 fail
+Help: works (parse-message.ts, build-coinbase.ts, calculate-share.ts)
+What I did: Implemented all 3 Stratum v1 scripts with proper byte ordering
+What's left: None - all tests pass
+

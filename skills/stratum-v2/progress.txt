@@ -1,0 +1,9 @@
+# Ralph Loop Progress for stratum-v2
+# Append after EVERY iteration
+
+=== Iteration 1 (2026-01-07) ===
+Tests: 8 pass / 0 fail
+Help: works (encode-message.ts, decode-message.ts, compare-protocols.ts)
+What I did: Implemented all 3 Stratum v2 scripts with binary framing
+What's left: None - all tests pass
+

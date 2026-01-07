@@ -1,0 +1,9 @@
+# Ralph Loop Progress for wallet-brc100
+# Append after EVERY iteration
+
+=== Iteration 1 (2026-01-07) ===
+Tests: 5 pass / 0 fail
+Help: works (create-wallet.ts, get-balance.ts)
+What I did: Implemented create-wallet.ts and get-balance.ts scripts
+What's left: None - all tests pass
+
