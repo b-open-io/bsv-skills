@@ -1,17 +1,17 @@
 ---
 name: wallet-encrypt-decrypt
-description: Encrypt and decrypt messages using BSV keys and ECDH. Uses @bsv/sdk for cryptographic operations.
+description: Encrypt and decrypt messages using BSV keys and ECDH. Uses @bsv/sdk for cryptographic operations and AES-256-GCM.
 allowed-tools: "Bash(bun:*)"
 ---
 
 # Wallet Encrypt/Decrypt
 
-Encrypt and decrypt messages using BSV keys (ECDH).
+Encrypt and decrypt messages using BSV keys (ECDH + AES-256-GCM).
 
 ## When to Use
 
-- Encrypt messages to a public key
-- Decrypt messages with private key
+- Encrypt messages to a recipient's public key
+- Decrypt messages with your private key
 - Secure communication between BSV addresses
 - End-to-end encrypted messaging
 
@@ -19,22 +19,50 @@ Encrypt and decrypt messages using BSV keys (ECDH).
 
 ```bash
 # Encrypt message to public key
-bun run /path/to/skills/wallet-encrypt-decrypt/scripts/encrypt-message.ts <public-key> "message"
+bun run skills/wallet-encrypt-decrypt/scripts/encrypt-message.ts <recipient-pubkey-hex> "message"
 
-# Decrypt message with private key
-bun run /path/to/skills/wallet-encrypt-decrypt/scripts/decrypt-message.ts <private-wif> <encrypted-hex>
+# Decrypt message with private key (WIF)
+bun run skills/wallet-encrypt-decrypt/scripts/decrypt-message.ts <private-wif> '<encrypted-json>'
+
+# Show help
+bun run skills/wallet-encrypt-decrypt/scripts/encrypt-message.ts --help
+bun run skills/wallet-encrypt-decrypt/scripts/decrypt-message.ts --help
+```
+
+## Encryption Output Format
+
+```json
+{
+  "ephemeralPublicKey": "02...",
+  "iv": "hex-string-24-chars",
+  "authTag": "hex-string-32-chars",
+  "ciphertext": "hex-string"
+}
 ```
 
 ## Encryption Method
 
-Uses ECDH (Elliptic Curve Diffie-Hellman):
-- Sender: Ephemeral key + recipient public key = shared secret
-- Encrypt with AES using shared secret
-- Send: ephemeral public key + encrypted data
-- Recipient: private key + ephemeral public key = same shared secret
-- Decrypt with AES
+Uses ECDH (Elliptic Curve Diffie-Hellman) + AES-256-GCM:
 
-## Requirements
+1. **Sender** generates ephemeral key pair
+2. **Shared secret** = ephemeral private key * recipient public key
+3. **AES key** derived from shared secret via SHA256
+4. **Encrypt** with AES-256-GCM (random 12-byte IV)
+5. **Output**: ephemeral public key + IV + auth tag + ciphertext
 
-- `@bsv/sdk` package for ECDH and AES
-- Valid BSV public/private keys
+**Decryption**:
+1. **Shared secret** = recipient private key * ephemeral public key
+2. **AES key** derived same way
+3. **Decrypt** and verify auth tag
+
+## Dependencies
+
+- `@bsv/sdk` - Key operations (PrivateKey, PublicKey)
+- Node.js `crypto` - AES-256-GCM encryption
+
+## Security
+
+- Fresh ephemeral key per encryption
+- Random 12-byte IV per encryption
+- 128-bit authentication tag (tamper detection)
+- SHA256 key derivation from ECDH shared secret

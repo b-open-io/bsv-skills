@@ -19,11 +19,11 @@ interface EncryptOptions {
 
 async function encrypt(options: EncryptOptions): Promise<void> {
   // Use FLOW_BACKUP_PASSPHRASE if no password provided
-  const password = options.password || process.env.FLOW_BACKUP_PASSPHRASE;
+  const password = options.password || process.env.BACKUP_PASSPHRASE;
 
   if (!password) {
     throw new Error(
-      "No password provided. Set FLOW_BACKUP_PASSPHRASE environment variable or pass password as argument."
+      "No password provided. Set FLOW_BACKUP_PASSPHRASE environment variable or pass password as argument.",
     );
   }
 
@@ -47,7 +47,10 @@ async function encrypt(options: EncryptOptions): Promise<void> {
     outputPath = path.resolve(options.outputFile);
   } else {
     // Default: save to Flow's backups directory
-    const inputName = path.basename(options.inputFile, path.extname(options.inputFile));
+    const inputName = path.basename(
+      options.inputFile,
+      path.extname(options.inputFile),
+    );
     outputPath = `${BACKUPS_DIR}/${inputName}.bep`;
   }
 
@@ -60,7 +63,7 @@ async function encrypt(options: EncryptOptions): Promise<void> {
   try {
     // Use bbackup CLI
     const { stdout, stderr } = await execAsync(
-      `bbackup enc "${inputPath}" -p "${password}" -o "${outputPath}"`
+      `bbackup enc "${inputPath}" -p "${password}" -o "${outputPath}"`,
     );
 
     if (stderr && !stderr.includes("Encrypted")) {
@@ -72,13 +75,15 @@ async function encrypt(options: EncryptOptions): Promise<void> {
 
     // Update config.json registry
     await updateBackupRegistry(path.basename(outputPath), inputPath);
-
   } catch (error: any) {
     throw new Error(`Encryption failed: ${error.message}`);
   }
 }
 
-async function updateBackupRegistry(backupFile: string, source: string): Promise<void> {
+async function updateBackupRegistry(
+  backupFile: string,
+  source: string,
+): Promise<void> {
   const configPath = `${BSV_DIR}/config.json`;
 
   try {
@@ -102,14 +107,16 @@ async function updateBackupRegistry(backupFile: string, source: string): Promise
 const args = process.argv.slice(2);
 
 if (args.length === 0) {
-  console.error("Usage: bun run encrypt.ts <input-file> [output-file] [password]");
+  console.error(
+    "Usage: bun run encrypt.ts <input-file> [output-file] [password]",
+  );
   console.error("");
   console.error("Examples:");
   console.error("  bun run encrypt.ts wallet.json");
   console.error("  bun run encrypt.ts wallet.json my-wallet.bep");
   console.error("  bun run encrypt.ts wallet.json my-wallet.bep mypassword");
   console.error("");
-  console.error("If no password is provided, uses FLOW_BACKUP_PASSPHRASE env var");
+  console.error("If no password is provided, uses BACKUP_PASSPHRASE env var");
   process.exit(1);
 }
 
@@ -117,8 +124,7 @@ const inputFile = args[0];
 const outputFile = args[1];
 const password = args[2];
 
-encrypt({ inputFile, outputFile, password })
-  .catch((error) => {
-    console.error("❌ Error:", error.message);
-    process.exit(1);
-  });
+encrypt({ inputFile, outputFile, password }).catch((error) => {
+  console.error("❌ Error:", error.message);
+  process.exit(1);
+});

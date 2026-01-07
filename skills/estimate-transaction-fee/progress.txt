@@ -1,0 +1,22 @@
+# Ralph Loop Progress for estimate-transaction-fee
+# Append after EVERY iteration
+
+=== Iteration 1 (2026-01-07) ===
+Tests: 6 pass / 0 fail
+Help: works (exit 0)
+What I did:
+- Implemented full fee estimation logic in estimate.ts
+- Added Transaction import from @bsv/sdk for tx hex parsing
+- Implemented size estimation from --size, --tx hex, and --inputs/--outputs
+- Added --rate flag for custom fee rate (default 1 sat/byte)
+- Added --json flag for machine-readable JSON output
+- Added proper error handling for negative/invalid inputs
+- Calculation uses Math.ceil() to round fees up for safety
+What's left: Update SKILL.md to mark as complete
+
+=== Final Verification ===
+- bun test: 6 pass / 0 fail (9 expect calls)
+- --help: exits 0 with HELP_OK
+- --size -100: exits 1 with "Error: Size must be positive integer"
+- All completion criteria PASS
+

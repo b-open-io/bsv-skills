@@ -19,11 +19,11 @@ interface CreateIdentityOptions {
 
 async function createIdentity(options: CreateIdentityOptions): Promise<void> {
   // Use FLOW_BACKUP_PASSPHRASE if no password provided
-  const password = options.password || process.env.FLOW_BACKUP_PASSPHRASE;
+  const password = options.password || process.env.BACKUP_PASSPHRASE;
 
   if (!password) {
     throw new Error(
-      "No password provided. Set FLOW_BACKUP_PASSPHRASE environment variable or pass password as argument."
+      "No password provided. Set BACKUP_PASSPHRASE environment variable or pass password as argument.",
     );
   }
 
@@ -43,7 +43,7 @@ async function createIdentity(options: CreateIdentityOptions): Promise<void> {
   if (options.outputFile) {
     outputPath = path.resolve(options.outputFile);
   } else {
-    // Default: save to Flow's backups directory
+    // Default: save to agent's backups directory
     const safeName = options.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     outputPath = `${BACKUPS_DIR}/${safeName}-identity.bep`;
   }
@@ -55,7 +55,7 @@ async function createIdentity(options: CreateIdentityOptions): Promise<void> {
   try {
     // Use bap CLI to create identity
     const { stdout, stderr } = await execAsync(
-      `bap new --type ${options.type} --password "${password}" --name "${options.name}" --output "${outputPath}"`
+      `bap new --type ${options.type} --password "${password}" --name "${options.name}" --output "${outputPath}"`,
     );
 
     if (stderr) {
@@ -69,20 +69,23 @@ async function createIdentity(options: CreateIdentityOptions): Promise<void> {
     await updateIdentityRegistry(
       path.basename(outputPath),
       options.name,
-      options.type
+      options.type,
     );
 
     console.log("\n📋 Next steps:");
-    console.log("  1. List identity members: bap list " + path.basename(outputPath));
-    console.log("  2. Export member identity: bap member " + path.basename(outputPath));
+    console.log(
+      "  1. List identity members: bap list " + path.basename(outputPath),
+    );
+    console.log(
+      "  2. Export member identity: bap member " + path.basename(outputPath),
+    );
     console.log("  3. Use for signing attestations");
-
   } catch (error: any) {
     if (error.message.includes("command not found: bap")) {
       throw new Error(
         "bap CLI not installed. Install with:\n" +
-        "  git clone https://github.com/b-open-io/bap-cli.git\n" +
-        "  cd bap-cli && bun install && bun run build && bun link"
+          "  git clone https://github.com/b-open-io/bap-cli.git\n" +
+          "  cd bap-cli && bun install && bun run build && bun link",
       );
     }
     throw new Error(`Identity creation failed: ${error.message}`);
@@ -92,7 +95,7 @@ async function createIdentity(options: CreateIdentityOptions): Promise<void> {
 async function updateIdentityRegistry(
   backupFile: string,
   name: string,
-  type: string
+  type: string,
 ): Promise<void> {
   const configPath = `${BSV_DIR}/config.json`;
 
@@ -120,7 +123,6 @@ async function updateIdentityRegistry(
 
     await fs.writeFile(configPath, JSON.stringify(config, null, 2));
     console.log(`\n✅ Updated identity registry: ${configPath}`);
-
   } catch (error) {
     console.warn("Could not update identity registry:", error);
   }
@@ -130,13 +132,17 @@ async function updateIdentityRegistry(
 const args = process.argv.slice(2);
 
 if (args.length === 0) {
-  console.error("Usage: bun run create.ts <name> <type> [output-file] [password]");
+  console.error(
+    "Usage: bun run create.ts <name> <type> [output-file] [password]",
+  );
   console.error("");
   console.error("Arguments:");
   console.error("  name        - Identity name (e.g., 'Alice Smith')");
   console.error("  type        - 'type42' (recommended) or 'legacy'");
   console.error("  output-file - Optional custom output path");
-  console.error("  password    - Optional password (uses FLOW_BACKUP_PASSPHRASE if not provided)");
+  console.error(
+    "  password    - Optional password (uses BACKUP_PASSPHRASE if not provided)",
+  );
   console.error("");
   console.error("Examples:");
   console.error("  bun run create.ts 'Alice Smith' type42");
@@ -156,8 +162,7 @@ if (type !== "type42" && type !== "legacy") {
   process.exit(1);
 }
 
-createIdentity({ name, type, outputFile, password })
-  .catch((error) => {
-    console.error("❌ Error:", error.message);
-    process.exit(1);
-  });
+createIdentity({ name, type, outputFile, password }).catch((error) => {
+  console.error("❌ Error:", error.message);
+  process.exit(1);
+});

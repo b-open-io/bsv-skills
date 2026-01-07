@@ -1,44 +1,64 @@
 ---
 name: wallet-send-bsv
-description: Send BSV transactions using @bsv/sdk. Build, sign, and broadcast transactions to the BSV blockchain.
+description: Send BSV transactions using @bsv/sdk. Build, sign, and broadcast P2PKH transactions.
 allowed-tools: "Bash(bun:*)"
 ---
 
 # Wallet Send BSV
 
-Send BSV transactions using @bsv/sdk.
+Send BSV transactions using @bsv/sdk with WhatsOnChain API.
 
 ## When to Use
 
-- Send BSV to an address
-- Create payment transactions
-- Build custom transactions
-- Broadcast signed transactions
+- Send BSV to a recipient address
+- Create simple payment transactions
+- Transfer funds from a WIF private key
 
 ## Usage
 
 ```bash
-# Send BSV from WIF private key
-bun run /path/to/skills/wallet-send-bsv/scripts/send.ts <from-wif> <to-address> <amount-satoshis>
+bun run skills/wallet-send-bsv/scripts/send.ts <from-wif> <to-address> <amount-satoshis>
 
-# Example: Send 0.001 BSV (100,000 satoshis)
-bun run /path/to/skills/wallet-send-bsv/scripts/send.ts L1abc... 1A2b3c4d5e... 100000
+# Show help
+bun run skills/wallet-send-bsv/scripts/send.ts --help
+
+# Example: Send 1000 satoshis
+bun run skills/wallet-send-bsv/scripts/send.ts L1abc... 1BvBMSEY... 1000
 ```
 
-## Requirements
+## Arguments
 
-- `@bsv/sdk` package installed
-- Private key in WIF format
-- Sufficient balance to cover amount + fees
+| Argument | Description |
+|----------|-------------|
+| `from-wif` | Private key in WIF format (starts with K, L, or 5) |
+| `to-address` | Recipient BSV address (starts with 1 or 3) |
+| `amount-satoshis` | Amount to send (1 BSV = 100,000,000 satoshis) |
+
+## Dependencies
+
+- `@bsv/sdk` - BSV SDK for key/transaction operations
+- WhatsOnChain API - UTXO fetching and broadcast
 
 ## Transaction Flow
 
-1. Parse private key (WIF)
-2. Fetch UTXOs from address
-3. Build transaction with inputs/outputs
-4. Sign transaction
-5. Broadcast to BSV network
+1. Parse and validate WIF private key
+2. Validate recipient address format
+3. Derive sender address from private key
+4. Fetch UTXOs from WhatsOnChain
+5. Build transaction with P2PKH inputs/outputs
+6. Calculate fee (1 sat/byte)
+7. Sign transaction
+8. Broadcast via WhatsOnChain API
+
+## Error Handling
+
+- **Invalid WIF**: Clear error with SDK message
+- **Invalid address**: Format validation error
+- **Insufficient funds**: Shows balance vs required amount
+- **Network errors**: Displays raw tx hex for manual broadcast
 
 ## Network
 
-Broadcasts to BSV mainnet via WhatsOnChain API.
+Uses BSV mainnet via WhatsOnChain API:
+- UTXOs: `GET /v1/bsv/main/address/{address}/unspent`
+- Broadcast: `POST /v1/bsv/main/tx/raw`

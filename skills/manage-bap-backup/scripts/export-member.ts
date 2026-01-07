@@ -11,11 +11,11 @@ async function exportMember(
   backupFile: string,
   index: number,
   outputFile?: string,
-  password?: string
+  password?: string,
 ): Promise<void> {
-  const pwd = password || process.env.FLOW_BACKUP_PASSPHRASE;
+  const pwd = password || process.env.BACKUP_PASSPHRASE;
   if (!pwd) {
-    throw new Error("No password. Set FLOW_BACKUP_PASSPHRASE or pass as argument.");
+    throw new Error("No password. Set BACKUP_PASSPHRASE or pass as argument.");
   }
 
   const backupPath = path.isAbsolute(backupFile)
@@ -29,7 +29,7 @@ async function exportMember(
 
   try {
     const { stdout } = await execAsync(
-      `bap member "${backupPath}" --password "${pwd}" --index ${index} --output "${output}"`
+      `bap member "${backupPath}" --password "${pwd}" --index ${index} --output "${output}"`,
     );
     console.log("✅ Member exported successfully!");
     console.log(stdout);
@@ -40,11 +40,13 @@ async function exportMember(
 
 const args = process.argv.slice(2);
 if (args.length < 2) {
-  console.error("Usage: bun run export-member.ts <backup-file> <index> [output-file] [password]");
+  console.error(
+    "Usage: bun run export-member.ts <backup-file> <index> [output-file] [password]",
+  );
   process.exit(1);
 }
 
-exportMember(args[0], parseInt(args[1]), args[2], args[3]).catch(e => {
+exportMember(args[0], parseInt(args[1]), args[2], args[3]).catch((e) => {
   console.error("❌", e.message);
   process.exit(1);
 });

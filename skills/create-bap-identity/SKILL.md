@@ -50,7 +50,7 @@ This skill follows Flow's BSV backup convention:
 
 **Storage Location**: `/.flow/.bsv/backups/`
 - Identity backups saved as `<name>-identity.bep`
-- Encrypted with `FLOW_BACKUP_PASSPHRASE`
+- Encrypted with `BACKUP_PASSPHRASE`
 - Registered in `/.flow/.bsv/config.json`
 
 **Registry**: Updates config.json with:

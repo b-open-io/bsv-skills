@@ -1,0 +1,27 @@
+# Ralph Loop Progress for calculate-mining-difficulty
+# Append after EVERY iteration
+
+=== Iteration 1 (2026-01-07) ===
+Tests: 5 pass / 0 fail
+Help: works (exit 0)
+Error handling: works (exit 1 for invalid target/bits)
+What I did:
+- Implemented full difficulty.ts script with @bsv/sdk BigNumber for precision
+- Added bitsToTarget() conversion using compact bits format
+- Added targetToBits() reverse conversion
+- Added targetToDifficulty() calculation (max_target / current_target)
+- Added expectedHashes() calculation
+- Implemented --current flag with WhatsOnChain API integration
+- Implemented --target flag with hex validation
+- Implemented --bits flag with format validation
+- Implemented --json flag for machine-readable output
+- Added proper error handling for all invalid inputs
+What's left: Update SKILL.md to mark complete
+
+=== Final Verification (2026-01-07) ===
+Tests: 5 pass / 0 fail
+Help: HELP_OK (exit 0)
+Error handling: ERROR_HANDLING_OK (exit 1 for invalid)
+SKILL.md: Updated with complete documentation
+
+ALL COMPLETION CRITERIA PASS

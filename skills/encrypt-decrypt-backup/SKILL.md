@@ -45,7 +45,7 @@ bun run /path/to/skills/encrypt-decrypt-backup/scripts/decrypt.ts backup.bep wal
 
 ## Flow's BSV Convention
 
-This skill follows Flow's BSV backup convention:
+This skill follows agent's BSV backup convention:
 
 **Storage Location**: `/.flow/.bsv/`
 - `backups/` - Encrypted .bep files
@@ -53,14 +53,14 @@ This skill follows Flow's BSV backup convention:
 - `config.json` - Backup registry
 
 **Security**:
-- Uses `FLOW_BACKUP_PASSPHRASE` environment variable
+- Uses `BACKUP_PASSPHRASE` environment variable
 - Never hardcodes passwords
 - Auto-cleanup of temp files after operations
 - 600k PBKDF2 iterations for strong encryption
 
 ## Requirements
 
-- `FLOW_BACKUP_PASSPHRASE` environment variable must be set
+- `BACKUP_PASSPHRASE` environment variable must be set
 - `bbackup` CLI installed globally: `bun add -g bitcoin-backup`
 
 ## CLI Reference

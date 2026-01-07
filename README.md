@@ -44,7 +44,7 @@ cd bap-cli && bun install && bun run build && bun link
 
 ### Environment Variables
 
-- `FLOW_BACKUP_PASSPHRASE` - Passphrase for encrypting/decrypting backups
+- `BACKUP_PASSPHRASE` - Passphrase for encrypting/decrypting backups
 
 ### Flow Convention
 

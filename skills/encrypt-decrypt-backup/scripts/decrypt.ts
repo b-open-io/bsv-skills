@@ -6,7 +6,7 @@ import fs from "node:fs/promises";
 
 const execAsync = promisify(exec);
 
-// Flow's BSV convention
+// Agent's BSV convention
 const BSV_DIR = "/.flow/.bsv";
 const BACKUPS_DIR = `${BSV_DIR}/backups`;
 const TEMP_DIR = `${BSV_DIR}/temp`;
@@ -19,12 +19,12 @@ interface DecryptOptions {
 }
 
 async function decrypt(options: DecryptOptions): Promise<void> {
-  // Use FLOW_BACKUP_PASSPHRASE if no password provided
-  const password = options.password || process.env.FLOW_BACKUP_PASSPHRASE;
+  // Use BACKUP_PASSPHRASE if no password provided
+  const password = options.password || process.env.BACKUP_PASSPHRASE;
 
   if (!password) {
     throw new Error(
-      "No password provided. Set FLOW_BACKUP_PASSPHRASE environment variable or pass password as argument."
+      "No password provided. Set BACKUP_PASSPHRASE environment variable or pass password as argument.",
     );
   }
 
@@ -83,14 +83,20 @@ async function decrypt(options: DecryptOptions): Promise<void> {
 
       // If using temp file, remind about cleanup
       if (cleanupTemp) {
-        console.log("\n⚠️  Temporary file will be auto-cleaned after your operation.");
+        console.log(
+          "\n⚠️  Temporary file will be auto-cleaned after your operation.",
+        );
         console.log(`   If you need it longer, copy it elsewhere.`);
       }
     }
-
   } catch (error: any) {
-    if (error.message.includes("Invalid password") || error.message.includes("Decryption failed")) {
-      throw new Error("Decryption failed: Invalid password or corrupted backup file");
+    if (
+      error.message.includes("Invalid password") ||
+      error.message.includes("Decryption failed")
+    ) {
+      throw new Error(
+        "Decryption failed: Invalid password or corrupted backup file",
+      );
     }
     throw new Error(`Decryption failed: ${error.message}`);
   }
@@ -100,15 +106,19 @@ async function decrypt(options: DecryptOptions): Promise<void> {
 const args = process.argv.slice(2);
 
 if (args.length === 0) {
-  console.error("Usage: bun run decrypt.ts <backup-file> [output-file] [password]");
+  console.error(
+    "Usage: bun run decrypt.ts <backup-file> [output-file] [password]",
+  );
   console.error("");
   console.error("Examples:");
   console.error("  bun run decrypt.ts wallet.bep");
   console.error("  bun run decrypt.ts wallet.bep wallet.json");
   console.error("  bun run decrypt.ts wallet.bep wallet.json mypassword");
-  console.error("  bun run decrypt.ts wallet.bep - mypassword  # Output to console");
+  console.error(
+    "  bun run decrypt.ts wallet.bep - mypassword  # Output to console",
+  );
   console.error("");
-  console.error("If no password is provided, uses FLOW_BACKUP_PASSPHRASE env var");
+  console.error("If no password is provided, uses BACKUP_PASSPHRASE env var");
   console.error("If no output file, decrypts to /.flow/.bsv/temp/");
   process.exit(1);
 }
@@ -118,8 +128,7 @@ const outputFile = args[1] === "-" ? undefined : args[1];
 const password = args[2];
 const toConsole = args[1] === "-";
 
-decrypt({ inputFile, outputFile, password, toConsole })
-  .catch((error) => {
-    console.error("❌ Error:", error.message);
-    process.exit(1);
-  });
+decrypt({ inputFile, outputFile, password, toConsole }).catch((error) => {
+  console.error("❌ Error:", error.message);
+  process.exit(1);
+});
