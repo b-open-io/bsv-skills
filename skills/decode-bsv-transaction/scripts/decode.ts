@@ -1,54 +1,109 @@
 #!/usr/bin/env bun
 
-async function decodeTransaction(txHexOrId: string): Promise<void> {
-  try {
-    let txHex = txHexOrId;
+import { Transaction } from "@bsv/sdk";
 
-    // If looks like txid (64 hex chars), fetch the transaction first
-    if (/^[a-fA-F0-9]{64}$/.test(txHexOrId)) {
-      console.log(`Fetching transaction ${txHexOrId}...`);
-      const txResponse = await fetch(
-        `https://api.whatsonchain.com/v1/bsv/main/tx/hash/${txHexOrId}`
-      );
-      if (!txResponse.ok) {
-        throw new Error(`Failed to fetch transaction: ${txResponse.statusText}`);
-      }
-      const txData = await txResponse.json();
-      txHex = txData.hex;
+const args = process.argv.slice(2);
+
+function showHelp(): void {
+  console.log(`decode-bsv-transaction - Decode BSV transaction hex
+
+USAGE:
+  bun run decode.ts <tx-hex>
+  bun run decode.ts --txid <txid>
+
+OPTIONS:
+  --txid <id>  Fetch and decode transaction by txid
+  --json       Output in JSON format
+  --help       Show this help message
+
+EXAMPLES:
+  bun run decode.ts 0100000001...
+  bun run decode.ts --txid abc123...`);
+}
+
+if (args.includes("--help") || args.includes("-h")) {
+  showHelp();
+  process.exit(0);
+}
+
+const jsonOutput = args.includes("--json");
+const txidIndex = args.indexOf("--txid");
+
+async function main() {
+  let txHex: string;
+
+  if (txidIndex !== -1 && args[txidIndex + 1]) {
+    // Fetch by txid
+    const txid = args[txidIndex + 1];
+    if (!/^[a-fA-F0-9]{64}$/.test(txid)) {
+      console.error("Error: Invalid txid format (must be 64 hex characters)");
+      process.exit(1);
     }
-
-    console.log("Decoding transaction...\n");
-
-    const response = await fetch(
-      "https://api.whatsonchain.com/v1/bsv/main/tx/decode",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ txHex }),
-      }
-    );
-
+    const response = await fetch(`https://api.whatsonchain.com/v1/bsv/main/tx/${txid}/hex`);
     if (!response.ok) {
-      throw new Error(`Decode failed: ${response.statusText}`);
+      console.error(`Error: Transaction not found: ${txid}`);
+      process.exit(1);
     }
+    txHex = await response.text();
+  } else {
+    // Get hex from args
+    const hexArg = args.find(a => !a.startsWith("--"));
+    if (!hexArg) {
+      console.error("Error: Transaction hex required");
+      console.error("Run with --help for usage");
+      process.exit(1);
+    }
+    txHex = hexArg;
+  }
 
-    const decoded = await response.json();
+  // Validate hex format
+  if (!/^[a-fA-F0-9]+$/.test(txHex)) {
+    console.error("Error: Invalid transaction hex");
+    process.exit(1);
+  }
 
-    console.log("📄 Decoded Transaction\n");
-    console.log(JSON.stringify(decoded, null, 2));
+  try {
+    const tx = Transaction.fromHex(txHex);
 
+    const result = {
+      txid: tx.id("hex"),
+      version: tx.version,
+      locktime: tx.lockTime,
+      size: txHex.length / 2,
+      inputs: tx.inputs.map((input, i) => ({
+        index: i,
+        txid: input.sourceTXID,
+        vout: input.sourceOutputIndex,
+        sequence: input.sequence,
+      })),
+      outputs: tx.outputs.map((output, i) => ({
+        index: i,
+        satoshis: output.satoshis,
+        script: output.lockingScript?.toHex().substring(0, 40) + "...",
+      })),
+    };
+
+    if (jsonOutput) {
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      console.log(`Transaction Decode`);
+      console.log(`TXID: ${result.txid}`);
+      console.log(`Version: ${result.version}`);
+      console.log(`Size: ${result.size} bytes`);
+      console.log(`Inputs: ${result.inputs.length}`);
+      result.inputs.forEach(inp => {
+        console.log(`  [${inp.index}] ${inp.txid}:${inp.vout}`);
+      });
+      console.log(`Outputs: ${result.outputs.length}`);
+      result.outputs.forEach(out => {
+        console.log(`  [${out.index}] ${out.satoshis} satoshis`);
+      });
+      console.log(`Locktime: ${result.locktime}`);
+    }
   } catch (error: any) {
-    throw new Error(`Failed to decode transaction: ${error.message}`);
+    console.error(`Error: Failed to decode transaction - ${error.message}`);
+    process.exit(1);
   }
 }
 
-const args = process.argv.slice(2);
-if (args.length === 0) {
-  console.error("Usage: bun run decode.ts <tx-hex-or-txid>");
-  process.exit(1);
-}
-
-decodeTransaction(args[0]).catch(e => {
-  console.error("❌", e.message);
-  process.exit(1);
-});
+main();

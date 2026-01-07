@@ -6,7 +6,11 @@ allowed-tools: "Bash(bun:*)"
 
 # Decode BSV Transaction
 
-Decode BSV transaction hex using WhatsOnChain API.
+Decode BSV transaction hex into human-readable format.
+
+## Status
+
+**Complete** - All tests passing
 
 ## When to Use
 

@@ -8,6 +8,10 @@ allowed-tools: "Bash(bun:*)"
 
 Get current BSV price from WhatsOnChain API.
 
+## Status
+
+**Complete** - All tests passing
+
 ## When to Use
 
 - Check current BSV/USD exchange rate
@@ -18,7 +22,14 @@ Get current BSV price from WhatsOnChain API.
 ## Usage
 
 ```bash
-bun run /path/to/skills/check-bsv-price/scripts/price.ts
+# Get price in human-readable format
+bun run skills/check-bsv-price/scripts/price.ts
+
+# Get price in JSON format
+bun run skills/check-bsv-price/scripts/price.ts --json
+
+# Show help
+bun run skills/check-bsv-price/scripts/price.ts --help
 ```
 
 ## API Endpoint

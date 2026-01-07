@@ -8,6 +8,10 @@ allowed-tools: "Bash(bun:*)"
 
 Look up BSV address information using WhatsOnChain API.
 
+## Status
+
+**Complete** - All tests passing
+
 ## When to Use
 
 - Check address balance

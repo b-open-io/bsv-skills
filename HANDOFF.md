@@ -105,8 +105,19 @@ bun test skills/<skill-name>/scripts/*.test.ts
 | Tests regress after changes | PRD must enforce Test Sandwich |
 | Ralph ignores error handling | PRD must include error case verification |
 
-## Phase 2 Skills (After Phase 1)
-- validate-bsv-script
-- lookup-block-info
-- calculate-mining-difficulty
-- estimate-transaction-fee
+## Phase 2 Skills - COMPLETE ✅
+- **validate-bsv-script** - 5 tests pass
+- **lookup-block-info** - 5 tests pass
+- **calculate-mining-difficulty** - 5 tests pass
+- **estimate-transaction-fee** - 6 tests pass
+
+Total Phase 2: 21 tests
+
+## Phase 3 Skills - COMPLETE ✅
+- **check-bsv-price** - 5 tests pass
+- **decode-bsv-transaction** - 5 tests pass
+- **lookup-bsv-address** - 6 tests pass
+
+Total Phase 3: 16 tests
+
+## Grand Total: 133 tests across 11 skills

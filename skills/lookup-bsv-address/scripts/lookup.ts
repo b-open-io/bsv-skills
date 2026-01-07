@@ -1,65 +1,78 @@
 #!/usr/bin/env bun
 
-async function lookupAddress(address: string, mode: string = "info"): Promise<void> {
-  const baseUrl = `https://api.whatsonchain.com/v1/bsv/main/address/${address}`;
+const args = process.argv.slice(2);
 
+function showHelp(): void {
+  console.log(`lookup-bsv-address - Look up BSV address info
+
+USAGE:
+  bun run lookup.ts <address>
+
+OPTIONS:
+  --json       Output in JSON format
+  --utxos      Include UTXO details
+  --history    Include transaction history
+  --help       Show this help message
+
+EXAMPLES:
+  bun run lookup.ts 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa
+  bun run lookup.ts --json 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa`);
+}
+
+if (args.includes("--help") || args.includes("-h")) {
+  showHelp();
+  process.exit(0);
+}
+
+const jsonOutput = args.includes("--json");
+const address = args.find(a => !a.startsWith("--"));
+
+if (!address) {
+  console.error("Error: Address required");
+  console.error("Run with --help for usage");
+  process.exit(1);
+}
+
+// Validate address format
+if (!/^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(address)) {
+  console.error("Error: Invalid BSV address format");
+  process.exit(1);
+}
+
+async function main() {
   try {
-    if (mode === "balance" || mode === "info") {
-      const response = await fetch(`${baseUrl}/balance`);
-      if (!response.ok) throw new Error(`Failed to fetch balance: ${response.statusText}`);
-      const balance = await response.json();
+    const balanceResp = await fetch(
+      `https://api.whatsonchain.com/v1/bsv/main/address/${address}/balance`
+    );
 
-      console.log("\n💰 Address Balance\n");
-      console.log(`Address: ${address}`);
-      console.log(`Confirmed: ${balance.confirmed} satoshis`);
-      console.log(`Unconfirmed: ${balance.unconfirmed} satoshis`);
-      console.log(`Total: ${(balance.confirmed + balance.unconfirmed) / 100000000} BSV\n`);
+    if (!balanceResp.ok) {
+      throw new Error(`API request failed: ${balanceResp.statusText}`);
     }
 
-    if (mode === "history" || mode === "info") {
-      const response = await fetch(`${baseUrl}/history`);
-      if (!response.ok) throw new Error(`Failed to fetch history: ${response.statusText}`);
-      const history = await response.json();
+    const balance = await balanceResp.json();
 
-      console.log("📜 Transaction History\n");
-      console.log(`Total transactions: ${history.length}`);
-      if (history.length > 0) {
-        console.log("\nRecent transactions:");
-        history.slice(0, 5).forEach((tx: any) => {
-          console.log(`  ${tx.tx_hash} (height: ${tx.height})`);
-        });
+    const result = {
+      address,
+      balance: {
+        confirmed: balance.confirmed,
+        unconfirmed: balance.unconfirmed,
+      },
+      totalBsv: (balance.confirmed + balance.unconfirmed) / 100000000,
+    };
+
+    if (jsonOutput) {
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      console.log(`Address: ${result.address}`);
+      console.log(`Balance: ${result.balance.confirmed} satoshis (${result.totalBsv.toFixed(8)} BSV)`);
+      if (result.balance.unconfirmed > 0) {
+        console.log(`Unconfirmed: ${result.balance.unconfirmed} satoshis`);
       }
-      console.log("");
     }
-
-    if (mode === "utxos") {
-      const response = await fetch(`${baseUrl}/unspent`);
-      if (!response.ok) throw new Error(`Failed to fetch UTXOs: ${response.statusText}`);
-      const utxos = await response.json();
-
-      console.log("\n📦 Unspent Outputs (UTXOs)\n");
-      console.log(`Total UTXOs: ${utxos.length}\n`);
-      utxos.forEach((utxo: any, i: number) => {
-        console.log(`UTXO ${i + 1}:`);
-        console.log(`  TX: ${utxo.tx_hash}:${utxo.tx_pos}`);
-        console.log(`  Value: ${utxo.value} satoshis`);
-        console.log(`  Height: ${utxo.height}`);
-        console.log("");
-      });
-    }
-
   } catch (error: any) {
-    throw new Error(`Address lookup failed: ${error.message}`);
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
   }
 }
 
-const args = process.argv.slice(2);
-if (args.length === 0) {
-  console.error("Usage: bun run lookup.ts <address> [balance|history|utxos|info]");
-  process.exit(1);
-}
-
-lookupAddress(args[0], args[1] || "info").catch(e => {
-  console.error("❌", e.message);
-  process.exit(1);
-});
+main();
