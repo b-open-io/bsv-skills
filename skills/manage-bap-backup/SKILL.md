@@ -24,20 +24,33 @@ Manage BAP identity backups using the `bap` CLI.
 ## Usage
 
 ```bash
-# List all members in backup
-bun run /path/to/skills/manage-bap-backup/scripts/list.ts identity.bep
+# List all members in backup (with password argument)
+bun run /path/to/skills/manage-bap-backup/scripts/list.ts identity.bep mypassword
+
+# List with environment variable
+BACKUP_PASSPHRASE=mypassword bun run /path/to/skills/manage-bap-backup/scripts/list.ts identity.bep
 
 # Export specific member by index
-bun run /path/to/skills/manage-bap-backup/scripts/export-member.ts identity.bep 0
+bun run /path/to/skills/manage-bap-backup/scripts/export-member.ts identity.bep 0 output.bep mypassword
 
-# Export to custom output file
-bun run /path/to/skills/manage-bap-backup/scripts/export-member.ts identity.bep 0 member-0.bep
+# Show help
+bun run /path/to/skills/manage-bap-backup/scripts/list.ts --help
+bun run /path/to/skills/manage-bap-backup/scripts/export-member.ts --help
 ```
+
+## Password Handling
+
+Scripts accept passwords in two ways (priority order):
+1. **Command-line argument** - Pass password directly for interactive use
+2. **Environment variable** - Set `BACKUP_PASSPHRASE` for automation/CI
 
 ## Requirements
 
-- `FLOW_BACKUP_PASSPHRASE` environment variable
-- `bap` CLI installed globally
+- `bap` CLI installed globally:
+  ```bash
+  git clone https://github.com/b-open-io/bap-cli.git
+  cd bap-cli && bun install && bun run build && bun link
+  ```
 
 ## CLI Reference
 

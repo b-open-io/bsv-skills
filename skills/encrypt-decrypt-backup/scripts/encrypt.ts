@@ -9,115 +9,143 @@ const execAsync = promisify(exec);
 // Flow's BSV convention
 const BSV_DIR = "/.flow/.bsv";
 const BACKUPS_DIR = `${BSV_DIR}/backups`;
-const TEMP_DIR = `${BSV_DIR}/temp`;
+
+function showHelp(): void {
+	console.log("Encrypt a JSON file to BSV backup format (.bep).");
+	console.log("");
+	console.log("Usage: bun run encrypt.ts <input-file> [output-file] [password]");
+	console.log("");
+	console.log("Arguments:");
+	console.log("  input-file   JSON file to encrypt");
+	console.log("  output-file  Output .bep path (defaults to backups/<name>.bep)");
+	console.log("  password     Optional password (uses BACKUP_PASSPHRASE if not provided)");
+	console.log("");
+	console.log("Examples:");
+	console.log("  bun run encrypt.ts wallet.json");
+	console.log("  bun run encrypt.ts wallet.json my-wallet.bep");
+	console.log("  bun run encrypt.ts wallet.json my-wallet.bep mypassword");
+	console.log("");
+	console.log("Environment:");
+	console.log("  BACKUP_PASSPHRASE  Password for encrypted backups");
+}
+
+async function checkBbackupCli(): Promise<void> {
+	try {
+		await execAsync("which bbackup");
+	} catch {
+		throw new Error(
+			"bbackup CLI not installed. Install with:\n" +
+				"  bun add -g bitcoin-backup",
+		);
+	}
+}
 
 interface EncryptOptions {
-  inputFile: string;
-  outputFile?: string;
-  password?: string;
+	inputFile: string;
+	outputFile?: string;
+	password?: string;
 }
 
 async function encrypt(options: EncryptOptions): Promise<void> {
-  // Use FLOW_BACKUP_PASSPHRASE if no password provided
-  const password = options.password || process.env.BACKUP_PASSPHRASE;
+	const password = options.password || process.env.BACKUP_PASSPHRASE;
 
-  if (!password) {
-    throw new Error(
-      "No password provided. Set FLOW_BACKUP_PASSPHRASE environment variable or pass password as argument.",
-    );
-  }
+	if (!password) {
+		throw new Error(
+			"No password provided. Set BACKUP_PASSPHRASE environment variable or pass password as argument.",
+		);
+	}
 
-  if (password.length < 8) {
-    throw new Error("Password must be at least 8 characters long");
-  }
+	if (password.length < 8) {
+		throw new Error("Password must be at least 8 characters long");
+	}
 
-  // Resolve input file path
-  const inputPath = path.resolve(options.inputFile);
+	// Check bbackup CLI is available
+	await checkBbackupCli();
 
-  // Check input file exists
-  try {
-    await fs.access(inputPath);
-  } catch {
-    throw new Error(`Input file not found: ${inputPath}`);
-  }
+	// Resolve input file path
+	const inputPath = path.resolve(options.inputFile);
 
-  // Determine output file
-  let outputPath: string;
-  if (options.outputFile) {
-    outputPath = path.resolve(options.outputFile);
-  } else {
-    // Default: save to Flow's backups directory
-    const inputName = path.basename(
-      options.inputFile,
-      path.extname(options.inputFile),
-    );
-    outputPath = `${BACKUPS_DIR}/${inputName}.bep`;
-  }
+	// Check input file exists
+	try {
+		await fs.access(inputPath);
+	} catch {
+		throw new Error(`Input file not found: ${inputPath}`);
+	}
 
-  // Ensure backups directory exists
-  await fs.mkdir(BACKUPS_DIR, { recursive: true });
+	// Determine output file
+	let outputPath: string;
+	if (options.outputFile) {
+		outputPath = path.resolve(options.outputFile);
+	} else {
+		// Default: save to Flow's backups directory
+		const inputName = path.basename(
+			options.inputFile,
+			path.extname(options.inputFile),
+		);
+		outputPath = `${BACKUPS_DIR}/${inputName}.bep`;
+	}
 
-  console.log(`Encrypting ${inputPath}...`);
-  console.log(`Output: ${outputPath}`);
+	// Ensure backups directory exists
+	await fs.mkdir(BACKUPS_DIR, { recursive: true });
 
-  try {
-    // Use bbackup CLI
-    const { stdout, stderr } = await execAsync(
-      `bbackup enc "${inputPath}" -p "${password}" -o "${outputPath}"`,
-    );
+	console.log(`Encrypting ${inputPath}...`);
+	console.log(`Output: ${outputPath}`);
 
-    if (stderr && !stderr.includes("Encrypted")) {
-      console.error("Warning:", stderr);
-    }
+	try {
+		// Use bbackup CLI
+		const { stdout, stderr } = await execAsync(
+			`bbackup enc "${inputPath}" -p "${password}" -o "${outputPath}"`,
+		);
 
-    console.log("✅ Encryption successful!");
-    console.log(stdout);
+		if (stderr && !stderr.includes("Encrypted")) {
+			console.error("Warning:", stderr);
+		}
 
-    // Update config.json registry
-    await updateBackupRegistry(path.basename(outputPath), inputPath);
-  } catch (error: any) {
-    throw new Error(`Encryption failed: ${error.message}`);
-  }
+		console.log("✅ Encryption successful!");
+		console.log(stdout);
+
+		// Update config.json registry
+		await updateBackupRegistry(path.basename(outputPath), inputPath);
+	} catch (error: any) {
+		throw new Error(`Encryption failed: ${error.message}`);
+	}
 }
 
 async function updateBackupRegistry(
-  backupFile: string,
-  source: string,
+	backupFile: string,
+	source: string,
 ): Promise<void> {
-  const configPath = `${BSV_DIR}/config.json`;
+	const configPath = `${BSV_DIR}/config.json`;
 
-  try {
-    const configData = await fs.readFile(configPath, "utf-8");
-    const config = JSON.parse(configData);
+	try {
+		const configData = await fs.readFile(configPath, "utf-8");
+		const config = JSON.parse(configData);
 
-    config.backups = config.backups || {};
-    config.backups[backupFile] = {
-      created: new Date().toISOString(),
-      source: path.basename(source),
-    };
+		config.backups = config.backups || {};
+		config.backups[backupFile] = {
+			created: new Date().toISOString(),
+			source: path.basename(source),
+		};
 
-    await fs.writeFile(configPath, JSON.stringify(config, null, 2));
-    console.log(`Updated backup registry: ${configPath}`);
-  } catch (error) {
-    console.warn("Could not update backup registry:", error);
-  }
+		await fs.writeFile(configPath, JSON.stringify(config, null, 2));
+		console.log(`Updated backup registry: ${configPath}`);
+	} catch (error) {
+		console.warn("Could not update backup registry:", error);
+	}
 }
 
 // Parse command line arguments
 const args = process.argv.slice(2);
 
+// Handle --help flag
+if (args.includes("--help") || args.includes("-h")) {
+	showHelp();
+	process.exit(0);
+}
+
 if (args.length === 0) {
-  console.error(
-    "Usage: bun run encrypt.ts <input-file> [output-file] [password]",
-  );
-  console.error("");
-  console.error("Examples:");
-  console.error("  bun run encrypt.ts wallet.json");
-  console.error("  bun run encrypt.ts wallet.json my-wallet.bep");
-  console.error("  bun run encrypt.ts wallet.json my-wallet.bep mypassword");
-  console.error("");
-  console.error("If no password is provided, uses BACKUP_PASSPHRASE env var");
-  process.exit(1);
+	showHelp();
+	process.exit(1);
 }
 
 const inputFile = args[0];
@@ -125,6 +153,6 @@ const outputFile = args[1];
 const password = args[2];
 
 encrypt({ inputFile, outputFile, password }).catch((error) => {
-  console.error("❌ Error:", error.message);
-  process.exit(1);
+	console.error("❌ Error:", error.message);
+	process.exit(1);
 });

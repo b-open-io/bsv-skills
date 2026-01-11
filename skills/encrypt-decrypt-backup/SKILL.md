@@ -53,14 +53,17 @@ This skill follows agent's BSV backup convention:
 - `config.json` - Backup registry
 
 **Security**:
-- Uses `BACKUP_PASSPHRASE` environment variable
 - Never hardcodes passwords
-- Auto-cleanup of temp files after operations
 - 600k PBKDF2 iterations for strong encryption
+
+## Password Handling
+
+Scripts accept passwords in two ways (priority order):
+1. **Command-line argument** - Pass password directly for interactive use
+2. **Environment variable** - Set `BACKUP_PASSPHRASE` for automation/CI
 
 ## Requirements
 
-- `BACKUP_PASSPHRASE` environment variable must be set
 - `bbackup` CLI installed globally: `bun add -g bitcoin-backup`
 
 ## CLI Reference

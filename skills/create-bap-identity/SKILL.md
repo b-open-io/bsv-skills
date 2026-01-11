@@ -68,9 +68,14 @@ This skill follows Flow's BSV backup convention:
 }
 ```
 
+## Password Handling
+
+Scripts accept passwords in two ways (priority order):
+1. **Command-line argument** - Pass password directly for interactive use
+2. **Environment variable** - Set `BACKUP_PASSPHRASE` for automation/CI
+
 ## Requirements
 
-- `FLOW_BACKUP_PASSPHRASE` environment variable must be set
 - `bap` CLI installed globally:
   ```bash
   git clone https://github.com/b-open-io/bap-cli.git

@@ -11,6 +11,37 @@ const BSV_DIR = "/.flow/.bsv";
 const BACKUPS_DIR = `${BSV_DIR}/backups`;
 const TEMP_DIR = `${BSV_DIR}/temp`;
 
+function showHelp(): void {
+	console.log("Decrypt an encrypted BSV backup file (.bep format).");
+	console.log("");
+	console.log("Usage: bun run decrypt.ts <backup-file> [output-file] [password]");
+	console.log("");
+	console.log("Arguments:");
+	console.log("  backup-file  Path to encrypted .bep file");
+	console.log("  output-file  Output path (use '-' for console, omit for temp file)");
+	console.log("  password     Optional password (uses BACKUP_PASSPHRASE if not provided)");
+	console.log("");
+	console.log("Examples:");
+	console.log("  bun run decrypt.ts wallet.bep");
+	console.log("  bun run decrypt.ts wallet.bep wallet.json");
+	console.log("  bun run decrypt.ts wallet.bep wallet.json mypassword");
+	console.log("  bun run decrypt.ts wallet.bep - mypassword  # Output to console");
+	console.log("");
+	console.log("Environment:");
+	console.log("  BACKUP_PASSPHRASE  Password for encrypted backups");
+}
+
+async function checkBbackupCli(): Promise<void> {
+	try {
+		await execAsync("which bbackup");
+	} catch {
+		throw new Error(
+			"bbackup CLI not installed. Install with:\n" +
+				"  bun add -g bitcoin-backup",
+		);
+	}
+}
+
 interface DecryptOptions {
   inputFile: string;
   outputFile?: string;
@@ -27,6 +58,9 @@ async function decrypt(options: DecryptOptions): Promise<void> {
       "No password provided. Set BACKUP_PASSPHRASE environment variable or pass password as argument.",
     );
   }
+
+  // Check bbackup CLI is available
+  await checkBbackupCli();
 
   // Resolve input file path
   let inputPath = path.resolve(options.inputFile);
@@ -81,12 +115,12 @@ async function decrypt(options: DecryptOptions): Promise<void> {
     } else {
       console.log(`Saved to: ${outputPath}`);
 
-      // If using temp file, remind about cleanup
+      // Remind about cleanup for temp files
       if (cleanupTemp) {
         console.log(
-          "\n⚠️  Temporary file will be auto-cleaned after your operation.",
+          "\n⚠️  This is a temporary file. Delete it when done:",
         );
-        console.log(`   If you need it longer, copy it elsewhere.`);
+        console.log(`   rm "${outputPath}"`);
       }
     }
   } catch (error: any) {
@@ -105,21 +139,14 @@ async function decrypt(options: DecryptOptions): Promise<void> {
 // Parse command line arguments
 const args = process.argv.slice(2);
 
+// Handle --help flag
+if (args.includes("--help") || args.includes("-h")) {
+  showHelp();
+  process.exit(0);
+}
+
 if (args.length === 0) {
-  console.error(
-    "Usage: bun run decrypt.ts <backup-file> [output-file] [password]",
-  );
-  console.error("");
-  console.error("Examples:");
-  console.error("  bun run decrypt.ts wallet.bep");
-  console.error("  bun run decrypt.ts wallet.bep wallet.json");
-  console.error("  bun run decrypt.ts wallet.bep wallet.json mypassword");
-  console.error(
-    "  bun run decrypt.ts wallet.bep - mypassword  # Output to console",
-  );
-  console.error("");
-  console.error("If no password is provided, uses BACKUP_PASSPHRASE env var");
-  console.error("If no output file, decrypts to /.flow/.bsv/temp/");
+  showHelp();
   process.exit(1);
 }
 
