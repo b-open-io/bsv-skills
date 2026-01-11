@@ -51,3 +51,7 @@ bap member <backup.bep> --password <pass> --index <n> --output <output.bep>
 # Export all members
 bap export <backup.bep> --password <pass>
 ```
+
+## Related
+
+- **Authentication**: BAP identities can be used for OAuth authentication with Sigma Identity. See `@sigma-auth/better-auth-plugin` for integration patterns.

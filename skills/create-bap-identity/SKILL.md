@@ -102,3 +102,4 @@ After creating an identity:
 2. Use `manage-bap-backup` skill to export member identities
 3. Use identity for signing attestations
 4. Publish identity to blockchain for on-chain reputation
+5. **Authenticate with Sigma Identity** - Use your BAP identity for OAuth sign-in at auth.sigmaidentity.com (see `@sigma-auth/better-auth-plugin`)
