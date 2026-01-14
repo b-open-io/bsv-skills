@@ -69,17 +69,6 @@ cd bap-cli && bun install && bun run build && bun link
 
 - `BACKUP_PASSPHRASE` - Passphrase for encrypting/decrypting backups
 
-### Flow Convention
-
-This plugin uses Flow's BSV operations convention:
-
-```
-/.flow/.bsv/
-├── backups/         # Encrypted .bep backup files
-├── temp/            # Temporary decrypted files (auto-cleanup)
-└── config.json      # Backup registry
-```
-
 ## Usage
 
 Skills are automatically available after installation. Claude will use them when appropriate for BSV blockchain operations.
