@@ -1,150 +1,157 @@
 # Script Template Anatomy
 
-Complete breakdown of a ts-templates ScriptTemplate implementation.
+Structure of a `@bsv/sdk` ScriptTemplate implementation for ts-templates.
 
-## File Structure
+## File Location
 
 ```
-src/template/bitcom/Protocol.ts
+src/template/bitcom/ProtocolName.ts    # BitCom protocols
+src/template/opreturn/ProtocolName.ts  # Simple OP_RETURN
+src/template/custom/ProtocolName.ts    # Custom scripts
 ```
 
-## Imports
+## Required Imports
 
 ```typescript
 import {
-  ScriptTemplate,
-  LockingScript,
-  UnlockingScript,
-  PrivateKey,
-  Utils,
-  Script,
-  OP,
-  BigNumber,
-  BSM,
-  Signature
+  ScriptTemplate,    // Interface to implement
+  LockingScript,     // Return type for lock()
+  UnlockingScript,   // Return type for unlock()
+  Script,            // Script building/parsing
+  Utils,             // Byte manipulation
+  Transaction        // For unlock() signature
 } from '@bsv/sdk'
-import BitCom, { Protocol, BitComDecoded } from './BitCom.js'
 ```
 
-Import only what you need. Common imports:
-- `ScriptTemplate` - Interface to implement
-- `LockingScript`, `UnlockingScript` - Return types
-- `Script` - For building/parsing scripts
-- `Utils` - Byte manipulation utilities
+Additional imports as needed:
 - `OP` - Opcode constants
-- `BSM`, `Signature`, `BigNumber` - For signature operations
+- `PrivateKey`, `PublicKey` - Key operations
+- `BSM`, `Signature`, `BigNumber` - BSM signing (if needed)
+- `SignedMessage` - BRC-77 signing (if needed)
+- `BitCom, BitComDecoded` - BitCom protocol support
 
-## Constants
-
-```typescript
-export const PROTOCOL_PREFIX = 'ProtocolIdentifier'
-```
-
-Protocol identifiers can be:
-- Bitcoin addresses (like AIP: `15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva`)
-- Literal strings (like SIGMA: `SIGMA`)
-- Hex-encoded strings
-
-## Enums (Optional)
+## Protocol Identifier
 
 ```typescript
-export enum ProtocolAlgorithm {
-  BSM = 'BSM',
-  ECDSA = 'ECDSA'
-}
+export const PROTOCOL_PREFIX = 'identifier'
 ```
 
-Use enums for constrained string fields.
+Common formats:
+- Bitcoin address: `15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva` (AIP)
+- Literal string: `SIGMA`, `MAP`, `B`
+- Hex string: Protocol-specific
 
 ## Data Interface
 
 ```typescript
 export interface ProtocolData {
-  /** BitCom protocol index within transaction */
-  bitcomIndex?: number
-
-  /** Protocol-specific fields */
-  field1: string
-  field2: number[]
-  field3: number
-
-  /** Verification result */
-  valid?: boolean
+  bitcomIndex?: number    // Position in BitCom array (optional)
+  // Protocol-specific fields...
+  valid?: boolean         // Verification result (for signed protocols)
 }
 ```
-
-Required fields:
-- `bitcomIndex?: number` - Position in BitCom protocol array
-- `valid?: boolean` - Signature verification result
 
 ## Options Interface (Optional)
 
 ```typescript
 export interface ProtocolOptions {
-  /** Optional configuration */
-  algorithm?: ProtocolAlgorithm
-  customField?: string
+  // Parameters for sign() or lock() methods
 }
 ```
 
-Use for sign() method parameters.
-
-## Class Implementation
+## Class Structure
 
 ```typescript
-export default class Protocol implements ScriptTemplate {
+export default class ProtocolName implements ScriptTemplate {
   public readonly data: ProtocolData
 
   constructor(data: ProtocolData) {
     this.data = data
   }
+
+  // Required: lock()
+  // Required: unlock()
+  // Optional: static decode()
+  // Optional: static sign()
+  // Optional: verify()
 }
 ```
 
-Key requirements:
-- `default` export
-- Implements `ScriptTemplate`
-- `data` is `public readonly`
-- Constructor accepts Data interface
+## Required Methods
 
-## Static decode() Method
+### lock()
+
+Generate locking script from data:
 
 ```typescript
-static decode(bitcom: BitComDecoded): Protocol[] {
-  const results: Protocol[] = []
+lock(): LockingScript {
+  const script = new Script()
+  script.writeBin(Utils.toArray(this.data.field, 'utf8'))
+  // ... add more fields
+  return new LockingScript(script.chunks)
+}
+```
 
-  // Safety check
-  if (bitcom?.protocols?.length === 0) {
-    return results
-  }
+For BitCom protocols, wrap with BitCom:
 
-  for (let protoIdx = 0; protoIdx < bitcom.protocols.length; protoIdx++) {
-    const protocol = bitcom.protocols[protoIdx]
+```typescript
+lock(): LockingScript {
+  const script = new Script()
+  // ... build protocol data
 
-    if (protocol.protocol === PROTOCOL_PREFIX) {
-      try {
-        const script = Script.fromBinary(protocol.script)
-        const chunks = script.chunks
+  const protocols = [{
+    protocol: PROTOCOL_PREFIX,
+    script: script.toBinary(),
+    pos: 0
+  }]
 
-        // Validate minimum chunks
-        if (chunks?.length < REQUIRED_CHUNKS) {
-          continue
-        }
+  return new BitCom(protocols).lock()
+}
+```
 
-        // Extract fields
-        const instance = new Protocol({
-          bitcomIndex: protoIdx,
-          field1: Utils.toUTF8(chunks[0].data ?? []),
-          field2: Array.from(chunks[1].data ?? []),
-          field3: parseInt(Utils.toUTF8(chunks[2].data ?? []), 10),
-          valid: undefined
-        })
+### unlock()
 
-        results.push(instance)
-      } catch {
-        // Skip invalid protocols
-        continue
-      }
+For OP_RETURN protocols (unspendable):
+
+```typescript
+unlock(): {
+  sign: (tx: Transaction, inputIndex: number) => Promise<UnlockingScript>
+  estimateLength: () => Promise<number>
+} {
+  throw new Error('OP_RETURN scripts cannot be unlocked')
+}
+```
+
+For spendable scripts, implement actual unlocking logic.
+
+## Optional Methods
+
+### static decode()
+
+Parse protocol from BitCom transaction:
+
+```typescript
+static decode(bitcom: BitComDecoded): ProtocolName[] {
+  const results: ProtocolName[] = []
+
+  if (!bitcom?.protocols?.length) return results
+
+  for (const protocol of bitcom.protocols) {
+    if (protocol.protocol !== PROTOCOL_PREFIX) continue
+
+    try {
+      const script = Script.fromBinary(protocol.script)
+      const chunks = script.chunks
+
+      // Extract fields from chunks
+      const instance = new ProtocolName({
+        field: Utils.toUTF8(chunks[0].data ?? []),
+        // ...
+      })
+
+      results.push(instance)
+    } catch {
+      continue  // Skip invalid
     }
   }
 
@@ -152,111 +159,29 @@ static decode(bitcom: BitComDecoded): Protocol[] {
 }
 ```
 
-Pattern notes:
-- Returns array (multiple instances possible)
-- Wraps in try/catch for robustness
-- Uses `Utils.toUTF8()` for string fields
-- Uses `Array.from()` for byte array fields
-- Uses `parseInt()` for numeric fields
-- Sets `valid: undefined` initially
+### static decodeFromScript()
 
-## Static decodeFromScript() Method (Optional)
+Convenience wrapper:
 
 ```typescript
-static decodeFromScript(script: Script | LockingScript): Protocol[] {
+static decodeFromScript(script: Script | LockingScript): ProtocolName[] {
   const bitcom = BitCom.decode(script)
-  if (bitcom == null) {
-    return []
-  }
-  return Protocol.decode(bitcom)
+  return bitcom ? ProtocolName.decode(bitcom) : []
 }
 ```
 
-Convenience method for direct script parsing.
+### static sign() (for signed protocols)
 
-## Static sign() Method
+Create signed instance. Implementation depends on signing method:
+- BSM signing - Use `BSM.sign()` with recovery factor
+- BRC-77 signing - Use `SignedMessage.sign()`
+- External signing - Use `sigma-protocol` or similar
 
-```typescript
-static async sign(
-  data: number[],
-  privateKey: PrivateKey,
-  options: ProtocolOptions = {}
-): Promise<Protocol> {
-  const algorithm = options.algorithm ?? ProtocolAlgorithm.BSM
-  const address = privateKey.toAddress().toString()
+See ts-templates repo for specific implementations.
 
-  // Sign using BSM
-  const sig = BSM.sign(data, privateKey, 'raw') as Signature
-  const magicHash = BSM.magicHash(data)
-  const recovery = sig.CalculateRecoveryFactor(
-    privateKey.toPublicKey(),
-    new BigNumber(magicHash)
-  )
+### verify() (for signed protocols)
 
-  // Get compact signature
-  const compactSig = sig.toCompact(recovery, true, 'base64') as string
-  const signatureArray = Array.from(Utils.toArray(compactSig, 'base64'))
-
-  return new Protocol({
-    algorithm,
-    address,
-    signature: signatureArray,
-    valid: true
-  })
-}
-```
-
-Pattern notes:
-- Async for consistency (even if not awaiting)
-- Returns Promise<Protocol>
-- Uses BSM for Bitcoin Signed Message
-- Calculates recovery factor
-- Sets `valid: true` for freshly signed
-
-## lock() Method
-
-```typescript
-lock(): LockingScript {
-  const script = new Script()
-
-  // Add fields as push data
-  script.writeBin(Utils.toArray(this.data.field1, 'utf8'))
-  script.writeBin(this.data.field2)
-  script.writeBin(Utils.toArray(this.data.field3.toString(), 'utf8'))
-
-  // Create BitCom protocol
-  const protocols: Protocol[] = [{
-    protocol: PROTOCOL_PREFIX,
-    script: script.toBinary(),
-    pos: 0
-  }]
-
-  const bitcom = new BitCom(protocols)
-  return bitcom.lock()
-}
-```
-
-Pattern notes:
-- Creates inner script with protocol data
-- Wraps in BitCom for OP_RETURN structure
-- Uses `writeBin()` for all data (not `writeOpCode()`)
-- Converts numbers to strings before encoding
-
-## unlock() Method
-
-```typescript
-unlock(): {
-  sign: (tx: any, inputIndex: number) => Promise<UnlockingScript>
-  estimateLength: () => Promise<number>
-} {
-  throw new Error('Protocol signatures cannot be unlocked')
-}
-```
-
-Most OP_RETURN protocols don't have unlocking scripts.
-Throw descriptive error rather than returning null.
-
-## verify() Method
+Check verification result:
 
 ```typescript
 verify(): boolean {
@@ -264,46 +189,56 @@ verify(): boolean {
 }
 ```
 
-Simple getter for verification result.
-Actual verification happens in decode() or separate method.
+Actual verification logic varies by protocol.
 
-## Verification Logic (for signed protocols)
+## Key Patterns
+
+### Chunk-Based Parsing
+
+Always use `script.chunks`, never string splitting:
 
 ```typescript
-verifyWithData(data: number[]): boolean {
-  try {
-    const signatureBase64 = Utils.toBase64(this.data.signature)
-    const sig = Signature.fromCompact(signatureBase64, 'base64')
+const script = Script.fromBinary(protocol.script)
+const chunks = script.chunks
 
-    // Try all recovery factors
-    for (let recovery = 0; recovery < 4; recovery++) {
-      try {
-        const publicKey = sig.RecoverPublicKey(
-          recovery,
-          new BigNumber(BSM.magicHash(data))
-        )
+const stringField = Utils.toUTF8(chunks[0].data ?? [])
+const bytesField = Array.from(chunks[1].data ?? [])
+const numberField = parseInt(Utils.toUTF8(chunks[2].data ?? []), 10)
+```
 
-        const valid = BSM.verify(data, sig, publicKey)
-        if (valid && publicKey.toAddress().toString() === this.data.address) {
-          this.data.valid = true
-          return true
-        }
-      } catch {
-        // Try next recovery factor
-      }
-    }
+### Utils for Byte Manipulation
 
-    this.data.valid = false
-    return false
-  } catch {
-    this.data.valid = false
-    return false
-  }
+Use `@bsv/sdk` Utils, never Node.js Buffer:
+
+```typescript
+Utils.toArray(string, 'utf8')   // String → bytes
+Utils.toUTF8(bytes)             // Bytes → string
+Utils.toHex(bytes)              // Bytes → hex
+Utils.toBase64(bytes)           // Bytes → base64
+Utils.toArray(hex, 'hex')       // Hex → bytes
+```
+
+### Error Handling in decode()
+
+Wrap parsing in try/catch, skip invalid:
+
+```typescript
+try {
+  // Parse and validate
+  if (chunks.length < REQUIRED) continue
+  // ... extract fields
+} catch {
+  continue  // Skip malformed protocols
 }
 ```
 
-Pattern notes:
-- Tries all 4 recovery factors (0-3)
-- Verifies both signature validity AND address match
-- Sets `this.data.valid` as side effect
-- Catches all errors and returns false
+## Production Examples
+
+See ts-templates repository for complete implementations:
+https://github.com/b-open-io/ts-templates/tree/master/src/template
+
+- `opreturn/OpReturn.ts` - Minimal (no signing)
+- `bitcom/MAP.ts` - Data protocol (no signing)
+- `bitcom/AIP.ts` - Signed protocol (BSM)
+- `bitcom/Sigma.ts` - Signed protocol (BSM + BRC-77, uses sigma-protocol)
+- `bitcom/BAP.ts` - Complex signed protocol
