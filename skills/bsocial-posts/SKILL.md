@@ -1,6 +1,6 @@
 ---
 name: bsocial-posts
-description: Create and read posts on BSocial protocol (on-chain social media on BSV). Uses BMAP (Bitcoin Mapping Protocol) for structured data.
+description: This skill should be used when the user asks to "post to BSocial", "create on-chain social post", "read BSocial posts", "on-chain social media", "BMAP post", or needs to create and read posts using BSocial protocol on BSV.
 allowed-tools: "Bash(bun:*)"
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: manage-bap-backup
-description: Manage BAP identity backups - list members, export member identities, and view backup details using the bap CLI. Works with encrypted .bep BAP identity files.
+description: This skill should be used when the user asks to "list BAP members", "export BAP identity", "view BAP backup", "manage BAP backup", or needs to work with encrypted .bep BAP identity files using the bap CLI.
 allowed-tools: "Bash(bun:*)"
 ---
 

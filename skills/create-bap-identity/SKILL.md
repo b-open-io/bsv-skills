@@ -1,6 +1,6 @@
 ---
 name: create-bap-identity
-description: Create new BAP (Bitcoin Attestation Protocol) identities using the bap CLI. Supports Type42 (modern) and Legacy identity formats. Creates encrypted .bep backup files stored in Flow's /.flow/.bsv/backups/ directory.
+description: This skill should be used when the user asks to "create BAP identity", "new BAP", "Type42 identity", "Legacy BAP identity", or needs to create Bitcoin Attestation Protocol identities using the bap CLI.
 allowed-tools: "Bash(bun:*)"
 ---
 

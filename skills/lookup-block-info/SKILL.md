@@ -1,6 +1,6 @@
 ---
 name: lookup-block-info
-description: Retrieve block information from the BSV blockchain by height or hash using WhatsOnChain API.
+description: This skill should be used when the user asks to "get block info", "lookup block by height", "block by hash", "block header details", or needs to retrieve BSV block information from WhatsOnChain API.
 allowed-tools: "Bash(bun:*)"
 ---
 

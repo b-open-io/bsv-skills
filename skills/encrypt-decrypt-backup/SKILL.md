@@ -1,6 +1,6 @@
 ---
 name: encrypt-decrypt-backup
-description: Encrypt and decrypt BSV backup files (.bep format) using the bitcoin-backup CLI. Supports all backup types (BAP identity, wallet, ordinals, vault). Uses Flow's FLOW_BACKUP_PASSPHRASE and stores files in /.flow/.bsv/ following Flow's BSV convention.
+description: This skill should be used when the user asks to "encrypt backup", "decrypt .bep file", "bitcoin-backup CLI", "backup wallet", or needs to encrypt/decrypt BSV backup files using bitcoin-backup CLI.
 allowed-tools: "Bash(bun:*)"
 ---
 

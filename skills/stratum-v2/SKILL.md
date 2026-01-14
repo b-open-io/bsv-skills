@@ -1,6 +1,6 @@
 ---
 name: stratum-v2
-description: Stratum v2 binary mining protocol overview. Next-generation protocol with encryption, reduced bandwidth, and decentralized job declaration for BSV mining.
+description: This skill should be used when the user asks "what is Stratum v2", "mining protocol v2", "binary mining protocol", "encrypted mining", "job declaration protocol", or needs to understand Stratum v2 for BSV mining infrastructure.
 ---
 
 # Stratum v2 Mining Protocol

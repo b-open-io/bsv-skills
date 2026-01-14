@@ -1,6 +1,6 @@
 ---
 name: decode-bsv-transaction
-description: Decode BSV transaction hex into human-readable format using WhatsOnChain API. Shows inputs, outputs, scripts, and transaction details.
+description: This skill should be used when the user asks to "decode transaction", "parse tx hex", "transaction details", "analyze transaction", or needs to decode BSV transaction hex into human-readable format.
 allowed-tools: "Bash(bun:*)"
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: wallet-brc100
-description: Expert guidance for implementing BRC-100 conforming wallets using @bsv/wallet-toolbox. Covers wallet initialization, transaction creation/signing, key management, storage, and certificate operations following the BRC-100 standard.
+description: This skill should be used when the user asks to "implement BRC-100 wallet", "use wallet-toolbox", "TypeScript BSV wallet", "BRC-100 implementation", or needs guidance on building conforming wallets using @bsv/wallet-toolbox.
 ---
 
 # BRC-100 Wallet Implementation Guide

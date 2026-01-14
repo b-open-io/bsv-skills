@@ -1,6 +1,6 @@
 ---
 name: wallet-brc100-go
-description: Expert guidance for implementing BRC-100 conforming wallets using Go wallet-toolbox. Covers wallet initialization, transaction creation/signing, key management, storage, and certificate operations following the BRC-100 standard in Go.
+description: This skill should be used when the user asks to "implement BRC-100 wallet in Go", "use go-wallet-toolbox", "Go BSV wallet", "BRC-100 Go implementation", or needs guidance on building conforming wallets using Go wallet-toolbox.
 ---
 
 # BRC-100 Wallet Implementation Guide (Go)

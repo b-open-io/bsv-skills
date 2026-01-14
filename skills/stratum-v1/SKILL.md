@@ -1,6 +1,6 @@
 ---
 name: stratum-v1
-description: Implement Stratum v1 mining protocol for BSV. JSON-RPC over TCP for pool-miner communication, job distribution, share validation, and difficulty adjustment.
+description: This skill should be used when the user asks to "implement Stratum v1", "mining pool protocol", "JSON-RPC mining", "pool-miner communication", "mining.subscribe", or needs to build Stratum v1 mining infrastructure.
 ---
 
 # Stratum v1 Mining Protocol

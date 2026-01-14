@@ -1,4 +1,4 @@
-# BSV Skills
+![BSV Skills](assets/banner.png)
 
 Core BSV blockchain operations plugin for Claude Code.
 
@@ -33,11 +33,15 @@ Core BSV blockchain operations plugin for Claude Code.
 ### Mining (Stratum Protocol)
 - **stratum-v1** - Stratum v1 mining protocol implementation guide (JSON-RPC over TCP)
 - **stratum-v2** - Stratum v2 binary protocol overview (encryption, job declaration)
+- **calculate-mining-difficulty** - Calculate and analyze BSV mining difficulty from targets, bits, and network data
 
 ### Utilities
 - **check-bsv-price** - Get current BSV price from WhatsOnChain API
 - **decode-bsv-transaction** - Decode BSV transaction hex
+- **estimate-transaction-fee** - Estimate fees for BSV transactions based on size and fee rates
+- **lookup-block-info** - Retrieve detailed block information by height or hash
 - **lookup-bsv-address** - Look up address information on blockchain
+- **validate-bsv-script** - Validate and analyze BSV scripts for correctness and security
 
 ## Prerequisites
 

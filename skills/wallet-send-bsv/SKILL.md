@@ -1,6 +1,6 @@
 ---
 name: wallet-send-bsv
-description: Send BSV transactions using @bsv/sdk. Build, sign, and broadcast P2PKH transactions.
+description: This skill should be used when the user asks to "send BSV", "transfer satoshis", "create payment transaction", "broadcast transaction", "send from WIF", or needs to build, sign, and broadcast P2PKH transactions using @bsv/sdk.
 allowed-tools: "Bash(bun:*)"
 ---
 

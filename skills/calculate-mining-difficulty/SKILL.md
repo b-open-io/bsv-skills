@@ -1,6 +1,6 @@
 ---
 name: calculate-mining-difficulty
-description: Calculate and analyze BSV mining difficulty from block headers and targets.
+description: This skill should be used when the user asks to "calculate mining difficulty", "convert target to difficulty", "analyze block difficulty", "BSV difficulty calculation", or needs to compute difficulty from block headers.
 allowed-tools: "Bash(bun:*)"
 ---
 

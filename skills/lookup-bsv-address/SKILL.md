@@ -1,6 +1,6 @@
 ---
 name: lookup-bsv-address
-description: Look up BSV address information using WhatsOnChain API. Shows balance, transaction history, and UTXO details.
+description: This skill should be used when the user asks to "lookup address", "check address balance", "address UTXOs", "address history", or needs to retrieve BSV address information from WhatsOnChain API.
 allowed-tools: "Bash(bun:*)"
 ---
 

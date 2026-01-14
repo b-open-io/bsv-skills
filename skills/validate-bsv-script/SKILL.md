@@ -1,6 +1,6 @@
 ---
 name: validate-bsv-script
-description: Validate and analyze BSV locking/unlocking scripts for correctness and security using @bsv/sdk Script parsing.
+description: This skill should be used when the user asks to "validate BSV script", "analyze locking script", "parse unlocking script", "check script opcodes", or needs to validate and analyze Bitcoin scripts using @bsv/sdk.
 allowed-tools: "Bash(bun:*)"
 ---
 

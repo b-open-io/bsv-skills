@@ -1,6 +1,6 @@
 ---
 name: estimate-transaction-fee
-description: Estimate transaction fees for BSV transactions based on size and current fee rates.
+description: This skill should be used when the user asks to "estimate transaction fee", "calculate BSV fee", "fee per byte", "transaction cost", or needs to estimate fees based on transaction size and current rates.
 allowed-tools: "Bash(bun:*)"
 ---
 

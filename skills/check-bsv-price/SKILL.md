@@ -1,6 +1,6 @@
 ---
 name: check-bsv-price
-description: Get current BSV price and exchange rate information from WhatsOnChain API. Returns USD price, market cap, and price changes.
+description: This skill should be used when the user asks "what is BSV price", "BSV to USD", "current BSV rate", "BSV market cap", or needs to fetch current BSV price and exchange rate information.
 allowed-tools: "Bash(bun:*)"
 ---
 

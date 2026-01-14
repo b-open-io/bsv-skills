@@ -1,6 +1,6 @@
 ---
 name: wallet-encrypt-decrypt
-description: Encrypt and decrypt messages using BSV keys and ECDH. Uses @bsv/sdk for cryptographic operations and AES-256-GCM.
+description: This skill should be used when the user asks to "encrypt message with BSV key", "decrypt with private key", "ECDH encryption", "AES-256-GCM BSV", or needs to encrypt/decrypt data using BSV keys and @bsv/sdk.
 allowed-tools: "Bash(bun:*)"
 ---
 
