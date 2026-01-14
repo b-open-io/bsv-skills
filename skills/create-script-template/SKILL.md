@@ -157,7 +157,7 @@ for (let recovery = 0; recovery < 4; recovery++) {
 ### Reference Files
 
 - **`references/template-anatomy.md`** - Detailed template structure
-- **`references/bitcom-protocol.md`** - BitCom encoding details
+- **`references/pr-workflow.md`** - Contribution workflow for ts-templates
 
 ### Examples
 
