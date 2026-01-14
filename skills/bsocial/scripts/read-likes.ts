@@ -62,7 +62,7 @@ async function main() {
 
   try {
     const query = buildLikesQuery({ address: args.address, txid: args.txid }, args.limit);
-    const likes = await queryBmap(query);
+    const likes = await queryBmap("like", query);
 
     if (args.json) {
       console.log(

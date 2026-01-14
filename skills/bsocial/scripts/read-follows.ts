@@ -57,7 +57,7 @@ async function main() {
 
   try {
     const query = buildFollowsQuery(args.address, args.limit);
-    const follows = await queryBmap(query);
+    const follows = await queryBmap("follow", query);
 
     if (args.json) {
       console.log(

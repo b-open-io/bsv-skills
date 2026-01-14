@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { queryBmap, buildPostsQuery, type BmapPost } from "../lib/bmap-client.js";
+import { queryBmap, buildPostsQuery, getPostsByBapId, type BmapPost } from "../lib/bmap-client.js";
 
 const HELP = `
 read-posts - Read BSocial posts from the blockchain
@@ -69,7 +69,7 @@ async function main() {
 
   try {
     const query = buildPostsQuery(args.address, args.limit);
-    const posts = await queryBmap(query);
+    const posts = await queryBmap("post", query);
 
     if (args.json) {
       console.log(

@@ -62,7 +62,7 @@ async function main() {
 
   try {
     const query = buildMessagesQuery({ channel: args.channel, address: args.address }, args.limit);
-    const messages = await queryBmap(query);
+    const messages = await queryBmap("message", query);
 
     if (args.json) {
       console.log(

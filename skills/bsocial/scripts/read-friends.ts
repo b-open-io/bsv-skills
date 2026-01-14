@@ -57,7 +57,7 @@ async function main() {
 
   try {
     const query = buildFriendsQuery(args.address, args.limit);
-    const friends = await queryBmap(query);
+    const friends = await queryBmap("friend", query);
 
     if (args.json) {
       console.log(
