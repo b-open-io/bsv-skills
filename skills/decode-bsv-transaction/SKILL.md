@@ -31,9 +31,11 @@ bun run /path/to/skills/decode-bsv-transaction/scripts/decode.ts <txid>
 
 ## API Endpoints
 
-WhatsOnChain Transaction API:
-- Decode: `POST https://api.whatsonchain.com/v1/bsv/main/tx/decode`
-- Get TX: `GET https://api.whatsonchain.com/v1/bsv/main/tx/hash/{txid}`
+JungleBus (primary):
+- `GET https://junglebus.gorillapool.io/v1/transaction/get/{txid}`
+
+WhatsOnChain (fallback):
+- `GET https://api.whatsonchain.com/v1/bsv/main/tx/{txid}/hex`
 
 ## Response
 

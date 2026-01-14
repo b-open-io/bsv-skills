@@ -1,12 +1,16 @@
 ---
 name: lookup-block-info
-description: This skill should be used when the user asks to "get block info", "lookup block by height", "block by hash", "block header details", or needs to retrieve BSV block information from WhatsOnChain API.
+description: This skill should be used when the user asks to "get block info", "lookup block by height", "block by hash", "block header details", or needs to retrieve BSV block information.
 allowed-tools: "Bash(bun:*)"
 ---
 
 # Lookup Block Info
 
 Retrieve detailed block information from the BSV blockchain.
+
+## API
+
+Uses WhatsOnChain for complete block data (size, txcount, difficulty, previousblockhash). JungleBus `/v1/block_header/get/{hash}` only provides header fields - use that directly if you only need hash, height, time, merkleroot.
 
 ## When to Use
 

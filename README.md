@@ -1,6 +1,6 @@
 ![BSV Skills](assets/banner.png)
 
-BSV blockchain operations for Claude Code. 23 skills covering wallets, identity, transactions, and protocol implementation.
+BSV blockchain operations for Claude Code. 24 skills covering wallets, identity, transactions, and protocol implementation.
 
 ## Installation
 
@@ -62,6 +62,11 @@ BSV blockchain operations for Claude Code. 23 skills covering wallets, identity,
 **calculate-mining-difficulty** - Convert between target, bits, difficulty; analyze network hashrate
 
 ### On-Chain Data
+
+**junglebus** - Real-time transaction streaming from GorillaPool
+- JavaScript client: `@gorillapool/js-junglebus`
+- Go client: `github.com/GorillaPool/go-junglebus`
+- REST API for transactions, addresses, block headers
 
 **bsocial-posts** - Create and read BSocial protocol posts (BMAP format)
 

@@ -4,6 +4,15 @@ import { Transaction } from "@bsv/sdk";
 
 const args = process.argv.slice(2);
 
+function base64ToHex(base64: string): string {
+  const binary = atob(base64);
+  const hex: string[] = [];
+  for (let i = 0; i < binary.length; i++) {
+    hex.push(binary.charCodeAt(i).toString(16).padStart(2, "0"));
+  }
+  return hex.join("");
+}
+
 function showHelp(): void {
   console.log(`decode-bsv-transaction - Decode BSV transaction hex
 
@@ -33,18 +42,32 @@ async function main() {
   let txHex: string;
 
   if (txidIndex !== -1 && args[txidIndex + 1]) {
-    // Fetch by txid
+    // Fetch by txid from JungleBus (primary) or WhatsOnChain (fallback)
     const txid = args[txidIndex + 1];
     if (!/^[a-fA-F0-9]{64}$/.test(txid)) {
       console.error("Error: Invalid txid format (must be 64 hex characters)");
       process.exit(1);
     }
-    const response = await fetch(`https://api.whatsonchain.com/v1/bsv/main/tx/${txid}/hex`);
-    if (!response.ok) {
-      console.error(`Error: Transaction not found: ${txid}`);
-      process.exit(1);
+
+    // Try JungleBus first - returns transaction as base64
+    let response = await fetch(`https://junglebus.gorillapool.io/v1/transaction/get/${txid}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.transaction) {
+        txHex = base64ToHex(data.transaction);
+      } else {
+        console.error(`Error: Transaction not found: ${txid}`);
+        process.exit(1);
+      }
+    } else {
+      // Fallback to WhatsOnChain
+      response = await fetch(`https://api.whatsonchain.com/v1/bsv/main/tx/${txid}/hex`);
+      if (!response.ok) {
+        console.error(`Error: Transaction not found: ${txid}`);
+        process.exit(1);
+      }
+      txHex = await response.text();
     }
-    txHex = await response.text();
   } else {
     // Get hex from args
     const hexArg = args.find(a => !a.startsWith("--"));

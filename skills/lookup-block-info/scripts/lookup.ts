@@ -113,6 +113,8 @@ async function fetchBlockByHeight(height: number): Promise<BlockInfo> {
 }
 
 async function fetchBlockByHash(hash: string): Promise<BlockInfo> {
+  // WhatsOnChain provides complete block data (size, txcount, difficulty)
+  // JungleBus block_header only provides header fields
   const url = `https://api.whatsonchain.com/v1/bsv/main/block/hash/${hash}`;
   const response = await fetch(url);
 
