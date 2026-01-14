@@ -15,6 +15,9 @@ Core BSV blockchain operations plugin for Claude Code.
 - **wallet-send-bsv** - Send BSV transactions using @bsv/sdk
 - **wallet-encrypt-decrypt** - Encrypt and decrypt messages using BSV keys
 
+### Message Signing
+- **message-signing** - BSM, BRC-77, and Sigma signing protocols with @bsv/sdk and sigma-protocol
+
 ### On-Chain Social
 - **bsocial-posts** - Create and read posts on BSocial protocol
 
