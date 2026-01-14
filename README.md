@@ -4,6 +4,15 @@ Core BSV blockchain operations plugin for Claude Code.
 
 ## Skills
 
+### Standards & Protocols
+- **bsv-standards** - Comprehensive BSV standards reference (BRCs, BitCom protocols, tokens, identity)
+- **key-derivation** - BRC-42 (Type42), BRC-32 (BIP32), and BAP key derivation patterns
+- **ordfs** - ORDFS gateway for on-chain content access (ordfs.network API)
+
+### Script Templates
+- **create-script-template** - Create new templates for b-open-io/ts-templates
+- **review-script-template** - Validate and audit template implementations
+
 ### Backup Management
 - **encrypt-decrypt-backup** - Encrypt and decrypt `.bep` backup files using bitcoin-backup CLI
 - **create-bap-identity** - Create new BAP identities (Type42 or Legacy) using bap CLI
