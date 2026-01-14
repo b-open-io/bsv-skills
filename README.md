@@ -2,6 +2,13 @@
 
 Core BSV blockchain operations plugin for Claude Code.
 
+## Installation
+
+```bash
+/plugin marketplace add https://github.com/b-open-io/bsv-skills
+/plugin install bsv-skills
+```
+
 ## Skills
 
 ### Standards & Protocols
@@ -71,13 +78,6 @@ This plugin uses Flow's BSV operations convention:
 ├── backups/         # Encrypted .bep backup files
 ├── temp/            # Temporary decrypted files (auto-cleanup)
 └── config.json      # Backup registry
-```
-
-## Installation
-
-```bash
-/plugin marketplace add https://github.com/b-open-io/bsv-skills
-/plugin install bsv-skills
 ```
 
 ## Usage
