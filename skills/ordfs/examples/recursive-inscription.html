@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recursive Inscription Example</title>
+
+  <!--
+    This HTML can be inscribed on-chain and will load other
+    inscriptions as dependencies when served via ORDFS.
+
+    Replace the placeholder txid_vout values with actual inscription IDs.
+  -->
+
+  <!-- On-chain CSS -->
+  <link rel="stylesheet" href="/content/STYLE_TXID_0">
+
+  <!-- On-chain fonts (if inscribed) -->
+  <style>
+    @font-face {
+      font-family: 'OnChainFont';
+      src: url('/content/FONT_TXID_0') format('woff2');
+    }
+
+    body {
+      font-family: 'OnChainFont', sans-serif;
+    }
+  </style>
+
+  <!-- Preload critical assets -->
+  <link rel="preload" href="/content/APP_JS_TXID_0" as="script">
+</head>
+<body>
+  <header>
+    <!-- On-chain logo image -->
+    <img src="/LOGO_TXID_0" alt="Logo" id="logo">
+    <h1>Recursive Inscription Demo</h1>
+  </header>
+
+  <main>
+    <section id="content">
+      <p>This content is fully on-chain and references other inscriptions.</p>
+
+      <!-- On-chain image -->
+      <figure>
+        <img src="/content/IMAGE_TXID_0" alt="On-chain image">
+        <figcaption>Image stored permanently on BSV blockchain</figcaption>
+      </figure>
+    </section>
+
+    <section id="dynamic-content">
+      <!-- Populated by JavaScript -->
+    </section>
+  </main>
+
+  <footer>
+    <p>Powered by ORDFS - <a href="https://ordfs.network">ordfs.network</a></p>
+  </footer>
+
+  <!-- On-chain JavaScript -->
+  <script src="/content/APP_JS_TXID_0"></script>
+
+  <!-- Inline script that fetches on-chain data -->
+  <script>
+    // Fetch JSON data from another inscription
+    async function loadOnChainData() {
+      try {
+        const response = await fetch('/content/DATA_JSON_TXID_0');
+        const data = await response.json();
+
+        const container = document.getElementById('dynamic-content');
+        container.innerHTML = `
+          <h2>Dynamic Data</h2>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
+        `;
+      } catch (error) {
+        console.error('Failed to load on-chain data:', error);
+      }
+    }
+
+    // Fetch content from a specific version
+    async function loadVersionedContent(origin, sequence) {
+      const url = `/content/${origin}:${sequence}`;
+      const response = await fetch(url);
+      return response.text();
+    }
+
+    // Get metadata about an inscription
+    async function getInscriptionMetadata(origin) {
+      const response = await fetch(`/content/${origin}?map=true`, {
+        method: 'HEAD'
+      });
+
+      return {
+        contentType: response.headers.get('Content-Type'),
+        sequence: response.headers.get('X-Ord-Seq'),
+        origin: response.headers.get('X-Origin'),
+        map: JSON.parse(response.headers.get('X-Map') || '{}')
+      };
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadOnChainData();
+    });
+  </script>
+</body>
+</html>
+
+<!--
+  INSCRIPTION STEPS:
+
+  1. Inscribe all dependencies first:
+     - CSS file → get STYLE_TXID_0
+     - JavaScript file → get APP_JS_TXID_0
+     - Images → get IMAGE_TXID_0, LOGO_TXID_0
+     - JSON data → get DATA_JSON_TXID_0
+     - Fonts (optional) → get FONT_TXID_0
+
+  2. Update this HTML with actual inscription IDs
+
+  3. Preview using ORDFS:
+     const previewUrl = `https://ordfs.network/preview/${btoa(updatedHtml)}`;
+
+  4. Inscribe the final HTML
+
+  5. Access via: https://ordfs.network/YOUR_HTML_TXID_0
+
+  TIPS:
+
+  - Use relative paths starting with / or /content/
+  - ORDFS will resolve all inscription references
+  - For directories, inscribe an ord-fs/json manifest
+  - Test in preview before final inscription
+-->
