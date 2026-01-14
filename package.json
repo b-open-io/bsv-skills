@@ -1,6 +1,6 @@
 {
   "name": "bsv-skills",
-  "version": "1.0.1",
+  "version": "0.1.1",
   "description": "Core BSV blockchain operations plugin for Claude Code",
   "type": "module",
   "author": "b-open-io",
