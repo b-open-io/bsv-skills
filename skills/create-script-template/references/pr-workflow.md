@@ -129,5 +129,5 @@ git branch -d feature/protocol-name-template
 |-------|-------|
 | Repository | b-open-io/ts-templates |
 | Main branch | master |
-| Package name | @opl/templates |
+| Package name | @bopen-io/templates |
 | License | SEE LICENSE IN LICENSE.txt |
