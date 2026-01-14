@@ -5,8 +5,8 @@ Core BSV blockchain operations plugin for Claude Code.
 ## Installation
 
 ```bash
-/plugin marketplace add https://github.com/b-open-io/bsv-skills
-/plugin install bsv-skills
+/plugin marketplace add b-open-io/claude-plugins
+/plugin install bsv-skills@b-open-io
 ```
 
 ## Skills
