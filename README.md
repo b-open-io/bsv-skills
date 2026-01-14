@@ -1,6 +1,6 @@
 ![BSV Skills](assets/banner.png)
 
-Core BSV blockchain operations plugin for Claude Code.
+BSV blockchain operations for Claude Code. 23 skills covering wallets, identity, transactions, and protocol implementation.
 
 ## Installation
 
@@ -11,67 +11,85 @@ Core BSV blockchain operations plugin for Claude Code.
 
 ## Skills
 
-### Standards & Protocols
-- **bsv-standards** - Comprehensive BSV standards reference (BRCs, BitCom protocols, tokens, identity)
-- **key-derivation** - BRC-42 (Type42), BRC-32 (BIP32), and BAP key derivation patterns
-- **ordfs** - ORDFS gateway for on-chain content access (ordfs.network API)
+### Wallet Development
+
+**wallet-brc100** / **wallet-brc100-go** - BRC-100 wallet implementation
+- TypeScript: `@bsv/wallet-toolbox`, Go: `go-wallet-toolbox`
+- Wallet initialization, transaction operations, key management
+- Storage configuration, certificate operations
+
+**wallet-send-bsv** - Build and broadcast P2PKH transactions with `@bsv/sdk`
+
+**wallet-encrypt-decrypt** - ECDH encryption/decryption with BSV keys (AES-256-GCM)
+
+### Identity & Authentication
+
+**create-bap-identity** - Create BAP identities via `bap` CLI
+- Type42 (BRC-42 derived) or Legacy mode
+- Outputs encrypted `.bep` backup files
+
+**manage-bap-backup** - List members, export identities from `.bep` files
+
+**encrypt-decrypt-backup** - Encrypt/decrypt `.bep` backups via `bitcoin-backup` CLI
+
+**message-signing** - Three signing approaches:
+- BSM (Bitcoin Signed Message) - simple message auth
+- BRC-77 - structured message signing
+- Sigma Protocol - transaction-bound signatures
+
+### Standards Reference
+
+**bsv-standards** - BRC specifications, BitCom protocols (MAP, AIP, B, SIGMA), token standards, identity protocols
+
+**key-derivation** - BRC-42 (Type42), BRC-32 (BIP32), BAP derivation patterns
+
+**ordfs** - ORDFS gateway API for on-chain content (`ordfs.network`)
 
 ### Script Templates
-- **create-script-template** - Create new templates for b-open-io/ts-templates
-- **review-script-template** - Validate and audit template implementations
 
-### Backup Management
-- **encrypt-decrypt-backup** - Encrypt and decrypt `.bep` backup files using bitcoin-backup CLI
-- **create-bap-identity** - Create new BAP identities (Type42 or Legacy) using bap CLI
-- **manage-bap-backup** - List, export, and manage BAP identity backups
+**create-script-template** - Author new `ScriptTemplate` implementations for `ts-templates`
 
-### Wallet Operations
-- **wallet-brc100** - Comprehensive BRC-100 wallet development guide (TypeScript - @bsv/wallet-toolbox)
-- **wallet-brc100-go** - Comprehensive BRC-100 wallet development guide (Go - go-wallet-toolbox)
-- **wallet-send-bsv** - Send BSV transactions using @bsv/sdk
-- **wallet-encrypt-decrypt** - Encrypt and decrypt messages using BSV keys
+**review-script-template** - Audit template code against best practices
 
-### Message Signing
-- **message-signing** - BSM, BRC-77, and Sigma signing protocols with @bsv/sdk and sigma-protocol
+### Mining
 
-### On-Chain Social
-- **bsocial-posts** - Create and read posts on BSocial protocol
+**stratum-v1** - Stratum v1 protocol (JSON-RPC over TCP)
+- Connection flow, job assignment, share submission
+- Difficulty adjustment, error handling
 
-### Mining (Stratum Protocol)
-- **stratum-v1** - Stratum v1 mining protocol implementation guide (JSON-RPC over TCP)
-- **stratum-v2** - Stratum v2 binary protocol overview (encryption, job declaration)
-- **calculate-mining-difficulty** - Calculate and analyze BSV mining difficulty from targets, bits, and network data
+**stratum-v2** - Stratum v2 binary protocol overview
+
+**calculate-mining-difficulty** - Convert between target, bits, difficulty; analyze network hashrate
+
+### On-Chain Data
+
+**bsocial-posts** - Create and read BSocial protocol posts (BMAP format)
 
 ### Utilities
-- **check-bsv-price** - Get current BSV price from WhatsOnChain API
-- **decode-bsv-transaction** - Decode BSV transaction hex
-- **estimate-transaction-fee** - Estimate fees for BSV transactions based on size and fee rates
-- **lookup-block-info** - Retrieve detailed block information by height or hash
-- **lookup-bsv-address** - Look up address information on blockchain
-- **validate-bsv-script** - Validate and analyze BSV scripts for correctness and security
+
+| Skill | Function |
+|-------|----------|
+| **check-bsv-price** | Current price from WhatsOnChain |
+| **decode-bsv-transaction** | Parse transaction hex |
+| **validate-bsv-script** | Analyze locking/unlocking scripts |
+| **lookup-bsv-address** | Address balance, history, UTXOs |
+| **lookup-block-info** | Block data by height or hash |
+| **estimate-transaction-fee** | Fee calculation by size and rate |
 
 ## Prerequisites
 
-### CLI Tools
-
-Install these globally:
+Some skills require CLI tools:
 
 ```bash
-# bitcoin-backup CLI
+# For backup operations
 bun add -g bitcoin-backup
 
-# bap CLI
+# For BAP identity operations
 git clone https://github.com/b-open-io/bap-cli.git
 cd bap-cli && bun install && bun run build && bun link
 ```
 
-### Environment Variables
-
-- `BACKUP_PASSPHRASE` - Passphrase for encrypting/decrypting backups
-
-## Usage
-
-Skills are automatically available after installation. Claude will use them when appropriate for BSV blockchain operations.
+Set `BACKUP_PASSPHRASE` environment variable for backup encryption.
 
 ## License
 
