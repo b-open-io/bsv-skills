@@ -190,7 +190,7 @@ On-chain identity management.
 | `@bsv/sdk` | Core BSV functionality |
 | `@bopen-io/templates` | Script template implementations |
 | `js-1sat-ord` | Ordinals/inscriptions |
-| `bap` | BAP identity management |
+| `bsv-bap` | BAP identity management |
 | `sigma-protocol` | SIGMA signing (v0.1.8) |
 | `bmapjs` | Transaction parsing for BitCom protocols |
 
@@ -202,7 +202,7 @@ Key repositories in `~/code`:
 |------|---------|---------|
 | `ts-templates` | `@bopen-io/templates` | BitCom script templates |
 | `sigma` | `sigma-protocol` | SIGMA signing |
-| `bap` | `bap` | BAP identity |
+| `bap` | `bsv-bap` | BAP identity |
 | `js-1sat-ord` | `js-1sat-ord` | 1Sat ordinals |
 | `bmap` | `bmapjs` | Transaction parser |
 | `go-bap` | Go module | Go BAP implementation |
@@ -223,7 +223,7 @@ Key repositories in `~/code`:
 - **ts-templates**: https://github.com/b-open-io/ts-templates
 - **sigma-protocol**: https://github.com/BitcoinSchema/sigma
 - **js-1sat-ord**: https://github.com/BitcoinSchema/js-1sat-ord
-- **bap**: https://github.com/bitcoin-sv/bap
+- **bsv-bap**: https://github.com/BitcoinSchema/bap
 - **bmapjs**: https://github.com/BitcoinSchema/bmapjs
 - **1Sat Ordinals**: https://docs.1satordinals.com/
 - **Paymail**: https://bsvalias.org/

@@ -186,56 +186,182 @@ const imageScript = B.lock({
 ## BAP (Bitcoin Attestation Protocol)
 
 **Prefix**: `1BAPSuaPnfGnSBM3GLV9yhxUdYe4vGbdMT`
-**Purpose**: Identity management and attestation
+**Purpose**: Cryptographic identity management and attestation
+**Package**: `bsv-bap`
+**Spec**: https://github.com/BitcoinSchema/bap/blob/master/PROTOCOL.md
+
+Core philosophy: "A cryptographic keypair IS an identity" - no centralized gatekeepers.
 
 ### Operations
 
 | Operation | Purpose |
 |-----------|---------|
-| ID | Create/update identity |
-| ATTEST | Make attestation about identity |
-| ALIAS | Create identity alias |
-| REVOKE | Revoke attestation |
+| ID | Create/rotate identity signing keys |
+| ATTEST | Cryptographic proof about identity attributes |
+| ALIAS | Publish identity metadata (JSON-LD) |
+| REVOKE | Revoke previous attestation |
+| DATA | Publish encrypted/plaintext data |
 
-### ID Transaction Format
-
-```
-OP_RETURN | BAP_PREFIX | "ID" | <identity_key> | <current_address> | [attributes]
-```
-
-### Attestation Format
+### Transaction Structure
 
 ```
-OP_RETURN | BAP_PREFIX | "ATTEST" | <id_key> | <attribute> | <value> | <sequence>
+OP_RETURN
+  1BAPSuaPnfGnSBM3GLV9yhxUdYe4vGbdMT
+  [OPERATION]
+  [URN Hash or Identity Key]
+  [Sequence/Address/Data]
+  |
+  [AIP_PREFIX]
+  BITCOIN_ECDSA
+  [Signing Address]
+  [Signature]
 ```
+
+### ID Operation
+
+Creates or rotates signing keys for an identity.
+
+**Initial ID** (links identity key to root + signing address):
+```
+BAP_PREFIX | "ID" | <identity_key> | <signing_address> | <root_address>
+```
+
+**Key Rotation** (signed by current address, links to new):
+```
+BAP_PREFIX | "ID" | <identity_key> | <new_signing_address>
+```
+
+### ATTEST Operation
+
+Authorities verify identity attributes by signing attestations.
+
+```
+BAP_PREFIX | "ATTEST" | <urn_hash> | <sequence>
+```
+
+- `urn_hash`: SHA256 of the URN being attested
+- `sequence`: Prevents replay attacks (highest wins)
+
+### URN Structure
+
+Universal Resource Names for BAP:
+
+| Type | Format |
+|------|--------|
+| Identity attribute | `urn:bap:id:[name]:[value]:[nonce]` |
+| Attestation | `urn:bap:attest:[hash]:[identity-key]` |
+| Delegation | `urn:bap:delegate:[from-key]:[to-key]:[nonce]` |
+| Power of Attorney | `urn:bap:poa:[attribute]:[address]:[nonce]` |
+| Grant | `urn:bap:grant:[attributes]:[service-key]` |
+| Blacklist | `urn:bap:blacklist:[type]:[attribute]:[key]` |
+
+URNs are SHA256-hashed before blockchain inclusion.
 
 ### Identity Key Derivation
+
+Prevents identity confusion by linking to root address:
 
 ```
 identityKey = base58(ripemd160(sha256(rootAddress)))
 ```
 
-### Signing Paths
+### Two-Level Key Hierarchy
 
 ```
-Signing: m/424150'/0'/0'/0/0/1
+Root Key → Member Key (at path) → Signing Key (for on-chain ops)
+```
+
+**Type 42 signing key derivation**:
+```typescript
+signingKey = memberKey.deriveChild(memberKey.toPublicKey(), "1-bap-identity");
+```
+
+### Signing Paths
+
+**BIP32 (Legacy)**:
+```
+Signing: m/424150'/0'/0'/[identity]/[key]/[index]
 Encryption: m/424150'/2147483647'/2147483647'
 ```
 
-### Package
+**Type 42 (Current)**:
+```
+Paths: "bap:0", "bap:1", "bap:2"...
+Sequential counter for discovery
+```
+
+### W3C DID Compatibility
+
+BAP identities map to Decentralized Identifiers:
+```
+did:bap:id:[identity-key]
+```
+
+### Package: bsv-bap
 
 ```typescript
-import { BAP } from "bap";
+import { BAP, MasterID, MemberID } from "bsv-bap";
+
+// Type 42 mode (recommended)
+const bap = new BAP({ rootPk: wifKey });
+
+// BIP32 mode (legacy)
+const bapLegacy = new BAP(xprvString);
 
 // Create identity
-const bap = new BAP({ rootPk: privateKeyWif });
 const id = bap.newId();
-
-// Set attribute
 id.setAttribute("name", "Alice");
 
-// Create ID transaction
+// Get ID transaction
 const idTx = id.getIdTransaction();
+
+// Attestation
+const hash = id.getAttestationHash("email");
+bap.signAttestationWithAIP(hash, sequence);
+
+// Encryption
+const encrypted = bap.encrypt(data);
+const decrypted = bap.decrypt(encrypted);
+
+// Backup
+const backup = bap.exportForBackup("My Wallet");
+```
+
+### Key Classes
+
+| Class | Purpose |
+|-------|---------|
+| `BAP` | Main entry point, manages identities |
+| `MasterID` | Single identity with HD derivation |
+| `MemberID` | Standalone identity without hierarchy |
+
+### Backup Formats
+
+**Type 42 Master Backup**:
+```json
+{
+  "ids": "<encrypted>",
+  "rootPk": "<WIF>",
+  "label": "My Wallet",
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+```
+
+**Member Backup**:
+```json
+{
+  "wif": "<WIF>",
+  "id": "<encrypted>",
+  "label": "Member",
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+```
+
+### Configuration
+
+```typescript
+BAP_SERVER = "https://api.sigmaidentity.com/v1"
+BAP_TOKEN = "<auth-token>"
 ```
 
 ---

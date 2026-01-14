@@ -2,8 +2,9 @@
 
 Key derivation patterns used in Bitcoin Attestation Protocol (BAP).
 
-**Package**: `bap` (npm)
-**Repository**: https://github.com/bitcoin-sv/bap
+**Package**: `bsv-bap` (npm)
+**Repository**: https://github.com/BitcoinSchema/bap
+**Protocol Spec**: https://github.com/BitcoinSchema/bap/blob/master/PROTOCOL.md
 
 ## Overview
 
@@ -21,7 +22,7 @@ This separation enables:
 BAP supports both Type42 and BIP32:
 
 ```typescript
-import { BAP } from "bap";
+import { BAP } from "bsv-bap";
 
 // Type42 mode (recommended)
 const bapType42 = new BAP({ rootPk: "L1..." });  // WIF string in object

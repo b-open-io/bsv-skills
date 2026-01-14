@@ -93,16 +93,17 @@ const valid = sigma.verify();
 
 ## BAP (Bitcoin Attestation Protocol)
 
-### bap (TypeScript)
+### bsv-bap (TypeScript)
 
 **Location**: `~/code/bap`
-**Repository**: https://github.com/bitcoin-sv/bap
-**Package**: `bap`
+**Repository**: https://github.com/BitcoinSchema/bap
+**Package**: `bsv-bap`
+**Protocol Spec**: https://github.com/BitcoinSchema/bap/blob/master/PROTOCOL.md
 
-Full BAP identity management.
+Full BAP identity management with Type42 and BIP32 support.
 
 ```typescript
-import { BAP, MasterID, MemberID } from "bap";
+import { BAP, MasterID, MemberID } from "bsv-bap";
 
 // Type42 mode (recommended)
 const bap = new BAP({ rootPk: privateKeyWif });
@@ -310,7 +311,7 @@ Go implementation of SIGMA protocol.
 | AIP | `@bopen-io/templates` | `go-aip` | Author identity |
 | MAP | `@bopen-io/templates` | `go-map` | Metadata |
 | B | `@bopen-io/templates` | `go-b` | Binary storage |
-| BAP | `bap` | `go-bap` | Identity management |
+| BAP | `bsv-bap` | `go-bap` | Identity management |
 | SIGMA | `sigma-protocol` | `go-sigma` | Tx signatures |
 | Ordinals | `js-1sat-ord` | `go-1sat-ord` | NFT inscriptions |
 | BSV-20 | `@bopen-io/templates` | - | Fungible tokens |
@@ -329,7 +330,7 @@ bun add @bopen-io/templates
 bun add sigma-protocol
 
 # BAP identity
-bun add bap
+bun add bsv-bap
 
 # 1Sat ordinals
 bun add js-1sat-ord
