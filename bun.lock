@@ -5,6 +5,7 @@
     "": {
       "name": "bsv-skills",
       "dependencies": {
+        "@bopen-io/templates": "^1.1.4",
         "@bsv/sdk": "^1.0.0",
         "bitcoin-backup": "latest",
         "bmap-api-types": "latest",
@@ -16,6 +17,8 @@
     },
   },
   "packages": {
+    "@bopen-io/templates": ["@bopen-io/templates@1.1.4", "", { "dependencies": { "@bsv/sdk": "^1.9.31" } }, "sha512-15kTW6+p8asgP8U4MA3XvLxBzEgypjHsyaHQo11pDpPg7v80xSazIuSr7j6fZiA+fMPs8tTun0fRm0QdguiGiA=="],
+
     "@bsv/sdk": ["@bsv/sdk@1.9.31", "", {}, "sha512-iPXwZGCe1JJhG8zUmyqdmipeWw5qFTfIa2yKSp4DrrWZlWcK2cyA8XY0zHOH0QkSB6zMi/aidJ1ZCOy8kBoGMQ=="],
 
     "@types/node": ["@types/node@25.0.3", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-W609buLVRVmeW693xKfzHeIV6nJGGz98uCPfeXI1ELMLXVeKYZ9m15fAMSaUPBHYLGFsVRcMmSCksQOrZV9BYA=="],

@@ -68,7 +68,10 @@ BSV blockchain operations for Claude Code. 24 skills covering wallets, identity,
 - Go client: `github.com/GorillaPool/go-junglebus`
 - REST API for transactions, addresses, block headers
 
-**bsocial-posts** - Create and read BSocial protocol posts (BMAP format)
+**bsocial** - Complete on-chain social protocol
+- Posts, replies, likes, follows, reposts, messages, friend requests
+- BitcoinSchema.org standards with B, MAP, AIP protocols
+- BMAP API integration for queries
 
 ### Utilities
 
