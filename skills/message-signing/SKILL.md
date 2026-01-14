@@ -5,30 +5,21 @@ description: This skill should be used when the user asks to "sign a message", "
 
 # BSV Message Signing
 
-Comprehensive guide for message signing and verification on BSV blockchain using @bsv/sdk.
+Three approaches for message signing on BSV, from simple to full-featured.
 
-## Overview
+## Quick Reference
 
-BSV supports multiple signing protocols:
+| Approach | Package | Use Case |
+|----------|---------|----------|
+| **Direct SDK** | `@bsv/sdk` | Simple message signing (BSM, BRC-77) |
+| **Templates** | `@bopen-io/templates` | Script parsing/creation for protocols |
+| **Sigma Protocol** | `sigma-protocol` | Transaction-bound signatures |
 
-| Protocol | Use Case | Verification | SDK Module |
-|----------|----------|--------------|------------|
-| **BSM** | Simple message signing | Public (anyone) | `BSM` |
-| **BRC-77** | Derived key signing | Public or Private | `SignedMessage` |
-| **Sigma** | Transaction-bound signatures | Public | `sigma-protocol` |
+## 1. Direct SDK Signing
 
-## BSM (Bitcoin Signed Message)
+For simple message authentication without transaction context.
 
-Standard Bitcoin message signing with recoverable signatures.
-
-### When to Use
-
-- Simple message authentication
-- Proving ownership of an address
-- Publicly verifiable signatures
-- Legacy compatibility
-
-### Signing
+### BSM (Bitcoin Signed Message)
 
 ```typescript
 import { BSM, PrivateKey, Signature, BigNumber } from "@bsv/sdk";
@@ -36,192 +27,182 @@ import { BSM, PrivateKey, Signature, BigNumber } from "@bsv/sdk";
 const privateKey = PrivateKey.fromWif("L1...");
 const message = [/* byte array */];
 
-// Sign message
+// Sign
 const signature = BSM.sign(message, privateKey, "raw") as Signature;
-
-// Calculate recovery factor for compact signature
 const h = new BigNumber(BSM.magicHash(message));
 const recovery = signature.CalculateRecoveryFactor(privateKey.toPublicKey(), h);
-
-// Get compact signature (base64)
 const compactSig = signature.toCompact(recovery, true, "base64");
-```
 
-### Verification
-
-```typescript
-import { BSM, Signature, BigNumber } from "@bsv/sdk";
-
-const signature = Signature.fromCompact(compactSigBase64, "base64");
-
-// Recover public key and verify
-for (let recovery = 0; recovery < 4; recovery++) {
+// Verify - recover public key and check address
+const sig = Signature.fromCompact(compactSig, "base64");
+for (let r = 0; r < 4; r++) {
   try {
-    const publicKey = signature.RecoverPublicKey(
-      recovery,
-      new BigNumber(BSM.magicHash(message))
-    );
-    if (BSM.verify(message, signature, publicKey)) {
-      const address = publicKey.toAddress();
-      // Signature valid, address is the signer
+    const pubKey = sig.RecoverPublicKey(r, new BigNumber(BSM.magicHash(message)));
+    if (BSM.verify(message, sig, pubKey)) {
+      console.log("Signer:", pubKey.toAddress());
       break;
     }
-  } catch { /* try next recovery */ }
+  } catch { /* try next */ }
 }
 ```
 
-## BRC-77 (Signed Message Protocol)
-
-Advanced signing with derived keys and optional private verification.
-
-### When to Use
-
-- Per-message unique signing keys
-- Private signatures (only specific recipient can verify)
-- Enhanced security (signing key cannot spend coins)
-- Modern applications
-
-### Public Signature (Anyone Can Verify)
-
-```typescript
-import { SignedMessage, PrivateKey } from "@bsv/sdk";
-
-const signer = PrivateKey.fromWif("L1...");
-const message = [/* byte array */];
-
-// Sign (no verifier = anyone can verify)
-const signature = SignedMessage.sign(message, signer);
-
-// Verify (no recipient key needed)
-const isValid = SignedMessage.verify(message, signature);
-```
-
-### Private Signature (Specific Recipient Only)
+### BRC-77 (SignedMessage)
 
 ```typescript
 import { SignedMessage, PrivateKey, PublicKey } from "@bsv/sdk";
 
 const signer = PrivateKey.fromWif("L1...");
-const recipientPubKey = PublicKey.fromString("02...");
 const message = [/* byte array */];
 
-// Sign for specific recipient
-const signature = SignedMessage.sign(message, signer, recipientPubKey);
+// Public signature (anyone can verify)
+const sig = SignedMessage.sign(message, signer);
+const valid = SignedMessage.verify(message, sig);
 
-// Recipient verifies with their private key
-const recipientPrivKey = PrivateKey.fromWif("K1...");
-const isValid = SignedMessage.verify(message, signature, recipientPrivKey);
+// Private signature (only recipient can verify)
+const recipientPubKey = PublicKey.fromString("02...");
+const privateSig = SignedMessage.sign(message, signer, recipientPubKey);
+
+const recipientKey = PrivateKey.fromWif("K1...");
+const privateValid = SignedMessage.verify(message, privateSig, recipientKey);
 ```
 
-### Signature Structure
+**See:** `examples/bsm-sign-verify.ts`, `examples/brc77-private-sig.ts`
 
-BRC-77 signatures contain:
-- Version (4 bytes): `42423301`
-- Sender public key (33 bytes)
-- Verifier: `0` (anyone) or public key (33 bytes)
-- Key ID (32 bytes random)
-- DER signature (variable)
+## 2. Template-Based Signing
 
-## Sigma Protocol
+For working with BitCom protocols and script parsing. Uses `@bopen-io/templates`.
 
-Transaction-bound signatures that prove content ownership at signing time.
+### Sigma Template
 
-### When to Use
+```typescript
+import { Sigma, SigmaAlgorithm, BitCom } from "@bopen-io/templates";
+import { PrivateKey, Hash } from "@bsv/sdk";
 
+// Decode from existing script
+const bitcom = BitCom.decode(script);
+const sigmas = Sigma.decode(bitcom);
+
+// Create signature (given pre-computed hashes)
+const inputHash = Array.from(Hash.sha256(outpointBytes));
+const dataHash = Array.from(Hash.sha256(scriptDataBytes));
+
+const sigma = Sigma.sign(inputHash, dataHash, privateKey, {
+  algorithm: SigmaAlgorithm.BRC77,  // or SigmaAlgorithm.BSM
+  vin: 0
+});
+
+// Verify
+const valid = sigma.verifyWithHashes(inputHash, dataHash);
+
+// Generate locking script
+const lockingScript = sigma.lock();
+```
+
+### AIP Template
+
+```typescript
+import { AIP, BitCom } from "@bopen-io/templates";
+
+// Decode AIP from script
+const bitcom = BitCom.decode(script);
+const aips = AIP.decode(bitcom);
+
+// Create AIP signature
+const aip = await AIP.sign(dataBytes, privateKey, {
+  algorithm: "BITCOIN_ECDSA",
+  fieldIndexes: [0, 1, 2]  // optional: specific fields to sign
+});
+
+const valid = aip.verify();
+```
+
+**See:** `examples/sigma-template.ts`
+
+**Note:** Sigma template requires `sigma-protocol` as peer dependency for Algorithm enum.
+
+## 3. Sigma Protocol (Full Transaction Signing)
+
+For complete transaction-bound signatures. Use when:
 - Signing OP_RETURN data in transactions
-- Binding signatures to specific inputs
-- Multiple signatures on same output
-- Platform + user dual signing
-
-### Installation
+- Need multiple signatures on same output
+- Want automatic hash calculation from transaction context
 
 ```bash
 bun add sigma-protocol
 ```
 
-### Basic Usage
-
 ```typescript
 import { Sigma, Algorithm } from "sigma-protocol";
 import { Transaction, PrivateKey } from "@bsv/sdk";
 
-// Create transaction with OP_RETURN output
-const tx = new Transaction(1, [], [txOut]);
-
-// Create Sigma instance (targetVout=0, sigmaInstance=0, refVin=0)
-const sigma = new Sigma(tx, 0, 0, 0);
+// Create Sigma instance
+const sigma = new Sigma(tx, targetVout, sigmaInstance, refVin);
 
 // Sign with BSM (default)
 const { signedTx } = sigma.sign(privateKey);
 
-// Or sign with BRC-77
-const { signedTx: signedTx2 } = sigma.sign(privateKey, Algorithm.BRC77);
+// Sign with BRC-77
+const { signedTx: tx2 } = sigma.sign(privateKey, Algorithm.BRC77);
+
+// Sign with BRC-77 for specific verifier (private)
+const { signedTx: tx3 } = sigma.sign(privateKey, Algorithm.BRC77, verifierPubKey);
 
 // Verify
-const isValid = sigma.verify();
+const valid = sigma.verify();
+const privateValid = sigma.verify(recipientPrivateKey);  // for private BRC-77
 ```
 
 ### Multiple Signatures
 
 ```typescript
-// First signature (user)
+// First signature (user with BSM)
 const sigma1 = new Sigma(tx, 0, 0);
-const { signedTx } = sigma1.sign(userKey);
+const { signedTx } = sigma1.sign(userKey, Algorithm.BSM);
 
-// Second signature (platform) on same output
+// Second signature (platform with BRC-77)
 const sigma2 = new Sigma(signedTx, 0, 1);
 sigma2.sign(platformKey, Algorithm.BRC77);
 
 // Verify each
 sigma2.setSigmaInstance(0);
-sigma2.verify(); // User signature
+sigma2.verify();  // User
 
 sigma2.setSigmaInstance(1);
-sigma2.verify(); // Platform signature
+sigma2.verify();  // Platform
 ```
 
-### Sigma Message Hash
-
-Sigma combines:
-1. **Input Hash**: SHA256 of outpoint (txid + vout index)
-2. **Data Hash**: SHA256 of script data before SIGMA marker
-
-```typescript
-const inputHash = sigma.getInputHash();
-const dataHash = sigma.getDataHash();
-const messageHash = sigma.getMessageHash(); // SHA256(inputHash + dataHash)
-```
+**See:** `examples/sigma-multi-sig.ts`
 
 ## Algorithm Comparison
 
-| Feature | BSM | BRC-77 | Sigma |
-|---------|-----|--------|-------|
-| Signing key | Direct | Derived child | Direct or BRC-77 |
-| Recovery | From signature | Embedded pubkey | Depends on algo |
-| Private verify | No | Yes | No |
-| Tx-bound | No | No | Yes |
-| Multi-sig | Manual | Manual | Built-in |
-| SDK import | `BSM` | `SignedMessage` | `sigma-protocol` |
+| Feature | BSM | BRC-77 |
+|---------|-----|--------|
+| Key derivation | Direct | Child key per message |
+| Recovery | From signature | Embedded in signature |
+| Private verify | No | Yes (with recipient key) |
+| SDK module | `BSM` | `SignedMessage` |
 
-## Template Locations
+## When to Use What
 
-Script templates for these protocols in `@opl/templates`:
-
-| Template | Location | Purpose |
-|----------|----------|---------|
-| Sigma | `src/template/bitcom/Sigma.ts` | Parse/create Sigma scripts |
-| AIP | `src/template/bitcom/AIP.ts` | Author Identity Protocol |
-| BitCom | `src/template/bitcom/BitCom.ts` | Base OP_RETURN parsing |
+| Scenario | Approach |
+|----------|----------|
+| Simple message auth | Direct SDK (BSM or BRC-77) |
+| Parse existing Sigma/AIP scripts | Templates |
+| Build BitCom transaction outputs | Templates |
+| Sign transaction OP_RETURN data | sigma-protocol |
+| Multiple signatures per output | sigma-protocol |
+| Platform + user dual signing | sigma-protocol |
 
 ## Additional Resources
 
 ### Reference Files
 
 - **`references/brc-77-spec.md`** - Full BRC-77 specification
-- **`references/sigma-advanced.md`** - Advanced Sigma patterns
+- **`references/sigma-advanced.md`** - Remote signing, hash details, advanced patterns
 
 ### Examples
 
-- **`examples/bsm-sign-verify.ts`** - Complete BSM example
-- **`examples/brc77-private-sig.ts`** - BRC-77 private signature
-- **`examples/sigma-multi-sig.ts`** - Sigma multi-signature
+- **`examples/bsm-sign-verify.ts`** - Direct BSM signing
+- **`examples/brc77-private-sig.ts`** - BRC-77 private signatures
+- **`examples/sigma-template.ts`** - Template-based Sigma operations
+- **`examples/sigma-multi-sig.ts`** - Full sigma-protocol with multi-sig

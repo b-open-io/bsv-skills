@@ -164,10 +164,10 @@ OP_RETURN
 
 ## Template Integration
 
-Use Sigma template from @opl/templates:
+Use Sigma template from @bopen-io/templates (requires sigma-protocol peer dependency):
 
 ```typescript
-import { Sigma as SigmaTemplate, BitCom } from "@opl/templates";
+import { Sigma as SigmaTemplate, BitCom, SigmaAlgorithm } from "@bopen-io/templates";
 import { Script } from "@bsv/sdk";
 
 // Decode Sigma from script
