@@ -189,37 +189,32 @@ Go implementation for ordinals.
 
 ---
 
-## BMAP (Transaction Parser)
+## BMAP (Transaction Parser) - DEPRECATED
 
 ### bmapjs
 
+> **DEPRECATED**: Use `@bopen-io/templates` instead for transaction parsing.
+
 **Location**: `~/code/bmap`
 **Repository**: https://github.com/BitcoinSchema/bmapjs
-**Package**: `bmapjs` (v0.4.0)
+**Package**: `bmapjs`
 
-Parses transactions containing BitCom protocols.
+Legacy transaction parser. Functionality now integrated into `@bopen-io/templates`.
 
 ```typescript
+// DEPRECATED - use @bopen-io/templates instead
 import { TransformTx, BmapTx } from "bmapjs";
 
-// Parse transaction
-const parsed: BmapTx = await TransformTx(rawTx);
-
-// Access parsed protocols
-console.log(parsed.AIP);   // AIP signatures
-console.log(parsed.MAP);   // MAP metadata
-console.log(parsed.B);     // B protocol files
-console.log(parsed.BAP);   // BAP attestations
-console.log(parsed.SIGMA); // SIGMA signatures
+// NEW - preferred approach
+import { BitCom, AIP, MAP, B, BAP, Sigma } from "@bopen-io/templates";
 ```
 
-**Supported Protocols**:
+**Supported Protocols** (now in @bopen-io/templates):
 - B (Binary)
 - MAP (Metadata)
 - BAP (Attestation)
 - AIP (Author Identity)
 - SIGMA (Transaction signatures)
-- METANET (Metanet protocol)
 - 1Sat Ordinals
 
 ---
@@ -283,6 +278,78 @@ Go implementation of SIGMA protocol.
 
 ---
 
+## Off-Chain Standards
+
+### bitcoin-auth
+
+**Location**: `~/code/bitcoin-auth`
+**Repository**: https://github.com/b-open-io/bitcoin-auth
+**Package**: `bitcoin-auth`
+
+HTTP authentication using Bitcoin private keys.
+
+```typescript
+import { getAuthToken, verifyAuthToken } from "bitcoin-auth";
+
+// Generate token
+const token = getAuthToken({
+  privateKeyWif: "L1...",
+  requestPath: "/api/data",
+  body: JSON.stringify(data),
+  scheme: "brc77"
+});
+
+// Verify token
+const valid = verifyAuthToken(token, {
+  requestPath: req.path,
+  timestamp: new Date().toISOString(),
+  body: req.body
+});
+```
+
+### bitcoin-backup
+
+**Location**: `~/code/bitcoin-backup`
+**Repository**: https://github.com/b-open-io/bitcoin-backup
+**Package**: `bitcoin-backup`
+
+Encrypted backup file standard (.bep files).
+
+```typescript
+import { encryptBackup, decryptBackup } from "bitcoin-backup";
+
+// Encrypt (AES-256-GCM, PBKDF2-SHA256)
+const encrypted = await encryptBackup(payload, passphrase);
+
+// Decrypt (auto-detects backup type)
+const backup = await decryptBackup(encrypted, passphrase);
+```
+
+**Supported Types**: BapMasterBackup, BapMemberBackup, WifBackup, OneSatBackup, VaultBackup, YoursWalletBackup
+
+### bitcoin-image
+
+**Location**: `~/code/bitcoin-image`
+**Repository**: https://github.com/b-open-io/bitcoin-image
+**Package**: `bitcoin-image`
+
+On-chain image reference normalization.
+
+```typescript
+import { parseImageURL, getDisplayUrl } from "bitcoin-image";
+
+// Parse any format (b://, ord://, txid, etc.)
+const parsed = parseImageURL("b://abc123..._0");
+
+// Get displayable URL
+const url = await getDisplayUrl("ord://abc123..._0");
+// Returns: https://ordfs.network/abc123..._0
+```
+
+**Supported Protocols**: `b://`, `ord://`, `bitfs://`, `ipfs://`, `data:`, native txid
+
+---
+
 ## Token Services
 
 ### bsv21-overlay
@@ -302,6 +369,26 @@ Go implementation of SIGMA protocol.
 
 ---
 
+## Content Services
+
+### go-ordfs-server
+
+**Location**: `~/code/go-ordfs-server`
+**Repository**: https://github.com/b-open-io/go-ordfs-server
+**Live**: https://ordfs.network
+
+Ordinals File System - HTTP gateway for on-chain content.
+
+**Key Features**:
+- Content access via `/{txid}_{vout}` or `/content/{pointer}`
+- Sequence versioning with `:{sequence}` suffix
+- Directory/SPA support with `ord-fs/json`
+- DNS-based domain routing
+- Preview endpoint for HTML inscriptions
+- Block and transaction API endpoints
+
+---
+
 ## Package Summary
 
 | Protocol | TypeScript | Go | Notes |
@@ -315,7 +402,11 @@ Go implementation of SIGMA protocol.
 | SIGMA | `sigma-protocol` | `go-sigma` | Tx signatures |
 | Ordinals | `js-1sat-ord` | `go-1sat-ord` | NFT inscriptions |
 | BSV-20 | `@bopen-io/templates` | - | Fungible tokens |
-| BMAP | `bmapjs` | `go-bmap` | Tx parsing |
+| BMAP | `bmapjs` (deprecated) | `go-bmap` | Use @bopen-io/templates |
+| HTTP Auth | `bitcoin-auth` | - | BRC-77 authentication |
+| Backup | `bitcoin-backup` | - | Encrypted .bep files |
+| Image URLs | `bitcoin-image` | - | URL normalization |
+| ORDFS | - | `go-ordfs-server` | Content gateway |
 
 ## Installation
 
@@ -335,8 +426,11 @@ bun add bsv-bap
 # 1Sat ordinals
 bun add js-1sat-ord
 
-# BMAP parsing
-bun add bmapjs
+# BMAP parsing (deprecated - use @bopen-io/templates)
+# bun add bmapjs
+
+# Off-chain standards
+bun add bitcoin-auth bitcoin-backup bitcoin-image
 ```
 
 ## Organization Repositories

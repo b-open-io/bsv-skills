@@ -4,36 +4,101 @@ Fungible and non-fungible token standards on BSV.
 
 ## 1Sat Ordinals (NFTs)
 
-Non-fungible tokens using ordinal theory and inscriptions.
+Non-fungible tokens using ordinal theory and inscriptions on BSV.
+
+**Documentation**: https://docs.1satordinals.com/
+
+### Core Concepts
+
+**Origin-Based Indexing**: Unlike BTC ordinals, 1Sat Ordinals uses BSV's single-satoshi outputs for efficient "origin" tracking. An origin is the first outpoint where a satoshi exists alone.
+
+**Inscription IDs**: Format `<txid>_<vout>` directly tied to transaction outputs.
+
+**Token Burning**: When a satoshi enters a multi-satoshi output, its origin ceases. A new origin regenerates if that satoshi later enters another 1-sat output.
 
 ### Inscription Format
 
 ```
-OP_0 OP_IF
-  "ord"
+OP_FALSE OP_IF
+  6f7264 ("ord")
   OP_1 <content-type>
   OP_0 <content>
 OP_ENDIF
 [optional: P2PKH or other locking script]
 ```
 
+**Key Differences from BTC**:
+- Inscriptions in outputs (not taproot inputs)
+- Exactly 1 satoshi locked per inscription
+- No 520-byte push limit
+- Only first valid envelope produces ordinal
+
 ### Structure
 
 | Element | Description |
 |---------|-------------|
-| `OP_0 OP_IF` | Envelope start (false branch, never executed) |
-| `"ord"` | Protocol identifier |
+| `OP_FALSE OP_IF` | Envelope start (false branch, never executed) |
+| `6f7264` | "ord" in hex |
 | `OP_1` | Content-type marker |
 | `<content-type>` | MIME type (e.g., "image/png") |
 | `OP_0` | Content marker |
-| `<content>` | Actual file data |
+| `<content>` | File data |
 | `OP_ENDIF` | Envelope end |
 
-### Ordinal ID
+### Ordinal ID (Outpoint)
 
 Format: `<txid>_<vout>`
 
 Example: `abc123...def_0`
+
+**Alternative formats** (see bitcoin-image):
+- `txid.vout` (dot notation)
+- `txido0` (output suffix)
+- `/content/txid_0` (ORDFS path)
+
+### Ord Schema Type
+
+**Docs**: https://docs.1satordinals.com/adding-metadata/ord-schema-type
+
+Base metadata schema for ordinals inscriptions.
+
+**Required Fields**:
+
+| Field | Description |
+|-------|-------------|
+| `app` | Application that created the ordinal |
+| `type` | Always "ord" for indexer recognition |
+| `name` | Name/description of the ordinal |
+
+**Optional Fields**:
+
+| Field | Description |
+|-------|-------------|
+| `subType` | collectionItem, collection, website |
+| `subTypeData` | Stringified JSON for subType requirements |
+| `royalties` | Creator payment destinations |
+| `previewUrl` | URL or reference to preview media |
+
+**Metadata via MAP Protocol**:
+```
+1SAT_P2PKH <INSCRIPTION> OP_RETURN MAP SET app <platform> type ord name "Title" | AIP <address> "BITCOIN_ECDSA" <signature> [-1]
+```
+
+### Royalties
+
+```json
+{
+  "app": "my_app",
+  "type": "ord",
+  "name": "Awesome NFT",
+  "royalties": [
+    {"type": "paymail", "destination": "artist@domain.com", "percentage": "0.03"},
+    {"type": "address", "destination": "1ABC...", "percentage": "0.025"}
+  ]
+}
+```
+
+**PaymentType**: `'paymail' | 'address' | 'script'`
 
 ### Collections
 
@@ -45,6 +110,8 @@ const inscription = Inscription.create(data, "image/png", {
 });
 ```
 
+**Collection subType**: Define a collection inscription, then reference it as parent in child items.
+
 ### Content Types
 
 | Type | Extension | Usage |
@@ -54,8 +121,9 @@ const inscription = Inscription.create(data, "image/png", {
 | `image/svg+xml` | .svg | Vector graphics |
 | `image/webp` | .webp | Modern images |
 | `text/plain` | .txt | Text |
-| `text/html` | .html | Web content |
+| `text/html` | .html | Web content, recursive inscriptions |
 | `application/json` | .json | Metadata, tokens |
+| `ord-fs/json` | - | Directory listing |
 
 ### Package
 
@@ -68,16 +136,37 @@ import { createOrdinals, sendOrdinals } from "js-1sat-ord";
 const inscription = Inscription.fromText("Hello, Ordinals!", "text/plain");
 const lockingScript = inscription.lock();
 
-// With parent
+// With parent (collection item)
 const child = Inscription.create(data, "image/png", {
   parent: Buffer.from(parentTxid + "00000000", "hex")
 });
+
+// With metadata
+const withMeta = Inscription.create(data, "image/png", {
+  parent: parentOutpoint,
+  metadata: {
+    app: "my_app",
+    type: "ord",
+    name: "My NFT"
+  }
+});
 ```
 
-### Marketplace
+### Content Access
+
+**ORDFS Gateway**: https://ordfs.network
+
+```
+https://ordfs.network/{txid}_{vout}           # Direct content
+https://ordfs.network/content/{txid}_{vout}   # Content endpoint
+https://ordfs.network/{origin}:{sequence}     # Specific version
+```
+
+### Marketplace & APIs
 
 - **GorillaPool**: https://ordinals.gorillapool.io
 - **API**: https://ordinals.gorillapool.io/api/
+- **Documentation**: https://docs.1satordinals.com/
 
 ---
 
