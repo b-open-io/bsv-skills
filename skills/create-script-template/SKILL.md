@@ -161,4 +161,17 @@ for (let recovery = 0; recovery < 4; recovery++) {
 
 ### Examples
 
-- **`examples/Sigma.ts`** - Complete SIGMA template implementation
+- **`examples/OpReturn.ts`** - Minimal template (no external deps)
+
+### More Examples
+
+For complete production templates, see the ts-templates repository:
+https://github.com/b-open-io/ts-templates/tree/master/src/template
+
+Notable templates:
+- `bitcom/Sigma.ts` - Transaction-bound signatures (uses sigma-protocol)
+- `bitcom/AIP.ts` - Author Identity Protocol
+- `bitcom/MAP.ts` - Magic Attribute Protocol
+- `bitcom/BAP.ts` - Bitcoin Attestation Protocol
+- `bitcom/B.ts` - B:// file storage
+- `opreturn/OpReturn.ts` - Simple OP_RETURN
