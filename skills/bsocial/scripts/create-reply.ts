@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { PrivateKey, Transaction } from "@bsv/sdk";
-import { BSocial, BSocialActionType, type BSocialPost } from "@bopen-io/templates";
+import BSocial, { BSocialActionType, type BSocialPost } from "@bopen-io/templates/template/bsocial/BSocial.ts";
 import { fundAndBroadcast } from "../lib/broadcast.js";
 
 const HELP = `

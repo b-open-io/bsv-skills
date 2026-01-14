@@ -134,8 +134,25 @@ bun run skills/bsocial/scripts/read-friends.ts <address> [--json]
 
 ## API
 
-- BMAP: `https://b.map.sv/q/{base64-query}`
-- Broadcast: WhatsOnChain API
+Base URL: `https://bmap-api-production.up.railway.app`
+
+### REST Endpoints
+| Endpoint | Description |
+|----------|-------------|
+| `/social/post/bap/{bapId}` | Posts by BAP ID |
+| `/social/feed/{bapId}` | Feed for BAP ID |
+| `/social/post/{txid}/like` | Likes for a post |
+| `/social/bap/{bapId}/like` | Likes by user |
+| `/social/friend/{bapId}` | Friends for BAP ID |
+| `/social/@/{bapId}/messages` | Messages for user |
+| `/social/channels/{channelId}/messages` | Channel messages |
+
+### Query API (fallback)
+- Query: `/q/{collection}/{base64Query}`
+- SSE: `/s/{collection}/{base64Query}`
+
+### Ingest
+- POST `/ingest` with `{ rawTx: tx.toHex() }`
 
 ## See Also
 

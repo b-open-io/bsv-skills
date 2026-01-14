@@ -5,7 +5,7 @@
     "": {
       "name": "bsv-skills",
       "dependencies": {
-        "@bopen-io/templates": "^1.1.4",
+        "@bopen-io/templates": "1.1.5",
         "@bsv/sdk": "^1.0.0",
         "bitcoin-backup": "latest",
         "bmap-api-types": "latest",
@@ -17,7 +17,7 @@
     },
   },
   "packages": {
-    "@bopen-io/templates": ["@bopen-io/templates@1.1.4", "", { "dependencies": { "@bsv/sdk": "^1.9.31" } }, "sha512-15kTW6+p8asgP8U4MA3XvLxBzEgypjHsyaHQo11pDpPg7v80xSazIuSr7j6fZiA+fMPs8tTun0fRm0QdguiGiA=="],
+    "@bopen-io/templates": ["@bopen-io/templates@1.1.5", "", { "dependencies": { "@bsv/sdk": "^1.9.31" }, "peerDependencies": { "sigma-protocol": "^0.1.8" }, "optionalPeers": ["sigma-protocol"] }, "sha512-pYPeTkyW8mZlp/HSxwld+2mNNSsJQPpvFNmAsQtvRUErQ6wb5oUE5aRAwYbukK8eawMbcvVrVWGzxgQVKZmG4A=="],
 
     "@bsv/sdk": ["@bsv/sdk@1.9.31", "", {}, "sha512-iPXwZGCe1JJhG8zUmyqdmipeWw5qFTfIa2yKSp4DrrWZlWcK2cyA8XY0zHOH0QkSB6zMi/aidJ1ZCOy8kBoGMQ=="],
 
