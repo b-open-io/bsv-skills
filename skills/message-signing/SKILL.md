@@ -214,8 +214,6 @@ const { address, signature } = identity.signMessage(message);
 const isValid = bap.verifySignature("Hello World", address, signature);
 ```
 
-**Note:** bsv-bap uses BSM exclusively. For BRC-77 signing, use `@bsv/sdk` SignedMessage directly.
-
 A CLI is also available: `npm install -g bsv-bap` (see **`create-bap-identity`** skill).
 
 ## Additional Resources
