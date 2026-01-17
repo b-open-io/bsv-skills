@@ -173,26 +173,26 @@ const signingKey = memberHD.privKey.deriveChild(memberHD.pubKey, "1-bap-identity
 3. **Type42 prevents public derivation**: Cannot derive child public keys from parent public key alone
 4. **Invoice numbers are not secret**: They can be shared
 
-## bap CLI for Identity Key Operations
+## bsv-bap Library
 
-The `bap` CLI from `bsv-bap` uses Type42 with BRC-43 invoice numbers:
+The `bsv-bap` library implements Type42 with BRC-43 invoice numbers for BAP identities:
 
-```bash
-# Install
-npm install -g bsv-bap
+```typescript
+import { BAP } from "bsv-bap";
+import { PrivateKey } from "@bsv/sdk";
 
-# Create identity (derives signing key with "1-bap-identity")
-bap create --name "Alice"
+const bap = new BAP({ rootPk: PrivateKey.fromRandom().toWif() });
+const identity = bap.newId("Alice");
 
-# Get friend encryption pubkey (derives with "2-friend-{sha256}")
-bap friend-pubkey "friend-bap-id"
+// Signing key derived with "1-bap-identity"
+const { address, signature } = identity.signMessage(messageBytes);
 
-# Encrypt/decrypt for friend
-bap encrypt "secret" "friend-bap-id"
-bap decrypt "ciphertext" "friend-bap-id"
+// Friend encryption key derived with "2-friend-{sha256(friendBapId)}"
+const friendPubKey = identity.getEncryptionPublicKeyWithSeed(friendBapId);
+const ciphertext = identity.encryptWithSeed("secret", friendBapId);
 ```
 
-See **`create-bap-identity`** skill for full CLI reference.
+A CLI is also available: `npm install -g bsv-bap` (see **`create-bap-identity`** skill).
 
 ## Official Specifications
 

@@ -187,31 +187,34 @@ sigma2.verify();  // Platform
 | Scenario | Approach |
 |----------|----------|
 | Simple message auth | Direct SDK (BSM or BRC-77) |
-| BAP identity signing | bap CLI (`bsv-bap`) |
+| BAP identity signing | `bsv-bap` library |
 | Parse existing Sigma/AIP scripts | Templates |
 | Build BitCom transaction outputs | Templates |
 | Sign transaction OP_RETURN data | sigma-protocol |
 | Multiple signatures per output | sigma-protocol |
 | Platform + user dual signing | sigma-protocol |
 
-## bap CLI for Identity Signing
+## BAP Identity Signing
 
-The `bap` CLI provides simple message signing with BAP identities:
+For BAP identity-based signing, use the `bsv-bap` library:
 
-```bash
-# Install
-npm install -g bsv-bap
+```typescript
+import { BAP } from "bsv-bap";
+import { Utils } from "@bsv/sdk";
+const { toArray } = Utils;
 
-# Sign a message
-bap sign "Hello World"
-# Output: {"message":"Hello World","address":"1Hn5...","signature":"H4mX..."}
+const bap = new BAP({ rootPk: wif });
+const identity = bap.getId(bap.listIds()[0]);
 
-# Verify a signature
-bap verify "Hello World" "H4mX..." "1Hn5..."
-# Output: {"valid":true,"message":"Hello World",...}
+// Sign
+const message = toArray("Hello World", "utf8");
+const { address, signature } = identity.signMessage(message);
+
+// Verify
+const isValid = bap.verifySignature("Hello World", address, signature);
 ```
 
-See **`create-bap-identity`** skill for full bap CLI reference.
+A CLI is also available: `npm install -g bsv-bap` (see **`create-bap-identity`** skill).
 
 ## Additional Resources
 

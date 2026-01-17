@@ -156,25 +156,25 @@ Base URL: `https://bmap-api-production.up.railway.app`
 
 ## Friend Encryption
 
-Friend requests use Type42 key derivation with BRC-43 invoice numbers. The `bap` CLI handles encryption:
+Friend requests use Type42 key derivation with BRC-43 invoice numbers (`2-friend-{sha256(friendBapId)}`).
 
-```bash
-# Install bap CLI
-npm install -g bsv-bap
+```typescript
+import { BAP } from "bsv-bap";
 
-# Get encryption pubkey for friend request
-bap friend-pubkey <friendBapId>
+const bap = new BAP({ rootPk: wif });
+const identity = bap.getId(bap.listIds()[0]);
 
-# Encrypt private message for friend
-bap encrypt "secret message" <friendBapId>
+// Get encryption pubkey for friend request
+const friendPubKey = identity.getEncryptionPublicKeyWithSeed(friendBapId);
 
-# Decrypt message from friend
-bap decrypt <ciphertext> <friendBapId>
+// Encrypt private message for friend
+const ciphertext = identity.encryptWithSeed("secret message", friendBapId);
+
+// Decrypt message from friend
+const plaintext = identity.decryptWithSeed(ciphertext, friendBapId);
 ```
 
-Invoice number format: `2-friend-{sha256(friendBapId)}`
-
-See **`create-bap-identity`** skill for full bap CLI reference.
+A CLI is also available: `npm install -g bsv-bap` (see **`create-bap-identity`** skill).
 
 ## See Also
 

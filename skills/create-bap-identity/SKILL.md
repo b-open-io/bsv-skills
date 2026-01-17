@@ -5,63 +5,35 @@ description: This skill should be used when the user asks to "create BAP identit
 
 # Create BAP Identity
 
-Create new BAP (Bitcoin Attestation Protocol) identities using the `bap` CLI from the `bsv-bap` npm package.
+Create and manage BAP (Bitcoin Attestation Protocol) identities using the `bsv-bap` library.
 
 ## Installation
 
 ```bash
-npm install -g bsv-bap
-```
-
-## CLI Commands
-
-```bash
-bap create [--name <name>] [--wif <wif>]  # Create new identity
-bap sign <message>                         # Sign a message
-bap verify <message> <sig> <address>       # Verify signature
-bap info                                   # Show identity info
-bap export                                 # Export identity backup (JSON)
-bap import <file>                          # Import identity from backup
-bap friend-pubkey <friendBapId>            # Get friend encryption pubkey
-bap encrypt <data> <friendBapId>           # Encrypt for friend
-bap decrypt <ciphertext> <friendBapId>     # Decrypt from friend
-bap help                                   # Show help
+bun add bsv-bap @bsv/sdk
 ```
 
 ## Creating an Identity
 
-```bash
-# Create with default name
-bap create
+```typescript
+import { BAP } from "bsv-bap";
+import { PrivateKey } from "@bsv/sdk";
 
-# Create with custom name
-bap create --name "Alice Smith"
+// Create BAP instance with new key
+const privateKey = PrivateKey.fromRandom();
+const bap = new BAP({ rootPk: privateKey.toWif() });
 
-# Create from existing WIF
-bap create --wif L1SJx4SfhuGkZHwjgYatQfe2yn8iqHpenvHxsDt9Vnsz7wMT8FqG
+// Create identity
+const identity = bap.newId("Alice Smith");
+
+console.log("Identity Key:", identity.getIdentityKey());
+console.log("Root Address:", identity.rootAddress);
+console.log("Signing Address:", identity.getCurrentAddress());
 ```
-
-Output:
-```
-Identity created successfully!
-  Name: Alice Smith
-  Identity Key: 3U7uEgJAiQytNd536RWoWE5Vv3W9
-  Root Address: 171M3ycsSRdxhCSRa27bgowupjU75LeCQq
-  Signing Address: 1Hn5SfmbeFAPBDXnVCWo1aMaY4uFnCCujW
-
-Stored at: ~/.bap/identity.json
-```
-
-## Storage Location
-
-Identity data stored at `~/.bap/identity.json`:
-- Root WIF (private key)
-- Encrypted identity data
-- Creation timestamp
 
 ## Key Derivation
 
-The CLI uses Type42 (BRC-42) key derivation with BRC-43 invoice numbers:
+BAP uses Type42 (BRC-42) key derivation with BRC-43 invoice numbers:
 
 | Purpose | Invoice Number | Security Level |
 |---------|---------------|----------------|
@@ -70,72 +42,70 @@ The CLI uses Type42 (BRC-42) key derivation with BRC-43 invoice numbers:
 
 ## Signing Messages
 
-```bash
-# Sign a message
-bap sign "Hello World"
-# Output: {"message":"Hello World","address":"1Hn5...","signature":"H4mX..."}
+```typescript
+import { Utils } from "@bsv/sdk";
+const { toArray } = Utils;
 
-# Verify a signature
-bap verify "Hello World" "H4mX..." "1Hn5..."
-# Output: {"valid":true,"message":"Hello World",...}
+// Sign a message
+const message = toArray("Hello World", "utf8");
+const { address, signature } = identity.signMessage(message);
+
+// Verify (on any BAP instance)
+const isValid = bap.verifySignature("Hello World", address, signature);
 ```
 
 ## Friend Encryption
 
-Derive friend-specific encryption keys using BRC-43 format:
+Derive friend-specific encryption keys for private communication:
 
-```bash
-# Get encryption pubkey for a friend (share this in friend requests)
-bap friend-pubkey "friend-bap-id-here"
+```typescript
+// Get encryption pubkey for a friend (share in friend requests)
+const friendPubKey = identity.getEncryptionPublicKeyWithSeed(friendBapId);
 
-# Encrypt data for friend
-bap encrypt "secret message" "friend-bap-id-here"
+// Encrypt data for friend
+const ciphertext = identity.encryptWithSeed("secret message", friendBapId);
 
-# Decrypt data from friend
-bap decrypt "QklFMQ..." "friend-bap-id-here"
+// Decrypt data from friend
+const plaintext = identity.decryptWithSeed(ciphertext, friendBapId);
 ```
 
 ## Export/Import
 
-```bash
-# Export identity backup (JSON to stdout)
-bap export > backup.json
+```typescript
+// Export for backup
+const backup = bap.exportForBackup("My Identity");
+// { ids: "...", createdAt: "...", rootPk: "..." }
 
-# Import identity from backup
-bap import backup.json
+// Import from backup
+const bap2 = new BAP({ rootPk: backup.rootPk });
+bap2.importIds(backup.ids);
 ```
 
-## Programmatic Usage
+## CLI Option
 
-For programmatic identity management, use the `bsv-bap` library directly:
+For quick operations, the `bsv-bap` package includes a CLI:
 
-```typescript
-import { BAP, MemberID } from "bsv-bap";
-import { PrivateKey } from "@bsv/sdk";
+```bash
+npm install -g bsv-bap
 
-// Create BAP instance
-const privateKey = PrivateKey.fromRandom();
-const bap = new BAP({ rootPk: privateKey.toWif() });
-
-// Create identity
-const identity = bap.newId("Alice Smith");
-
-// Sign message
-const { address, signature } = identity.signMessage([...messageBytes]);
-
-// Friend encryption
-const friendPubKey = identity.getEncryptionPublicKeyWithSeed(friendBapId);
-const ciphertext = identity.encryptWithSeed(data, friendBapId);
-const plaintext = identity.decryptWithSeed(ciphertext, friendBapId);
+bap create --name "Alice"     # Create identity (~/.bap/identity.json)
+bap sign "Hello World"        # Sign message
+bap verify "msg" "sig" "addr" # Verify signature
+bap info                      # Show identity info
+bap friend-pubkey <bapId>     # Get friend encryption pubkey
+bap encrypt <data> <bapId>    # Encrypt for friend
+bap decrypt <text> <bapId>    # Decrypt from friend
+bap export                    # Export backup JSON
+bap import <file>             # Import from backup
 ```
 
 ## Next Steps
 
 After creating an identity:
-1. Use `bap sign` for message authentication
-2. Use `bap friend-pubkey` to share encryption keys in friend requests
+1. Sign messages for authentication
+2. Share encryption pubkeys in friend requests
 3. Publish identity to blockchain for on-chain reputation
-4. Integrate with Sigma Identity for OAuth authentication (`@sigma-auth/better-auth-plugin`)
+4. Integrate with Sigma Identity for OAuth (`@sigma-auth/better-auth-plugin`)
 
 ## Related Skills
 
