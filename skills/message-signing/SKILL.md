@@ -194,9 +194,9 @@ sigma2.verify();  // Platform
 | Multiple signatures per output | sigma-protocol |
 | Platform + user dual signing | sigma-protocol |
 
-## BAP Identity Signing
+## BAP Identity Signing (BSM)
 
-For BAP identity-based signing, use the `bsv-bap` library:
+BAP identities use BSM for signing. The `bsv-bap` library handles this:
 
 ```typescript
 import { BAP } from "bsv-bap";
@@ -206,13 +206,15 @@ const { toArray } = Utils;
 const bap = new BAP({ rootPk: wif });
 const identity = bap.getId(bap.listIds()[0]);
 
-// Sign
+// Sign with BSM (uses derived identity signing key)
 const message = toArray("Hello World", "utf8");
 const { address, signature } = identity.signMessage(message);
 
-// Verify
+// Verify BSM signature
 const isValid = bap.verifySignature("Hello World", address, signature);
 ```
+
+**Note:** bsv-bap uses BSM exclusively. For BRC-77 signing, use `@bsv/sdk` SignedMessage directly.
 
 A CLI is also available: `npm install -g bsv-bap` (see **`create-bap-identity`** skill).
 
