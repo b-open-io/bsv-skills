@@ -173,6 +173,27 @@ const signingKey = memberHD.privKey.deriveChild(memberHD.pubKey, "1-bap-identity
 3. **Type42 prevents public derivation**: Cannot derive child public keys from parent public key alone
 4. **Invoice numbers are not secret**: They can be shared
 
+## bap CLI for Identity Key Operations
+
+The `bap` CLI from `bsv-bap` uses Type42 with BRC-43 invoice numbers:
+
+```bash
+# Install
+npm install -g bsv-bap
+
+# Create identity (derives signing key with "1-bap-identity")
+bap create --name "Alice"
+
+# Get friend encryption pubkey (derives with "2-friend-{sha256}")
+bap friend-pubkey "friend-bap-id"
+
+# Encrypt/decrypt for friend
+bap encrypt "secret" "friend-bap-id"
+bap decrypt "ciphertext" "friend-bap-id"
+```
+
+See **`create-bap-identity`** skill for full CLI reference.
+
 ## Official Specifications
 
 All BSV key derivation standards are documented at:

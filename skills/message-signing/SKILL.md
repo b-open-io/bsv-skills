@@ -187,11 +187,31 @@ sigma2.verify();  // Platform
 | Scenario | Approach |
 |----------|----------|
 | Simple message auth | Direct SDK (BSM or BRC-77) |
+| BAP identity signing | bap CLI (`bsv-bap`) |
 | Parse existing Sigma/AIP scripts | Templates |
 | Build BitCom transaction outputs | Templates |
 | Sign transaction OP_RETURN data | sigma-protocol |
 | Multiple signatures per output | sigma-protocol |
 | Platform + user dual signing | sigma-protocol |
+
+## bap CLI for Identity Signing
+
+The `bap` CLI provides simple message signing with BAP identities:
+
+```bash
+# Install
+npm install -g bsv-bap
+
+# Sign a message
+bap sign "Hello World"
+# Output: {"message":"Hello World","address":"1Hn5...","signature":"H4mX..."}
+
+# Verify a signature
+bap verify "Hello World" "H4mX..." "1Hn5..."
+# Output: {"valid":true,"message":"Hello World",...}
+```
+
+See **`create-bap-identity`** skill for full bap CLI reference.
 
 ## Additional Resources
 

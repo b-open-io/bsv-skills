@@ -73,6 +73,15 @@ Examples:
 - `2-social-4` - Social protocol, key index 4
 - `2-encryption-default` - Default encryption key
 
+### Standard Protocol Invoice Numbers
+
+| Purpose | Invoice Number | Notes |
+|---------|---------------|-------|
+| BAP identity signing | `1-bap-identity` | Security level 1, public protocol |
+| Per-host auth key | `2-sigma auth-{host}` | Security level 2, host-specific |
+| Friend encryption | `2-friend-{sha256(friendBapId)}` | Security level 2, counterparty-specific |
+| Generic encryption | `2-encrypt-{sha256(purpose)}` | Security level 2, purpose-hashed |
+
 ### Custom Invoice Numbers
 
 Any string works as an invoice number:
@@ -133,6 +142,51 @@ const master = PrivateKey.fromWif("L1...");
 const level1 = master.deriveChild(master.toPublicKey(), "level1");
 const level2 = level1.deriveChild(level1.toPublicKey(), "level2");
 const level3 = level2.deriveChild(level2.toPublicKey(), "level3");
+```
+
+### Friend Encryption (BSocial Pattern)
+
+Derive unique encryption keys for each friend relationship:
+
+```typescript
+import { Hash, Utils } from "@bsv/sdk";
+const { toHex, toArray } = Utils;
+
+// Derive friend-specific encryption key
+const friendBapId = "abc123..."; // Friend's BAP identity key
+const seedHash = toHex(Hash.sha256(toArray(friendBapId, "utf8")));
+const invoiceNumber = `2-friend-${seedHash}`;
+
+// Self-derivation for friend relationship
+const friendKey = masterKey.deriveChild(masterKey.toPublicKey(), invoiceNumber);
+
+// Share this pubkey in friend request TX - friend uses it to encrypt TO you
+const friendPubKey = friendKey.toPublicKey().toString();
+```
+
+**bsv-bap Implementation** (canonical):
+
+```typescript
+import { MemberID } from "bsv-bap";
+
+const member = new MemberID(privateKey);
+
+// Get pubkey to share in friend request
+const pubKey = member.getEncryptionPublicKeyWithSeed(friendBapId);
+
+// Encrypt data for friend
+const ciphertext = member.encryptWithSeed(data, friendBapId, theirPubKey?);
+
+// Decrypt data from friend
+const plaintext = member.decryptWithSeed(ciphertext, friendBapId, theirPubKey?);
+```
+
+**bap CLI**:
+
+```bash
+bap friend-pubkey <friendBapId>   # Get encryption pubkey for friend
+bap encrypt <data> <friendBapId>  # Encrypt for friend
+bap decrypt <text> <friendBapId>  # Decrypt from friend
 ```
 
 ## Key Linkage Revelation (BRC-69)

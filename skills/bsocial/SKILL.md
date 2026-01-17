@@ -1,6 +1,6 @@
 ---
 name: bsocial
-description: This skill should be used when the user asks to "post to BSocial", "like a post", "follow user", "send message", "on-chain social media", "BMAP", "BSocial protocol", or needs social operations (posts, likes, follows, messages, reposts, friends) on BSV blockchain.
+description: This skill should be used when the user asks to "post to BSocial", "like a post", "follow user", "send message", "on-chain social media", "BMAP", "BSocial protocol", "create on-chain post", "read BSocial posts", or needs social operations (posts, likes, follows, messages, reposts, friends) on BSV blockchain.
 allowed-tools: "Bash(bun:*)"
 ---
 
@@ -153,6 +153,28 @@ Base URL: `https://bmap-api-production.up.railway.app`
 
 ### Ingest
 - POST `/ingest` with `{ rawTx: tx.toHex() }`
+
+## Friend Encryption
+
+Friend requests use Type42 key derivation with BRC-43 invoice numbers. The `bap` CLI handles encryption:
+
+```bash
+# Install bap CLI
+npm install -g bsv-bap
+
+# Get encryption pubkey for friend request
+bap friend-pubkey <friendBapId>
+
+# Encrypt private message for friend
+bap encrypt "secret message" <friendBapId>
+
+# Decrypt message from friend
+bap decrypt <ciphertext> <friendBapId>
+```
+
+Invoice number format: `2-friend-{sha256(friendBapId)}`
+
+See **`create-bap-identity`** skill for full bap CLI reference.
 
 ## See Also
 
