@@ -1,68 +1,175 @@
 ---
 name: wallet-encrypt-decrypt
-description: This skill should be used when the user asks to "encrypt message with BSV key", "decrypt with private key", "ECDH encryption", "AES-256-GCM BSV", or needs to encrypt/decrypt data using BSV keys and @bsv/sdk.
-allowed-tools: "Bash(bun:*)"
+description: This skill should be used when the user asks to "encrypt message with BSV key", "decrypt with private key", "ECDH encryption", "AES-256-GCM BSV", "EncryptedMessage", "BRC-2 encryption", or needs to encrypt/decrypt data using BSV keys and @bsv/sdk.
 ---
 
-# Wallet Encrypt/Decrypt
+# BSV Message Encryption
 
-Encrypt and decrypt messages using BSV keys (ECDH + AES-256-GCM).
+Encrypt and decrypt messages between parties using `@bsv/sdk`.
 
-## When to Use
+## Recommended: Use EncryptedMessage from @bsv/sdk
 
-- Encrypt messages to a recipient's public key
-- Decrypt messages with your private key
-- Secure communication between BSV addresses
-- End-to-end encrypted messaging
+The `@bsv/sdk` provides `EncryptedMessage` for secure message encryption. This is the preferred approach - avoid rolling custom encryption implementations.
 
-## Usage
+```typescript
+import { PrivateKey, EncryptedMessage, Utils } from '@bsv/sdk'
 
-```bash
-# Encrypt message to public key
-bun run skills/wallet-encrypt-decrypt/scripts/encrypt-message.ts <recipient-pubkey-hex> "message"
+const sender = PrivateKey.fromRandom()
+const recipient = PrivateKey.fromRandom()
 
-# Decrypt message with private key (WIF)
-bun run skills/wallet-encrypt-decrypt/scripts/decrypt-message.ts <private-wif> '<encrypted-json>'
+// Encrypt: sender uses their private key + recipient's public key
+const message = Utils.toArray('Secret message', 'utf8')
+const encrypted = EncryptedMessage.encrypt(message, sender, recipient.toPublicKey())
 
-# Show help
-bun run skills/wallet-encrypt-decrypt/scripts/encrypt-message.ts --help
-bun run skills/wallet-encrypt-decrypt/scripts/decrypt-message.ts --help
+// Decrypt: recipient uses their private key
+const decrypted = EncryptedMessage.decrypt(encrypted, recipient)
+const plaintext = Utils.toUTF8(decrypted)
 ```
 
-## Encryption Output Format
+## Two Encryption Patterns
 
-```json
-{
-  "ephemeralPublicKey": "02...",
-  "iv": "hex-string-24-chars",
-  "authTag": "hex-string-32-chars",
-  "ciphertext": "hex-string"
+### Pattern 1: Static-Static ECDH (Both Parties Have Keys)
+
+Use when both parties have established keypairs (e.g., BAP identities, paymail addresses).
+
+```typescript
+import { PrivateKey, EncryptedMessage, Utils } from '@bsv/sdk'
+
+// Alice and Bob both have persistent keys
+const alice = PrivateKey.fromWif('L1...')
+const bob = PrivateKey.fromWif('K1...')
+
+// Alice encrypts to Bob
+const ciphertext = EncryptedMessage.encrypt(
+  Utils.toArray('Hello Bob', 'utf8'),
+  alice,
+  bob.toPublicKey()
+)
+
+// Bob decrypts from Alice
+const plaintext = EncryptedMessage.decrypt(ciphertext, bob)
+```
+
+**Use cases:**
+- Peer-to-peer encrypted messaging
+- Encrypted backups to your own key
+- Communication between known identities
+
+### Pattern 2: ECIES-Style (Ephemeral Sender Key)
+
+Use when sender doesn't have a persistent identity (e.g., browser-to-server).
+
+```typescript
+import { PrivateKey, EncryptedMessage, Utils } from '@bsv/sdk'
+
+// Server has persistent key, client generates ephemeral
+const serverKey = PrivateKey.fromWif('L1...')
+const ephemeralClient = PrivateKey.fromRandom()
+
+// Client encrypts (ephemeral → server)
+const encrypted = EncryptedMessage.encrypt(
+  Utils.toArray('sensitive data', 'utf8'),
+  ephemeralClient,
+  serverKey.toPublicKey()
+)
+
+// Include ephemeral public key so server can decrypt
+const payload = {
+  ephemeralPub: ephemeralClient.toPublicKey().toString(),
+  ciphertext: Utils.toHex(encrypted)
 }
+
+// Server decrypts using ephemeral pubkey
+const clientPub = PublicKey.fromString(payload.ephemeralPub)
+// Note: EncryptedMessage.decrypt needs the sender info embedded in ciphertext
 ```
 
-## Encryption Method
+**Use cases:**
+- Browser-to-server encryption
+- One-way secure channels
+- Forward secrecy (fresh key per message)
 
-Uses ECDH (Elliptic Curve Diffie-Hellman) + AES-256-GCM:
+## How ECDH Key Agreement Works
 
-1. **Sender** generates ephemeral key pair
-2. **Shared secret** = ephemeral private key * recipient public key
-3. **AES key** derived from shared secret via SHA256
-4. **Encrypt** with AES-256-GCM (random 12-byte IV)
-5. **Output**: ephemeral public key + IV + auth tag + ciphertext
+Both parties derive the same shared secret:
 
-**Decryption**:
-1. **Shared secret** = recipient private key * ephemeral public key
-2. **AES key** derived same way
-3. **Decrypt** and verify auth tag
+```
+Alice: alicePrivKey × bobPubKey = sharedPoint
+Bob:   bobPrivKey × alicePubKey = sharedPoint
+```
 
-## Dependencies
+The shared point is then used to derive a symmetric key for AES-256-GCM encryption.
 
-- `@bsv/sdk` - Key operations (PrivateKey, PublicKey)
-- Node.js `crypto` - AES-256-GCM encryption
+## API Reference
 
-## Security
+### EncryptedMessage.encrypt()
 
-- Fresh ephemeral key per encryption
-- Random 12-byte IV per encryption
-- 128-bit authentication tag (tamper detection)
-- SHA256 key derivation from ECDH shared secret
+```typescript
+static encrypt(
+  message: number[],      // Plaintext as byte array
+  sender: PrivateKey,     // Sender's private key
+  recipient: PublicKey    // Recipient's public key
+): number[]               // Encrypted bytes
+```
+
+### EncryptedMessage.decrypt()
+
+```typescript
+static decrypt(
+  ciphertext: number[],   // Encrypted bytes from encrypt()
+  recipient: PrivateKey   // Recipient's private key
+): number[]               // Decrypted plaintext bytes
+```
+
+### Utility Functions
+
+```typescript
+// String to bytes
+Utils.toArray('hello', 'utf8')  // number[]
+
+// Bytes to string
+Utils.toUTF8([104, 101, 108, 108, 111])  // 'hello'
+
+// Bytes to hex
+Utils.toHex([1, 2, 3])  // '010203'
+
+// Hex to bytes
+Utils.toArray('010203', 'hex')  // [1, 2, 3]
+```
+
+## Security Properties
+
+- **Authenticated encryption**: AES-256-GCM provides confidentiality + integrity
+- **Key agreement**: ECDH ensures only intended recipient can decrypt
+- **No key transmission**: Private keys never leave their owner
+
+## Common Mistakes
+
+### Don't roll your own crypto
+
+❌ **Wrong**: Implementing ECDH + AES manually
+```typescript
+// Don't do this - use EncryptedMessage instead
+const sharedSecret = myPrivKey.deriveSharedSecret(theirPubKey)
+const aesKey = sha256(sharedSecret)
+// ... manual AES encryption
+```
+
+✅ **Correct**: Use the SDK's built-in class
+```typescript
+const encrypted = EncryptedMessage.encrypt(message, sender, recipient)
+```
+
+### Don't confuse encryption with authentication
+
+- **Encryption** (this skill): Hides message content
+- **Authentication** (`bitcoin-auth`): Proves sender identity
+
+For authenticated + encrypted communication, use both:
+```typescript
+// Encrypt the payload
+const encrypted = EncryptedMessage.encrypt(payload, sender, recipient)
+
+// Sign the request (proves sender identity)
+const authToken = getAuthToken({ privateKeyWif, requestPath, body })
+```
