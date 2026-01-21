@@ -1,6 +1,6 @@
 ---
 name: bsv-standards
-description: This skill should be used when the user asks "what is BRC-42", "what is MAP protocol", "what is AIP", "what is B protocol", "what are BSV standards", "what is SIGMA", "what is BAP", "what is paymail", "what is 1Sat Ordinals", "what is BSV-20", "lookup BRC", "BitCom protocols", "what is bitcoin-auth", "what is bitcoin-backup", "what is bitcoin-image", "what is Bitcoin Schema", "ord schema type", "outpoint format", "what is ORDFS", or needs to understand BSV ecosystem standards, protocols, and specifications.
+description: This skill should be used when the user asks "what is BRC-42", "what is MAP protocol", "what is AIP", "what is B protocol", "what are BSV standards", "what is SIGMA", "what is BAP", "what is paymail", "what is 1Sat Ordinals", "what is BSV-20", "what is STAS", "STAS token", "lookup BRC", "BitCom protocols", "what is bitcoin-auth", "what is bitcoin-backup", "what is bitcoin-image", "what is Bitcoin Schema", "ord schema type", "outpoint format", "what is ORDFS", or needs to understand BSV ecosystem standards, protocols, and specifications.
 ---
 
 # BSV Standards & Protocols Reference
@@ -13,7 +13,7 @@ Comprehensive index of BSV blockchain standards, protocols, and specifications.
 |----------|-----------|-------------|
 | **BRCs** | BRC-1 to BRC-100+ | Official BSV Request for Comments |
 | **BitCom** | AIP, MAP, B, BAP, SIGMA | Data protocols using Bitcoin addresses as prefixes |
-| **Tokens** | BSV-20, BSV-21 | Fungible token standards |
+| **Tokens** | BSV-20, BSV-21, STAS | Fungible token standards |
 | **Ordinals** | 1Sat Ordinals | NFT inscriptions on BSV |
 | **Identity** | Paymail, BAP | Identity and addressing standards |
 | **Off-Chain** | bitcoin-auth, bitcoin-backup, bitcoin-image | Authentication, backup, URL standards |
@@ -62,9 +62,7 @@ Data protocols using Bitcoin addresses as OP_RETURN prefixes.
 ### AIP (Author Identity Protocol)
 
 **Prefix**: `15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva`
-
-Signs content with Bitcoin addresses for verifiable authorship.
-
+Signs content with Bitcoin addresses for verifiable authorship. Similar to Sigma protocol but does not require inputs.
 ```
 OP_RETURN | <data> | AIP_PREFIX | "BITCOIN_ECDSA" | <address> | <signature>
 ```
@@ -142,6 +140,25 @@ Fungible tokens using inscription format.
 Enhanced fungible tokens with contract control.
 
 **Features**: Programmable supply, transfer rules, metadata
+
+### STAS (Simplified Token And Smart Contracts)
+
+Native token protocol using Bitcoin script-level enforcement.
+
+**Website**: https://www.stastoken.com/
+**Documentation**: https://docs.stastoken.com/
+
+**Features**:
+- Script-enforced token transfers (no indexer required for validation)
+- Fungible and non-fungible token support
+- Atomic swaps and contract capabilities
+- Native Bitcoin script validation
+
+### Run (Defunct)
+
+Early BSV token protocol (runonbitcoin.com - no longer operational).
+
+**Status**: Abandoned protocol from early BSV days. Stored data on-chain using B protocol, so historical artifacts remain accessible via ORDFS (ordfs.network).
 
 ## Ordinals (1Sat Ordinals)
 
@@ -236,30 +253,15 @@ Base metadata schema for ordinals inscriptions.
 | Package | Purpose |
 |---------|---------|
 | `@bsv/sdk` | Core BSV functionality |
-| `@bopen-io/templates` | Script template implementations |
-| `js-1sat-ord` | Ordinals/inscriptions |
+| `@b-open-io/templates` | Script template implementations (replaces bmapjs) |
+| `js-1sat-ord` | Ordinals/inscriptions (migrating to `@1sat/sdk` - in progress) |
 | `bsv-bap` | BAP identity management |
 | `sigma-protocol` | SIGMA signing |
-| `bmapjs` | Transaction parsing (deprecated, use `@bopen-io/templates`) |
 | `bitcoin-auth` | HTTP authentication |
 | `bitcoin-backup` | Encrypted backup files |
 | `bitcoin-image` | URL normalization |
 
-## Local Implementations
-
-Key repositories in `~/code`:
-
-| Repo | Package | Purpose |
-|------|---------|---------|
-| `ts-templates` | `@bopen-io/templates` | BitCom script templates |
-| `sigma` | `sigma-protocol` | SIGMA signing |
-| `bap` | `bsv-bap` | BAP identity |
-| `js-1sat-ord` | `js-1sat-ord` | 1Sat ordinals |
-| `bmap` | `bmapjs` | Transaction parser (deprecated) |
-| `bitcoin-auth` | `bitcoin-auth` | HTTP auth |
-| `bitcoin-backup` | `bitcoin-backup` | Backup files |
-| `bitcoin-image` | `bitcoin-image` | Image URLs |
-| `go-ordfs-server` | - | ORDFS gateway |
+**Deprecated**: `bmapjs` - replaced by `@b-open-io/templates`
 
 ## Additional Resources
 
@@ -277,12 +279,12 @@ Key repositories in `~/code`:
 - **Bitcoin Schema**: https://bitcoinschema.org
 - **1Sat Ordinals Docs**: https://docs.1satordinals.com/
 - **ORDFS Gateway**: https://ordfs.network
-- **ts-templates**: https://github.com/b-open-io/ts-templates
+- **@b-open-io/templates**: https://github.com/b-open-io/ts-templates
 - **sigma-protocol**: https://github.com/BitcoinSchema/sigma
 - **js-1sat-ord**: https://github.com/BitcoinSchema/js-1sat-ord
 - **bsv-bap**: https://github.com/BitcoinSchema/bap
-- **bmapjs** (deprecated): https://github.com/BitcoinSchema/bmapjs (use @bopen-io/templates)
 - **bitcoin-auth**: https://github.com/b-open-io/bitcoin-auth
+- **STAS Token**: https://docs.stastoken.com/
 - **bitcoin-backup**: https://github.com/b-open-io/bitcoin-backup
 - **bitcoin-image**: https://github.com/b-open-io/bitcoin-image
 - **Paymail**: https://bsvalias.org/

@@ -1,6 +1,6 @@
 {
   "name": "bsv-skills",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Core BSV blockchain operations including standards reference (BRCs, BitCom, tokens), key derivation (Type42, BIP32, BAP), ORDFS content gateway, script templates, message signing, wallet operations, and identity management.",
   "author": {
     "name": "b-open-io",

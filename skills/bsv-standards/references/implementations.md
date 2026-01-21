@@ -30,7 +30,7 @@ import {
 
 ### @bopen-io/templates
 
-**Location**: `~/code/ts-templates`
+**Location**: `local clone/ts-templates`
 **Repository**: https://github.com/b-open-io/ts-templates
 **Package**: `@bopen-io/templates`
 
@@ -66,7 +66,7 @@ import {
 
 ### sigma-protocol
 
-**Location**: `~/code/sigma`
+**Location**: `local clone/sigma`
 **Repository**: https://github.com/BitcoinSchema/sigma
 **Package**: `sigma-protocol` (v0.1.8)
 
@@ -95,7 +95,7 @@ const valid = sigma.verify();
 
 ### bsv-bap (TypeScript)
 
-**Location**: `~/code/bap`
+**Location**: `local clone/bap`
 **Repository**: https://github.com/BitcoinSchema/bap
 **Package**: `bsv-bap`
 **Protocol Spec**: https://github.com/BitcoinSchema/bap/blob/master/PROTOCOL.md
@@ -128,7 +128,7 @@ const backup = bap.exportForBackup("My Wallet");
 
 ### go-bap (Go)
 
-**Location**: `~/code/go-bap`
+**Location**: `local clone/go-bap`
 **Repository**: https://github.com/bitcoinschema/go-bap
 **Module**: `github.com/bitcoinschema/go-bap`
 
@@ -147,7 +147,7 @@ id := bap.NewIdentity(privateKey)
 
 ### js-1sat-ord
 
-**Location**: `~/code/js-1sat-ord`
+**Location**: `local clone/js-1sat-ord`
 **Repository**: https://github.com/BitcoinSchema/js-1sat-ord
 **Package**: `js-1sat-ord` (v0.1.91)
 
@@ -182,7 +182,7 @@ const tx = await createOrdinals({
 
 ### go-1sat-ord (Go)
 
-**Location**: `~/code/go-1sat-ord`
+**Location**: `local clone/go-1sat-ord`
 **Repository**: https://github.com/BitcoinSchema/go-1sat-ord
 
 Go implementation for ordinals.
@@ -195,7 +195,7 @@ Go implementation for ordinals.
 
 > **DEPRECATED**: Use `@bopen-io/templates` instead for transaction parsing.
 
-**Location**: `~/code/bmap`
+**Location**: `local clone/bmap`
 **Repository**: https://github.com/BitcoinSchema/bmapjs
 **Package**: `bmapjs`
 
@@ -223,14 +223,14 @@ import { BitCom, AIP, MAP, B, BAP, Sigma } from "@bopen-io/templates";
 
 ### sigma-auth
 
-**Location**: `~/code/sigma-auth`
+**Location**: `local clone/sigma-auth`
 **Purpose**: Bitcoin-native authentication
 
 OAuth-compatible authentication using SIGMA signatures.
 
 ### @sigma-auth/better-auth-plugin
 
-**Location**: `~/code/sigma-auth-better-auth-plugin`
+**Location**: `local clone/sigma-auth-better-auth-plugin`
 **Purpose**: Better Auth integration
 
 ```typescript
@@ -247,7 +247,7 @@ export const auth = betterAuth({
 
 ### go-aip
 
-**Location**: `~/code/go-aip`
+**Location**: `local clone/go-aip`
 **Repository**: https://github.com/bitcoinschema/go-aip
 **Module**: `github.com/bitcoinschema/go-aip`
 
@@ -255,7 +255,7 @@ Go implementation of AIP (Author Identity Protocol).
 
 ### go-map
 
-**Location**: `~/code/go-map`
+**Location**: `local clone/go-map`
 **Repository**: https://github.com/bitcoinschema/go-map
 **Module**: `github.com/bitcoinschema/go-map`
 
@@ -263,7 +263,7 @@ Go implementation of MAP (Magic Attribute Protocol).
 
 ### go-b
 
-**Location**: `~/code/go-b`
+**Location**: `local clone/go-b`
 **Repository**: https://github.com/bitcoinschema/go-b
 **Module**: `github.com/bitcoinschema/go-b`
 
@@ -271,7 +271,7 @@ Go implementation of B (Binary) protocol.
 
 ### go-sigma
 
-**Location**: `~/code/go-sigma`
+**Location**: `local clone/go-sigma`
 **Repository**: https://github.com/bitcoinschema/go-sigma
 
 Go implementation of SIGMA protocol.
@@ -282,7 +282,7 @@ Go implementation of SIGMA protocol.
 
 ### bitcoin-auth
 
-**Location**: `~/code/bitcoin-auth`
+**Location**: `local clone/bitcoin-auth`
 **Repository**: https://github.com/b-open-io/bitcoin-auth
 **Package**: `bitcoin-auth`
 
@@ -309,7 +309,7 @@ const valid = verifyAuthToken(token, {
 
 ### bitcoin-backup
 
-**Location**: `~/code/bitcoin-backup`
+**Location**: `local clone/bitcoin-backup`
 **Repository**: https://github.com/b-open-io/bitcoin-backup
 **Package**: `bitcoin-backup`
 
@@ -329,7 +329,7 @@ const backup = await decryptBackup(encrypted, passphrase);
 
 ### bitcoin-image
 
-**Location**: `~/code/bitcoin-image`
+**Location**: `local clone/bitcoin-image`
 **Repository**: https://github.com/b-open-io/bitcoin-image
 **Package**: `bitcoin-image`
 
@@ -354,17 +354,17 @@ const url = await getDisplayUrl("ord://abc123..._0");
 
 ### bsv21-overlay
 
-**Location**: `~/code/bsv21-overlay`
+**Location**: `local clone/bsv21-overlay`
 **Purpose**: BSV-21 token overlay network
 
 ### 1sat-api
 
-**Location**: `~/code/1sat-api`
+**Location**: `local clone/1sat-api`
 **Purpose**: 1Sat Ordinals API service
 
 ### bmap-api
 
-**Location**: `~/code/bmap-api`
+**Location**: `local clone/bmap-api`
 **Purpose**: BMAP parsing API service
 
 ---
@@ -373,7 +373,7 @@ const url = await getDisplayUrl("ord://abc123..._0");
 
 ### go-ordfs-server
 
-**Location**: `~/code/go-ordfs-server`
+**Location**: `local clone/go-ordfs-server`
 **Repository**: https://github.com/b-open-io/go-ordfs-server
 **Live**: https://ordfs.network
 

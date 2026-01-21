@@ -4,17 +4,8 @@ BSV blockchain operations for Claude Code. 24 skills covering wallets, identity,
 
 ## Installation
 
-Works with Claude Code, Cursor, Codex, and other AI coding agents:
-
 ```bash
-npx add-skill b-open-io/bsv-skills
-```
-
-Or via Claude Code marketplace:
-
-```bash
-/plugin marketplace add b-open-io/claude-plugins
-/plugin install bsv-skills@b-open-io
+skills add b-open-io/bsv-skills
 ```
 
 ## Skills

@@ -11,7 +11,7 @@ Complete guide for contributing a new template to b-open-io/ts-templates.
 ## Step 1: Create Feature Branch
 
 ```bash
-cd ~/code/ts-templates
+cd ts-templates  # Your local clone
 git checkout master
 git pull origin master
 git checkout -b feature/protocol-name-template

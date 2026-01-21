@@ -1,13 +1,15 @@
 ---
 name: wallet-brc100
-description: This skill should be used when the user asks to "implement BRC-100 wallet", "use wallet-toolbox", "TypeScript BSV wallet", "BRC-100 implementation", or needs guidance on building conforming wallets using @bsv/wallet-toolbox.
+description: This skill should be used when the user asks to "implement BRC-100 wallet", "use wallet-toolbox", "TypeScript BSV wallet", "BRC-100 implementation", "desktop wallet", "Electron wallet", "browser wallet", "IndexedDB wallet storage", "wallet actions", "wallet baskets", "UTXO management", "createAction", "listOutputs", "wallet certificates", or needs guidance on building conforming wallets using @bsv/wallet-toolbox.
 ---
 
 # BRC-100 Wallet Implementation Guide
 
 This skill provides comprehensive guidance for implementing BRC-100 conforming wallets using the `@bsv/wallet-toolbox` package (v1.7.18+).
 
-## 🎯 Quick Reference
+**Getting Started**: Before implementing, review the [Strategic Questionnaire](./references/strategic-questionnaire.md) to determine the right architecture for your wallet type.
+
+## Quick Reference
 
 ### Core Dependencies
 
@@ -29,7 +31,7 @@ This skill provides comprehensive guidance for implementing BRC-100 conforming w
 
 ---
 
-## 📚 Table of Contents
+## Table of Contents
 
 1. [Installation & Setup](#1-installation--setup)
 2. [Wallet Initialization](#2-wallet-initialization)
@@ -89,23 +91,8 @@ import Knex from 'knex'
 async function createSimpleWallet() {
   // 1. Create root private key (or derive from mnemonic)
   const rootKey = new PrivateKey(Random(32))
-  const keyDeriver = {
-    rootKey,
-    identityKey: rootKey.toPublicKey().toString(),
-    derivePublicKey: async (protocolID, keyID, counterparty) => {
-      // Implement BRC-42 key derivation
-      const derivedKey = rootKey.deriveChild(protocolID, keyID)
-      return { publicKey: derivedKey.toPublicKey().toString() }
-    },
-    derivePrivateKey: async (protocolID, keyID, counterparty) => {
-      const derivedKey = rootKey.deriveChild(protocolID, keyID)
-      return { privateKey: derivedKey.toString() }
-    },
-    deriveSymmetricKey: async (protocolID, keyID, counterparty) => {
-      // Return shared secret
-      return { symmetricKey: Random(32) }
-    }
-  }
+  // Use KeyDeriver from @bsv/sdk for proper BRC-42 key derivation
+  const keyDeriver = new KeyDeriver(rootKey)
 
   // 2. Configure SQLite storage
   const knex = Knex({
@@ -821,17 +808,58 @@ async function setupMonitor(wallet: Wallet) {
 
 ---
 
-## 🔗 Additional Resources
+## Related Skills
+
+For comprehensive wallet development, also reference these skills:
+
+| Skill | Relationship |
+|-------|--------------|
+| `encrypt-decrypt-backup` | Standard backup formats (.bep files, AES-256-GCM) |
+| `junglebus` | Populate UTXO set from blockchain, real-time streaming |
+| `key-derivation` | Type42/BRC-42 and BIP32 key derivation details |
+| `wallet-encrypt-decrypt` | ECDH message encryption patterns |
+| `wallet-send-bsv` | Basic transaction creation (simpler than BRC-100) |
+
+---
+
+## Additional Resources
 
 - **BRC-100 Specification**: https://bsv.brc.dev/wallet/0100
 - **BRC-42 (BKDS)**: https://bsv.brc.dev/wallet/0042
 - **BRC-43 (Security Levels)**: https://bsv.brc.dev/wallet/0043
 - **Wallet Toolbox Docs**: https://bsv-blockchain.github.io/wallet-toolbox
 - **BSV SDK Docs**: https://bsv-blockchain.github.io/ts-sdk
+- **bsv-desktop (Reference Implementation)**: https://github.com/bsv-blockchain/bsv-desktop
+  - Real-world Electron wallet with BRC-100 support
+  - IPC architecture for storage isolation
+  - Background monitoring patterns
+  - HTTPS server on port 2121 for BRC-100 interface
+
+**Research**: For deep dives into BRC specifications or implementation patterns, use the browser-agent to fetch current documentation from bsv.brc.dev.
 
 ---
 
-## 📝 Common Patterns Summary
+## Platform Guides
+
+Platform-specific implementation guides:
+
+| Platform | Guide | Reference Implementation |
+|----------|-------|-------------------------|
+| Browser Extension | [extension-guide.md](./references/extension-guide.md) | [yours-wallet](https://github.com/AustinKelsay/yours-wallet) |
+| Desktop (Electron) | [desktop-guide.md](./references/desktop-guide.md) | [bsv-desktop](https://github.com/bsv-blockchain/bsv-desktop) |
+| Web Application | [web-guide.md](./references/web-guide.md) | - |
+| Mobile (React Native) | [mobile-guide.md](./references/mobile-guide.md) | - |
+| Node.js Service/CLI | [nodejs-guide.md](./references/nodejs-guide.md) | - |
+
+See [references/key-concepts.md](./references/key-concepts.md) for BRC-100 unique concepts:
+- Actions vs Transactions
+- Baskets and Tags
+- Certificate system (BRC-52/53/64/65)
+- Background Monitoring
+
+---
+
+## Common Patterns Summary
 
 | Task | Method | Key Args |
 |------|--------|----------|
