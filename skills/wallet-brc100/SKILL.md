@@ -820,6 +820,15 @@ For comprehensive wallet development, also reference these skills:
 | `wallet-encrypt-decrypt` | ECDH message encryption patterns |
 | `wallet-send-bsv` | Basic transaction creation (simpler than BRC-100) |
 
+**For 1Sat Ordinals / Token Support:**
+
+If your BRC-100 wallet needs to handle 1Sat Ordinals, BSV-20/BSV-21 tokens, or inscriptions, use `@1sat/wallet-toolbox` which wraps the core wallet-toolbox with ordinals capabilities.
+
+See [1sat-skills](https://github.com/b-open-io/1sat-skills) for:
+- `wallet-create-ordinals` - Mint inscriptions
+- `extract-blockchain-media` - Extract media from transactions
+- `ordinals-marketplace` - Browse GorillaPool marketplace
+
 ---
 
 ## Additional Resources
@@ -829,6 +838,8 @@ For comprehensive wallet development, also reference these skills:
 - **BRC-43 (Security Levels)**: https://bsv.brc.dev/wallet/0043
 - **Wallet Toolbox Docs**: https://bsv-blockchain.github.io/wallet-toolbox
 - **BSV SDK Docs**: https://bsv-blockchain.github.io/ts-sdk
+- **@1sat/wallet-toolbox**: BRC-100 wallet with 1Sat Ordinals support (wraps @bsv/wallet-toolbox)
+- **1sat-skills**: https://github.com/b-open-io/1sat-skills - Ordinals minting and management
 - **bsv-desktop (Reference Implementation)**: https://github.com/bsv-blockchain/bsv-desktop
   - Real-world Electron wallet with BRC-100 support
   - IPC architecture for storage isolation
