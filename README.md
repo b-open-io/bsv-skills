@@ -4,6 +4,12 @@ BSV blockchain operations for Claude Code. 24 skills covering wallets, identity,
 
 ## Installation
 
+**Full Plugin** (recommended - includes bitcoin-specialist agent):
+```bash
+/plugin install bsv-skills@b-open-io
+```
+
+**Skills Only** (for other agentic frameworks):
 ```bash
 skills add b-open-io/bsv-skills
 ```
