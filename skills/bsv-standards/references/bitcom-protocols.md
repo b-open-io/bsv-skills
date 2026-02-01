@@ -360,7 +360,7 @@ const backup = bap.exportForBackup("My Wallet");
 ### Configuration
 
 ```typescript
-BAP_SERVER = "https://api.sigmaidentity.com/v1"
+BAP_SERVER = "https://api.sigmaidentity.com/api/v1"
 BAP_TOKEN = "<auth-token>"
 ```
 
