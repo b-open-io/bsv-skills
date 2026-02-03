@@ -1,11 +1,25 @@
 {
-  "name": "bsv-skills",
-  "version": "0.1.4",
-  "description": "Core BSV blockchain operations including standards reference (BRCs, BitCom, tokens), key derivation (Type42, BIP32, BAP), ORDFS content gateway, script templates, message signing, wallet operations, and identity management.",
-  "author": {
-    "name": "b-open-io",
-    "url": "https://github.com/b-open-io"
-  },
-  "repository": "https://github.com/b-open-io/bsv-skills",
-  "keywords": ["bsv", "bitcoin", "blockchain", "wallet", "bap", "identity", "ordinals", "ordfs", "sigma", "brc-42", "brc-77", "templates", "standards"]
+	"name": "bsv-skills",
+	"version": "0.1.5",
+	"description": "Core BSV blockchain operations including standards reference (BRCs, BitCom, tokens), key derivation (Type42, BIP32, BAP), ORDFS content gateway, script templates, message signing, wallet operations, identity management, and JungleBus real-time blockchain streaming.",
+	"author": {
+		"name": "b-open-io",
+		"url": "https://github.com/b-open-io"
+	},
+	"repository": "https://github.com/b-open-io/bsv-skills",
+	"keywords": [
+		"bsv",
+		"bitcoin",
+		"blockchain",
+		"wallet",
+		"bap",
+		"identity",
+		"ordinals",
+		"ordfs",
+		"sigma",
+		"brc-42",
+		"brc-77",
+		"templates",
+		"standards"
+	]
 }
