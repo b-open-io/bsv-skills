@@ -15,7 +15,30 @@ Contributions welcome! Found a way to improve a skill or have a new one to add? 
 
 **Skills Only** (for other agentic frameworks):
 ```bash
-skills add b-open-io/bsv-skills
+bunx skills add b-open-io/bsv-skills --skill wallet-brc100
+bunx skills add b-open-io/bsv-skills --skill wallet-brc100-go
+bunx skills add b-open-io/bsv-skills --skill wallet-send-bsv
+bunx skills add b-open-io/bsv-skills --skill wallet-encrypt-decrypt
+bunx skills add b-open-io/bsv-skills --skill create-bap-identity
+bunx skills add b-open-io/bsv-skills --skill manage-bap-backup
+bunx skills add b-open-io/bsv-skills --skill encrypt-decrypt-backup
+bunx skills add b-open-io/bsv-skills --skill message-signing
+bunx skills add b-open-io/bsv-skills --skill bsv-standards
+bunx skills add b-open-io/bsv-skills --skill key-derivation
+bunx skills add b-open-io/bsv-skills --skill ordfs
+bunx skills add b-open-io/bsv-skills --skill create-script-template
+bunx skills add b-open-io/bsv-skills --skill review-script-template
+bunx skills add b-open-io/bsv-skills --skill stratum-v1
+bunx skills add b-open-io/bsv-skills --skill stratum-v2
+bunx skills add b-open-io/bsv-skills --skill calculate-mining-difficulty
+bunx skills add b-open-io/bsv-skills --skill junglebus
+bunx skills add b-open-io/bsv-skills --skill bsocial
+bunx skills add b-open-io/bsv-skills --skill check-bsv-price
+bunx skills add b-open-io/bsv-skills --skill decode-bsv-transaction
+bunx skills add b-open-io/bsv-skills --skill validate-bsv-script
+bunx skills add b-open-io/bsv-skills --skill lookup-bsv-address
+bunx skills add b-open-io/bsv-skills --skill lookup-block-info
+bunx skills add b-open-io/bsv-skills --skill estimate-transaction-fee
 ```
 
 ## Skills
