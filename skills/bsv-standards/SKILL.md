@@ -1,6 +1,6 @@
 ---
 name: bsv-standards
-description: This skill should be used when the user asks "what is BRC-42", "what is MAP protocol", "what is AIP", "what is B protocol", "what are BSV standards", "what is SIGMA", "what is BAP", "what is paymail", "what is 1Sat Ordinals", "what is BSV-20", "what is STAS", "STAS token", "lookup BRC", "BitCom protocols", "what is bitcoin-auth", "what is bitcoin-backup", "what is bitcoin-image", "what is Bitcoin Schema", "ord schema type", "outpoint format", "what is ORDFS", or needs to understand BSV ecosystem standards, protocols, and specifications.
+description: This skill should be used when the user asks about any BRC standard (BRC-1 through BRC-113), "what is BRC-61", "what is BRC-42", "what is BEEF", "what is BUMP", "Compound Merkle Path", "Merkle proof format", "what is MAP protocol", "what is AIP", "what is B protocol", "what are BSV standards", "what is SIGMA", "what is BAP", "what is paymail", "what is 1Sat Ordinals", "what is BSV-20", "what is STAS", "lookup BRC", "BitCom protocols", "what is bitcoin-auth", "what is bitcoin-backup", "what is bitcoin-image", "what is Bitcoin Schema", "what is DPP", "what is PacketPay", "what is Authrite", "what is PIKE", "what is P2PKH", "what is Push Drop", "overlay network", "SPV", "outpoint format", "what is ORDFS", "Mandala token", or needs to understand any BSV ecosystem standard, protocol, or specification. Covers all 12 BRC categories: Wallet, Transactions, Scripts, Key Derivation, Payments, Overlays, Peer-to-Peer, Tokens, Outpoints, Opinions, State Machines, and Apps.
 ---
 
 # BSV Standards & Protocols Reference
@@ -21,39 +21,26 @@ Comprehensive index of BSV blockchain standards, protocols, and specifications.
 
 ## Official BRC Standards
 
-**Reference**: https://bsv.brc.dev/
+**Reference**: https://bsv.brc.dev/ -- 100+ standards across 12 categories.
 
-### Key Derivation (BRC-42, BRC-32, etc.)
+For the complete index of every BRC, consult **`references/brc-index.md`**.
 
-| BRC | Name | Description |
-|-----|------|-------------|
-| BRC-32 | BIP32 HD Keys | Hierarchical deterministic key derivation |
-| BRC-42 | Type42 Derivation | Modern ECDH-based key derivation |
-| BRC-43 | Protocol IDs | Security levels and key ID conventions |
-| BRC-69 | Key Linkage | Revealing key associations |
-| BRC-72 | Linkage Protection | Encrypted linkage transmission |
+### Key Categories
 
-### Wallet Standards (BRC-1, BRC-2, etc.)
-
-| BRC | Name | Description |
-|-----|------|-------------|
-| BRC-1 | Transaction Envelope | Standard transaction format |
-| BRC-2 | Encryption | Message encryption standard |
-| BRC-29 | Paymail | Human-readable payment addresses |
-
-### Script Templates (BRC-48, etc.)
-
-| BRC | Name | Description |
-|-----|------|-------------|
-| BRC-48 | Pay to Push Drop | Token output template |
-| BRC-100 | Wallet Toolbox | Standard wallet implementation |
-
-### Overlay Networks (BRC-22, etc.)
-
-| BRC | Name | Description |
-|-----|------|-------------|
-| BRC-22 | Overlay Networks | Network topology standard |
-| BRC-31 | Authrite | Authentication protocol |
+| Category | Key BRCs | Description |
+|----------|----------|-------------|
+| **Wallet** | BRC-1 to BRC-7, BRC-46, BRC-50, BRC-53, BRC-56, BRC-65, BRC-66, BRC-73, BRC-97-100, BRC-109, BRC-111-112 | Wallet-to-app interface, transaction creation, encryption, baskets, labels, certificates |
+| **Transactions** | BRC-8, BRC-9, BRC-10-13, BRC-30, BRC-58, BRC-61, BRC-62, BRC-67, BRC-71, BRC-74, BRC-76, BRC-83, BRC-95-96 | TX formats (BEEF, EF, Raw), Merkle proofs (CMP, BUMP, JSON, Binary), SPV |
+| **Scripts** | BRC-14-19, BRC-21, BRC-47, BRC-48, BRC-106 | P2PKH, R-Puzzle, Push Drop, Push TX, Multi-Sig, Script formats |
+| **Key Derivation** | BRC-32, BRC-42-44, BRC-69, BRC-72, BRC-75, BRC-84, BRC-86, BRC-93-94 | BIP32, Type42/BKDS, protocol IDs, key linkage, mnemonics, Schnorr |
+| **Payments** | BRC-27-29, BRC-41, BRC-54-55, BRC-70, BRC-105 | DPP, Paymail, PacketPay, service monetization |
+| **Overlays** | BRC-22-26, BRC-64, BRC-81, BRC-87-88, BRC-101 | Overlay sync, CHIP, CLAP, lookup, SHIP/SLAP |
+| **Peer-to-Peer** | BRC-31, BRC-33-34, BRC-52, BRC-63, BRC-68, BRC-77-78, BRC-82, BRC-85, BRC-103-104 | Authrite, PeerServ, identity certificates, PIKE, message signing |
+| **Tokens** | BRC-45, BRC-79, BRC-92, BRC-107-108, BRC-113 | UTXO tokens, Mandala, identity-linked tokens |
+| **Outpoints** | BRC-36-37 | Outpoint format, spending instructions |
+| **Opinions** | BRC-49, BRC-51, BRC-57, BRC-59, BRC-80, BRC-89-91, BRC-110 | UX guidance, scalability, Web 3.0 vision |
+| **State Machines** | BRC-60 | Event chains in Bitcoin |
+| **Apps** | BRC-102 | deployment-info.json spec |
 
 ## BitCom Protocols
 
