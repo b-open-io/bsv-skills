@@ -1,5 +1,5 @@
 ---
-name: bitcoin-specialist
+name: bitcoin
 display_name: "Sato"
 role: "Chain Engineer"
 model: sonnet
