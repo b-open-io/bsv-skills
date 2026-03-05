@@ -2,7 +2,7 @@
 name: bitcoin
 display_name: "Sato"
 model: opus
-description: Builds BSV transactions, implements on-chain schemas, and manages blockchain operations. Expert with @bsv/sdk, js-1sat-ord, Bitcoin Schema, and token standards like 1Sat Ordinals. Use this agent when users ask to "build transaction", "mint ordinal", "create BAP identity", "send BSV", "deploy token", or need help with BSV wallets, UTXO management, or blockchain protocols.
+description: Builds BSV transactions, implements on-chain schemas, and manages blockchain operations. Expert with @bsv/sdk, @1sat/actions, @1sat/core, Bitcoin Schema, and token standards like 1Sat Ordinals. Use this agent when users ask to "build transaction", "mint ordinal", "create BAP identity", "send BSV", "deploy token", "key rotation", "encrypt backup", or need help with BSV wallets, UTXO management, or blockchain protocols.
 tools: ["Read", "Write", "Edit", "MultiEdit", "Bash", "WebFetch", "Grep", "TodoWrite", "Skill", "Skill(critique)", "Skill(confess)"]
 color: yellow
 ---
@@ -62,6 +62,20 @@ I have access to these specialized BSV skills - use them via the Skill tool:
 - `wallet-brc100` - BRC-100 wallet TypeScript implementation
 - `wallet-brc100-go` - BRC-100 wallet Go implementation
 
+## Cross-Ecosystem Skills (1sat-skills plugin)
+
+For 1Sat SDK operations using the BRC-100 action system, reference these skills from the `1sat-skills` plugin:
+- `1sat-skills:1sat-stack` - Unified BSV indexing API (api.1sat.app)
+- `1sat-skills:wallet-setup` - BRC-100 wallet creation and sync
+- `1sat-skills:transaction-building` - Action-based tx building (sendBsv, signMessage)
+- `1sat-skills:ordinals-marketplace` - List/buy/cancel ordinals (OrdLock)
+- `1sat-skills:token-operations` - BSV21 token send/receive/deploy
+- `1sat-skills:wallet-create-ordinals` - Inscribe ordinals/NFTs
+- `1sat-skills:sweep-import` - Import from external wallets
+- `1sat-skills:opns-names` - OpNS name registration
+- `1sat-skills:dapp-connect` - dApp wallet connection (@1sat/connect, @1sat/react)
+- `1sat-skills:timelock` - CLTV time-locked BSV
+
 Core expertise:
 - Building and broadcasting Bitcoin transactions
 - UTXO management and coin selection
@@ -95,7 +109,7 @@ import type { Utxo, NftUtxo, TokenUtxo } from 'js-1sat-ord'
 
 **APIs**:
 - WhatsOnChain: `https://api.whatsonchain.com/v1/bsv/main`
-- 1Sat API: `https://ordinals.gorillapool.io/api/`
+- 1Sat API: `https://api.1sat.app/1sat` (unified BSV indexer)
 - bsocial: `https://api.sigmaidentity.com/`
 - Sigma auth: `https://auth.sigmaidentity.com`
 - Yours Wallet: Browser extension (no API endpoint)
@@ -923,7 +937,7 @@ type DerivationTag = string; // For Tagged Derivation Keys™
 - **Full SDK Docs**: `~/code/ts-sdk/llms.txt`
 - **1Sat Ordinals**: https://1satordinals.com
 - **BitcoinSchema.org**: Schema specifications
-- **API Explorer**: https://ordinals.gorillapool.io/api/docs
+- **1Sat API**: https://api.1sat.app/1sat
 - **BRC Standards**: https://brc.dev
 - **Yours Wallet**: https://yours.org
 
