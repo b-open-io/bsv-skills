@@ -1,6 +1,6 @@
 ---
 name: wallet-brc100
-description: This skill should be used when the user asks to "implement BRC-100 wallet", "use wallet-toolbox", "TypeScript BSV wallet", "BRC-100 implementation", "desktop wallet", "Electron wallet", "browser wallet", "IndexedDB wallet storage", "wallet actions", "wallet baskets", "UTXO management", "createAction", "listOutputs", "wallet certificates", or needs guidance on building conforming wallets using @bsv/wallet-toolbox.
+description: This skill should be used when the user asks to "implement BRC-100 wallet", "use wallet-toolbox", "TypeScript BSV wallet", "BRC-100 implementation", "desktop wallet", "Electron wallet", "browser wallet", "IndexedDB wallet storage", "wallet actions", "wallet baskets", "UTXO management", "createAction", "listOutputs", "wallet certificates", "WalletClient", "noSend", "BEEF payment", "pay-beef", "send BEEF", "Transaction.fromBEEF", "toHexBEEF", or needs guidance on building conforming wallets using @bsv/wallet-toolbox or connecting to a user's BRC-100 wallet via WalletClient.
 ---
 
 # BRC-100 Wallet Implementation Guide
@@ -20,10 +20,32 @@ This skill provides comprehensive guidance for implementing BRC-100 conforming w
 }
 ```
 
+### WalletClient vs Wallet — Choose the Right Class
+
+This is the most important distinction in the BSV wallet stack:
+
+| Class | Package | Use When |
+|-------|---------|----------|
+| **`WalletClient`** | `@bsv/sdk` | Your app connects to a user's *existing* wallet (browser extension, MetaNet Client, etc.) — you don't control the keys |
+| **`Wallet`** | `@bsv/wallet-toolbox` | You *are* building the wallet — you own the keys, storage, and services |
+
+```typescript
+// WalletClient — thin client, no key management
+import { WalletClient } from '@bsv/sdk'
+const wallet = new WalletClient() // connects to user's wallet environment
+
+// Wallet — full wallet you build and control
+import { Wallet } from '@bsv/wallet-toolbox'
+const wallet = new Wallet({ chain, keyDeriver, storage, services })
+```
+
+Most apps (dApps, payment integrations) should use `WalletClient`. Only wallet *builders* need `Wallet` from `@bsv/wallet-toolbox`.
+
 ### Main Classes
 
 | Class | Purpose | Use When |
 |-------|---------|----------|
+| **WalletClient** | Thin BRC-100 client | Apps connecting to user's external wallet |
 | **Wallet** | Full BRC-100 wallet | Building production wallet apps |
 | **SimpleWalletManager** | Lightweight wrapper | Simple key-based authentication |
 | **CWIStyleWalletManager** | Multi-profile wallet | Advanced UMP token flows |
@@ -259,6 +281,44 @@ async function sendBSV(
   }
 }
 ```
+
+### noSend + BEEF Relay Pattern
+
+Use `noSend: true` when you want to create and sign a transaction but let a backend service validate and/or broadcast it. The result is returned as **BEEF** (Background Evaluation Extended Format) — a bundle of the transaction plus merkle proofs of its inputs, enabling SPV verification without a full node.
+
+```typescript
+import { WalletClient, P2PKH, Transaction } from '@bsv/sdk'
+
+const wallet = new WalletClient()
+
+// Build and sign, but don't broadcast
+const { tx } = await wallet.createAction({
+  description: 'Payment to service',
+  outputs: [{
+    lockingScript: new P2PKH().lock(recipientAddress).toHex(),
+    satoshis: 1000,
+    outputDescription: 'Service payment',
+  }],
+  options: { noSend: true },
+})
+
+// tx is BEEF bytes — convert to hex for JSON transport
+const beefHex = Transaction.fromBEEF(tx).toHexBEEF()
+
+// Send to backend — it can SPV-verify and broadcast
+await fetch(`https://your-service.example.com/pay?session=${sessionId}`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ beefHex }),
+})
+```
+
+**Why this pattern?**
+- The receiving service can verify the payment is valid via SPV *before* granting access or broadcasting
+- Useful for payment-gated APIs, content unlocking, and atomic service flows
+- BEEF includes merkle proofs so the server doesn't need a full node
+
+**Common mistake**: forgetting the `$` in template literals — `{session}` is a literal string, `${session}` interpolates the variable.
 
 ### Sign a Transaction
 
