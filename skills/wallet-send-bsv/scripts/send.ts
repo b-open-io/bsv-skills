@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { PrivateKey, P2PKH, Transaction, Script } from "@bsv/sdk";
+import { PrivateKey, P2PKH, Transaction, ARC } from "@bsv/sdk";
 
 // Help text
 const HELP = `
@@ -23,7 +23,8 @@ EXAMPLES:
   bun run send.ts KwajxSXaLx4GHVJH6cmB54eB2UHMKEJbeNweTfUxJDkSoorZ9Bgx 1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2 1000
 
 NOTES:
-  - Uses WhatsOnChain API for UTXO fetching and broadcast
+  - UTXOs fetched from WhatsOnChain API
+  - Broadcast via GorillaPool ARC (arc.gorillapool.io, no key required)
   - Fee rate: 1 sat/byte (minimum)
   - Network: BSV mainnet
 `.trim();
@@ -49,19 +50,18 @@ async function fetchUtxos(address: string): Promise<UTXO[]> {
   return response.json();
 }
 
-// Broadcast transaction via WhatsOnChain
-async function broadcastTx(txHex: string): Promise<string> {
-  const url = "https://api.whatsonchain.com/v1/bsv/main/tx/raw";
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ txhex: txHex }),
-  });
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Broadcast failed: ${error}`);
+// Broadcast transaction via GorillaPool ARC
+async function broadcastTx(tx: Transaction): Promise<string> {
+  const broadcaster = new ARC("https://arc.gorillapool.io");
+  const result = await tx.broadcast(broadcaster);
+  if (result.status === "success") {
+    return result.txid!;
   }
-  return response.text();
+  // 409 = already known, treat as success
+  if (result.code === "409" && result.txid) {
+    return result.txid;
+  }
+  throw new Error(`${result.code}: ${result.description}`);
 }
 
 // Calculate fee (1 sat/byte minimum)
@@ -181,21 +181,17 @@ async function main() {
   console.log("Signing transaction...");
   await tx.sign();
 
-  // Get transaction hex
-  const txHex = tx.toHex();
-  console.log(`Transaction size: ${txHex.length / 2} bytes`);
+  console.log(`Transaction size: ${tx.toBinary().length} bytes`);
   console.log(`Fee: ${estimatedFee} satoshis`);
 
-  // Broadcast
-  console.log("\nBroadcasting transaction...");
+  // Broadcast via ARC
+  console.log("\nBroadcasting via GorillaPool ARC...");
   try {
-    const txid = await broadcastTx(txHex);
+    const txid = await broadcastTx(tx);
     console.log(`\nSuccess! Transaction ID: ${txid}`);
     console.log(`View: https://whatsonchain.com/tx/${txid}`);
   } catch (e) {
     console.error(`Error broadcasting: ${(e as Error).message}`);
-    console.log("\nTransaction hex (for manual broadcast):");
-    console.log(txHex);
     process.exit(1);
   }
 }

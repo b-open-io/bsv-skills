@@ -1,32 +1,43 @@
 ---
 name: decode-bsv-transaction
-description: This skill should be used when the user asks to "decode transaction", "parse tx hex", "transaction details", "analyze transaction", or needs to decode BSV transaction hex into human-readable format.
+description: This skill should be used when the user asks to "decode transaction", "parse tx hex", "transaction details", "analyze transaction", "decode BEEF", "parse BEEF hex", "decode EF transaction", "inspect transaction", or needs to decode BSV transaction hex (raw, Extended Format, or BEEF) into human-readable format.
 allowed-tools: "Bash(bun:*)"
 ---
 
 # Decode BSV Transaction
 
-Decode BSV transaction hex into human-readable format.
+Decode BSV transaction hex into human-readable format. Supports raw hex, Extended Format (EF), and BEEF format.
 
 ## Status
 
 **Complete** - All tests passing
 
-## When to Use
+## Transaction Formats
 
-- Decode raw transaction hex
-- Analyze transaction structure
-- View inputs and outputs
-- Inspect scripts and signatures
+BSV transactions come in three formats:
+
+| Format | Parser | Starts With | Contains |
+|--------|--------|-------------|---------|
+| **Raw** | `Transaction.fromHex()` | `01000000` | Just the transaction |
+| **EF** (Extended Format) | `Transaction.fromHexEF()` | `0100beef` | Tx + source tx data for fee validation |
+| **BEEF** | `Transaction.fromHexBEEF()` | `0100beef` | Tx + merkle proofs for SPV |
+
+The script auto-detects format. Pass `--beef` flag to force BEEF parsing.
 
 ## Usage
 
 ```bash
-# Decode transaction by hex
+# Decode raw or EF hex (auto-detected)
 bun run /path/to/skills/decode-bsv-transaction/scripts/decode.ts <tx-hex>
 
+# Decode BEEF hex (from WalletClient noSend)
+bun run /path/to/skills/decode-bsv-transaction/scripts/decode.ts --beef <beef-hex>
+
 # Decode transaction by txid (fetches from chain)
-bun run /path/to/skills/decode-bsv-transaction/scripts/decode.ts <txid>
+bun run /path/to/skills/decode-bsv-transaction/scripts/decode.ts --txid <txid>
+
+# JSON output
+bun run /path/to/skills/decode-bsv-transaction/scripts/decode.ts <tx-hex> --json
 ```
 
 ## API Endpoints
@@ -43,4 +54,4 @@ Returns decoded transaction with:
 - Version, locktime
 - Inputs (previous outputs, scripts, signatures)
 - Outputs (value, addresses, scripts)
-- Transaction size and fees
+- Transaction size and format type

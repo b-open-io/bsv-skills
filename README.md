@@ -1,6 +1,6 @@
 ![BSV Skills](assets/banner.png)
 
-BSV blockchain operations for Claude Code and AI agents. 24 skills covering wallets, identity, transactions, mining, and protocol implementation.
+BSV blockchain operations for Claude Code and AI agents. 25 skills covering wallets, identity, transactions, broadcasting, mining, and protocol implementation.
 
 Built by [B-Open](https://github.com/b-open-io). Need hands-on help building on BSV? Check out [bopen.io](https://bopen.io) — our consultancy for blockchain development, wallet integration, and BSV application architecture.
 
@@ -18,6 +18,7 @@ Contributions welcome! Found a way to improve a skill or have a new one to add? 
 bunx skills add b-open-io/bsv-skills --skill wallet-brc100
 bunx skills add b-open-io/bsv-skills --skill wallet-brc100-go
 bunx skills add b-open-io/bsv-skills --skill wallet-send-bsv
+bunx skills add b-open-io/bsv-skills --skill broadcast-arc
 bunx skills add b-open-io/bsv-skills --skill wallet-encrypt-decrypt
 bunx skills add b-open-io/bsv-skills --skill create-bap-identity
 bunx skills add b-open-io/bsv-skills --skill manage-bap-backup
@@ -45,9 +46,10 @@ bunx skills add b-open-io/bsv-skills --skill estimate-transaction-fee
 
 | Skill | Description | Triggers |
 |-------|-------------|----------|
-| **wallet-brc100** | BRC-100 wallet implementation (TypeScript) | "create wallet," "BRC-100," "wallet toolbox" |
+| **wallet-brc100** | BRC-100 wallet implementation + WalletClient + BEEF relay | "create wallet," "BRC-100," "WalletClient," "noSend," "BEEF" |
 | **wallet-brc100-go** | BRC-100 wallet implementation (Go) | "go wallet," "golang wallet" |
-| **wallet-send-bsv** | P2PKH transactions with @bsv/sdk | "send BSV," "broadcast transaction" |
+| **wallet-send-bsv** | P2PKH transactions from WIF key | "send BSV," "send from WIF" |
+| **broadcast-arc** | Broadcast transactions via ARC (GorillaPool / TAAL) | "broadcast via ARC," "arc.gorillapool.io," "broadcastMany" |
 | **wallet-encrypt-decrypt** | ECDH encryption with BSV keys (AES-256-GCM) | "encrypt message," "ECDH," "decrypt" |
 | **create-bap-identity** | BAP identity creation via bap CLI | "create identity," "BAP," "Type42" |
 | **manage-bap-backup** | Export identities from .bep files | "export identity," "list members" |
@@ -64,7 +66,7 @@ bunx skills add b-open-io/bsv-skills --skill estimate-transaction-fee
 | **junglebus** | Real-time transaction streaming | "junglebus," "transaction stream," "GorillaPool" |
 | **bsocial** | On-chain social protocol (posts, likes, follows) | "bsocial," "on-chain social," "BMAP" |
 | **check-bsv-price** | Current price from WhatsOnChain | "BSV price," "current rate" |
-| **decode-bsv-transaction** | Parse transaction hex | "decode tx," "parse transaction" |
+| **decode-bsv-transaction** | Parse raw, EF, and BEEF transaction formats | "decode tx," "parse transaction," "decode BEEF" |
 | **validate-bsv-script** | Analyze locking/unlocking scripts | "validate script," "script analysis" |
 | **lookup-bsv-address** | Address balance, history, UTXOs | "address balance," "UTXOs," "address history" |
 | **lookup-block-info** | Block data by height or hash | "block info," "block header" |
@@ -73,8 +75,9 @@ bunx skills add b-open-io/bsv-skills --skill estimate-transaction-fee
 ## Skill Categories
 
 ### Wallet Development
-- **wallet-brc100** / **wallet-brc100-go** - Full BRC-100 wallet implementation
-- **wallet-send-bsv** - Build and broadcast P2PKH transactions
+- **wallet-brc100** / **wallet-brc100-go** - Full BRC-100 wallet implementation, WalletClient, BEEF relay
+- **wallet-send-bsv** - Build and sign P2PKH transactions from a WIF key
+- **broadcast-arc** - Broadcast signed transactions via GorillaPool or TAAL ARC
 - **wallet-encrypt-decrypt** - ECDH encryption/decryption with BSV keys
 
 ### Identity & Authentication

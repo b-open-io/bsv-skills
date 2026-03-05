@@ -1,18 +1,20 @@
 ---
 name: wallet-send-bsv
-description: This skill should be used when the user asks to "send BSV", "transfer satoshis", "create payment transaction", "broadcast transaction", "send from WIF", or needs to build, sign, and broadcast P2PKH transactions using @bsv/sdk.
+description: This skill should be used when the user asks to "send BSV", "transfer satoshis", "create payment transaction", "send from WIF", "P2PKH transaction", or needs to build, sign, and broadcast P2PKH transactions from a WIF private key using @bsv/sdk.
 allowed-tools: "Bash(bun:*)"
 ---
 
 # Wallet Send BSV
 
-Send BSV transactions using @bsv/sdk with WhatsOnChain API.
+Build, sign, and broadcast a P2PKH payment from a WIF private key using `@bsv/sdk`.
+
+> **Note**: This skill is for WIF-key-based scripts and CLIs. If building an app where users have their own wallet, use `wallet-brc100` with `WalletClient.createAction()` instead — the wallet handles UTXOs, signing, and broadcasting automatically.
 
 ## When to Use
 
-- Send BSV to a recipient address
-- Create simple payment transactions
-- Transfer funds from a WIF private key
+- Scripts and CLIs that own a WIF private key
+- Server-side BSV payments from a managed key
+- Quick one-off transfers from a known address
 
 ## Usage
 
@@ -37,7 +39,8 @@ bun run skills/wallet-send-bsv/scripts/send.ts L1abc... 1BvBMSEY... 1000
 ## Dependencies
 
 - `@bsv/sdk` - BSV SDK for key/transaction operations
-- WhatsOnChain API - UTXO fetching and broadcast
+- WhatsOnChain API - UTXO fetching
+- GorillaPool ARC - Transaction broadcast
 
 ## Transaction Flow
 
@@ -48,17 +51,17 @@ bun run skills/wallet-send-bsv/scripts/send.ts L1abc... 1BvBMSEY... 1000
 5. Build transaction with P2PKH inputs/outputs
 6. Calculate fee (1 sat/byte)
 7. Sign transaction
-8. Broadcast via WhatsOnChain API
+8. Broadcast via GorillaPool ARC (`https://arc.gorillapool.io`)
 
 ## Error Handling
 
 - **Invalid WIF**: Clear error with SDK message
 - **Invalid address**: Format validation error
 - **Insufficient funds**: Shows balance vs required amount
-- **Network errors**: Displays raw tx hex for manual broadcast
+- **Broadcast failure**: Shows ARC error code and description
 
-## Network
+## Related Skills
 
-Uses BSV mainnet via WhatsOnChain API:
-- UTXOs: `GET /v1/bsv/main/address/{address}/unspent`
-- Broadcast: `POST /v1/bsv/main/tx/raw`
+- `broadcast-arc` — broadcast any signed transaction via ARC (GorillaPool or TAAL)
+- `wallet-brc100` — app-level payments via `WalletClient` (no WIF needed)
+- `decode-bsv-transaction` — inspect a transaction before broadcasting
