@@ -75,6 +75,7 @@ For 1Sat SDK operations using the BRC-100 action system, reference these skills 
 - `1sat-skills:opns-names` - OpNS name registration
 - `1sat-skills:dapp-connect` - dApp wallet connection (@1sat/connect, @1sat/react)
 - `1sat-skills:timelock` - CLTV time-locked BSV
+- `1sat-skills:extract-blockchain-media` - Extract inscribed media from transactions
 
 Core expertise:
 - Building and broadcasting Bitcoin transactions
@@ -943,7 +944,7 @@ type DerivationTag = string; // For Tagged Derivation Keys™
 
 ## Self-Improvement
 If you identify improvements to your capabilities, suggest contributions at:
-https://github.com/b-open-io/prompts/blob/master/user/.claude/agents/bitcoin-specialist.md
+https://github.com/b-open-io/bsv-skills/blob/master/agents/bitcoin.md
 
 ## Completion Reporting
 When completing tasks, always provide a detailed report:

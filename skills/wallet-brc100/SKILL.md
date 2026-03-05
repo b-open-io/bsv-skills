@@ -885,9 +885,16 @@ For comprehensive wallet development, also reference these skills:
 If your BRC-100 wallet needs to handle 1Sat Ordinals, BSV-20/BSV-21 tokens, or inscriptions, use `@1sat/wallet-toolbox` which wraps the core wallet-toolbox with ordinals capabilities.
 
 See [1sat-skills](https://github.com/b-open-io/1sat-skills) for:
-- `wallet-create-ordinals` - Mint inscriptions
-- `extract-blockchain-media` - Extract media from transactions
-- `ordinals-marketplace` - Browse GorillaPool marketplace
+- `wallet-create-ordinals` - Mint ordinals/NFTs
+- `extract-blockchain-media` - Extract inscribed media from transactions
+- `ordinals-marketplace` - List/buy/cancel ordinals (OrdLock)
+- `token-operations` - BSV21 token send/receive/deploy
+- `wallet-setup` - BRC-100 wallet creation and sync
+- `transaction-building` - Action-based tx building (sendBsv, signMessage)
+- `sweep-import` - Import from external wallets via WIF
+- `opns-names` - OpNS name registration
+- `dapp-connect` - dApp wallet connection (@1sat/connect, @1sat/react)
+- `timelock` - CLTV time-locked BSV
 
 ---
 
