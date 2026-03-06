@@ -318,6 +318,117 @@ const deploy = BSV21.deploy({
 
 ---
 
+## POW-20 (Proof-of-Work Tokens)
+
+Proof-of-work mineable fungible tokens using sCrypt smart contracts on 1Sat Ordinals. Combines 1Sat infrastructure with covenant-enforced mining for fair token distribution.
+
+**Reference implementation**: https://github.com/b-open-io/pow20-miner (Go)
+
+### Core Concepts
+
+- **sCrypt covenant**: Recursive smart contract enforces mining rules on-chain
+- **Proof-of-work**: SHA256d mining with configurable difficulty (leading zero nibbles)
+- **Layer 1 settlement**: Validated by miners, no off-chain computation required
+- **State machine**: Each mine output becomes the next mining target
+
+### Mining Algorithm
+
+```
+Preimage (64 bytes):
+  Bytes 0-31:   Previous transaction ID (32 bytes, reversed)
+  Bytes 32-39:  Nonce counter (uint64, little-endian)
+  Bytes 40-47:  Worker thread ID (uint64, little-endian)
+
+Solution = SHA256(SHA256(preimage))
+Must have N leading zero nibbles where N = difficulty
+```
+
+### Transaction Structure
+
+When a solution is found:
+
+| Output | Purpose |
+|--------|---------|
+| 1 | Restate contract (1 sat) — same sCrypt template, reduced supply |
+| 2 | Token reward — BSV-20 inscription locked to miner's address |
+| 3 | Change (optional) |
+
+### Token Inscription (Output 2)
+
+```json
+{
+  "p": "bsv-20",
+  "op": "transfer",
+  "id": "<TOKEN_ID>",
+  "amt": "<REWARD>"
+}
+```
+
+### Contract State
+
+| Field | Description |
+|-------|-------------|
+| `symbol` | Token ticker |
+| `max` | Maximum supply |
+| `dec` | Decimal places |
+| `reward` | Current reward (decreases over time) |
+| `difficulty` | Leading zero nibbles required (1-16) |
+| `supply` | Remaining supply to mine |
+| `id` | Token ID (txid_0 format) |
+
+### APIs
+
+| Endpoint | Purpose |
+|----------|---------|
+| `https://api.1sat.market/mine/pow20/` | List POW-20 tokens |
+| `https://ordinals.gorillapool.io/api/subscribe?channel=<tokenid>` | WebSocket mine updates |
+
+---
+
+## OpNS (On-Chain Name System)
+
+Decentralized name system where names are ordinal inscriptions with identity key bindings.
+
+**Content type**: `application/op-ns`
+
+### Architecture
+
+- **Mine tree**: Tracked by the OpNS overlay in 1sat-stack. Name origins are permanent once indexed.
+- **Name resolution**: ORDFS handles ordinal-level resolution, not the overlay.
+- **Identity binding**: MAP metadata `opns.idKey` on a self-transfer of the OpNS ordinal.
+- **Paymail**: OpNS name -> ORDFS MAP lookup -> `idKey` -> BRC-29 address derivation.
+- **Genesis**: `58b7558ea379f24266c7e2f5fe321992ad9a724fd7a87423ba412677179ccb25`
+
+### Actions
+
+| Action | Description |
+|--------|-------------|
+| `opnsRegister` | Bind wallet's identity key to a name via `opns.idKey` MAP field |
+| `opnsDeregister` | Clear identity binding (set `opns.idKey` to empty) |
+
+### Package
+
+```typescript
+import { opnsRegister, opnsDeregister, createContext } from '@1sat/actions'
+```
+
+### Tags
+
+| Tag | Meaning |
+|-----|---------|
+| `type:application/op-ns` | OpNS name ordinal |
+| `opns:published` | Identity key currently registered |
+| `origin:{outpoint}` | Origin outpoint |
+| `name:{value}` | The name string |
+
+### Overlay Route
+
+```
+GET /opns/mine/:name
+```
+
+---
+
 ## OrdLock (Token Locking)
 
 Lock ordinals with P2PKH or custom conditions.
