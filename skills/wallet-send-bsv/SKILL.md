@@ -2,6 +2,7 @@
 name: wallet-send-bsv
 description: This skill should be used when the user asks to "send BSV", "transfer satoshis", "create payment transaction", "send from WIF", "P2PKH transaction", or needs to build, sign, and broadcast P2PKH transactions from a WIF private key using @bsv/sdk.
 allowed-tools: "Bash(bun:*)"
+disable-model-invocation: true
 ---
 
 # Wallet Send BSV

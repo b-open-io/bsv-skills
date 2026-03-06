@@ -2,6 +2,7 @@
 name: broadcast-arc
 description: This skill should be used when the user asks to "broadcast transaction", "submit to ARC", "broadcast via ARC", "broadcast BEEF", "broadcast EF", "use GorillaPool ARC", "use TAAL ARC", "arc.gorillapool.io", "arc.taal.com", "ArcConfig", "broadcastMany", or needs to submit a signed BSV transaction to the network using the ARC broadcaster from @bsv/sdk.
 allowed-tools: "Bash(bun:*)"
+disable-model-invocation: true
 ---
 
 # ARC Transaction Broadcasting

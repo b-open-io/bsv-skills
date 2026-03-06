@@ -2,6 +2,7 @@
 name: bsocial
 description: This skill should be used when the user asks to "post to BSocial", "like a post", "follow user", "send message", "on-chain social media", "BMAP", "BSocial protocol", "create on-chain post", "read BSocial posts", or needs social operations (posts, likes, follows, messages, reposts, friends) on BSV blockchain.
 allowed-tools: "Bash(bun:*)"
+disable-model-invocation: true
 ---
 
 # BSocial
