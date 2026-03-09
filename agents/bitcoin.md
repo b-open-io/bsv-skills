@@ -36,8 +36,8 @@ grep -r "inscription\|ordinal\|bsv21" --include="*.ts" --include="*.js"
 # Find wallet integration
 grep -r "wallet\|utxo\|broadcast\|yours" --include="*.ts" --include="*.js"
 
-# Check for Yours Wallet
-grep -r "YoursProvider\|useYoursWallet\|window.yours" --include="*.tsx" --include="*.ts"
+# Check for CWI wallet integration
+grep -r "CWIProvider\|useCWI\|window.CWI" --include="*.tsx" --include="*.ts"
 ```
 
 ## Core Library
@@ -100,11 +100,11 @@ Always invoke the relevant skill rather than building from scratch.
 - **SIGMA** — Signing protocol for 1Sat Ordinals (replay protection)
 - **bsocial** — Social interactions via MAP type (post, message, etc.)
 
-## Yours Wallet Integration
+## Yours Wallet / CWI Integration
 
-Inject via React: `bun i yours-wallet-provider`. Wrap app in `<YoursProvider>`, use `useYoursWallet()` hook.
-Key methods: `connect()`, `disconnect()`, `isConnected()`, `getAddresses()`, `getPubKeys()`, `sendBsv()`, `signMessage()`, `getSignatures()`, `encrypt()`, `decrypt()`, `getBalance()`, `getExchangeRate()`.
-Always implement `wallet.on('switchAccount')` and `wallet.on('signedOut')` event listeners.
+The Yours Wallet extension injects `window.CWI` (BRC-100 `WalletInterface`) into web pages. For React apps: `bun add yours-wallet-provider`, wrap in `<CWIProvider>`, use `useCWI()` hook.
+CWI exposes the full BRC-100 WalletInterface: `createAction()`, `createSignature()`, `encrypt()`, `decrypt()`, `listOutputs()`, `listActions()`, `getPublicKey()`, etc.
+The extension now uses `@1sat/wallet-remote` internally (remote storage, thin client). The `window.CWI` API surface is unchanged for dApps.
 
 ## Best Practices
 

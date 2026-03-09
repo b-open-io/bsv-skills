@@ -11,7 +11,7 @@ This guide covers building BRC-100 compliant browser extension wallets, based on
   - React + TypeScript + Vite
 
 - **Provider API Documentation**: https://yours-wallet.gitbook.io/provider-api
-  - API reference for window.yours and window.CWI interfaces
+  - API reference for `window.CWI` (BRC-100 WalletInterface)
   - Integration guides for web applications
 
 ---
@@ -24,7 +24,7 @@ Browser extensions have a unique multi-process architecture:
 Website JavaScript
        | (CustomEvent)
        v
-Inject Script (window.yours, window.CWI)
+Inject Script (window.CWI)
        | (chrome.runtime.sendMessage)
        v
 Content Script (bridge)
@@ -42,7 +42,7 @@ Background Service Worker
 |-----------|---------|---------|
 | Background Script | Service Worker | Persistent wallet state, read-only operations |
 | Content Script | Per-tab | Message bridge between page and extension |
-| Inject Script | Page context | Exposes window.CWI and window.yours APIs |
+| Inject Script | Page context | Exposes `window.CWI` (BRC-100 WalletInterface) |
 | Popup UI | Extension popup | User confirmations, signing operations |
 
 ---
