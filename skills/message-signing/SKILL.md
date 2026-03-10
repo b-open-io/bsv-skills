@@ -216,6 +216,28 @@ const isValid = bap.verifySignature("Hello World", address, signature);
 
 A CLI is also available: `npm install -g bsv-bap` (see **`create-bap-identity`** skill).
 
+## Sigma Signing via @1sat/actions
+
+The `inscribe` action from `@1sat/actions` supports a `signWithBAP` parameter that applies a Sigma BSM signature using the wallet's BAP identity key. This is the recommended approach when signing inscriptions through the actions framework — it handles anchor tx construction, sigma hash computation, and broadcast automatically.
+
+```typescript
+import { inscribe, createContext } from '@1sat/actions'
+
+const result = await inscribe.execute(ctx, {
+  base64Content: btoa('Hello Sigma'),
+  contentType: 'text/plain',
+  signWithBAP: true,  // Signs with BAP identity via Sigma protocol
+})
+```
+
+The resulting transaction carries a Sigma signature that can be verified with `sigma-protocol`:
+
+```typescript
+import { Sigma } from 'sigma-protocol'
+const sigma = new Sigma(tx, 0, 0, 0)
+sigma.verify() // true
+```
+
 ## Additional Resources
 
 ### Reference Files

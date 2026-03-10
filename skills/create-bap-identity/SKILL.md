@@ -37,7 +37,7 @@ BAP uses Type42 (BRC-42) key derivation with BRC-43 invoice numbers:
 
 | Purpose | Invoice Number | Security Level |
 |---------|---------------|----------------|
-| Signing key | `1-bap-identity` | 1 (public protocol) |
+| Signing key | `1-bapid-identity` | 1 (public protocol) |
 | Friend encryption | `2-friend-{sha256(friendBapId)}` | 2 (user-approved) |
 
 ## Signing Messages

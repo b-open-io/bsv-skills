@@ -54,7 +54,7 @@ const memberKey = masterKey.deriveChild(
 ### Step 3: Identity Signing Key
 
 ```typescript
-const BAP_INVOICE = "1-bap-identity";
+const BAP_INVOICE = "1-bapid-identity";
 
 const signingKey = memberKey.deriveChild(
   memberKey.toPublicKey(),
@@ -80,7 +80,7 @@ function deriveIdentitySigningKey(
   // Level 2: Signing key
   const signingKey = memberKey.deriveChild(
     memberKey.toPublicKey(),
-    "1-bap-identity"
+    "1-bapid-identity"
   );
 
   return {
@@ -129,7 +129,7 @@ const memberKey = memberHD.privKey;
 // Even in BIP32 mode, signing key uses Type42 derivation
 const signingKey = memberKey.deriveChild(
   memberHD.pubKey,
-  "1-bap-identity"
+  "1-bapid-identity"
 );
 
 const signingAddress = signingKey.toPublicKey().toAddress();
@@ -190,7 +190,7 @@ function deriveFromSeed(masterKey: PrivateKey, seed: string): PrivateKey {
   // Apply identity signing derivation
   return seedKey.deriveChild(
     seedKey.toPublicKey(),
-    "1-bap-identity"
+    "1-bapid-identity"
   );
 }
 ```
@@ -227,7 +227,7 @@ const rootWif = hdKey.privKey.toWif();
 // Sign with OLD (BIP32) key pointing to NEW (Type42) address
 const legacyKey = hdKey.derive("m/424150'/0'/0'/0/0/0").privKey;
 const newAddress = type42Key.deriveChild(type42Key.toPublicKey(), "bap:0")
-  .deriveChild(/*..*/, "1-bap-identity")
+  .deriveChild(/*..*/, "1-bapid-identity")
   .toPublicKey()
   .toAddress();
 
@@ -250,7 +250,7 @@ function needsRotation(
   const bip32Key = hdKey.derive(path).privKey;
   const bip32Signing = bip32Key.deriveChild(
     hdKey.derive(path).pubKey,
-    "1-bap-identity"
+    "1-bapid-identity"
   );
   const bip32Address = bip32Signing.toPublicKey().toAddress();
 
@@ -264,9 +264,9 @@ function needsRotation(
 ```typescript
 // BAP-specific constants
 const BAP_PROTOCOL_PREFIX = 424150;  // Used in BIP32 paths
-const BAP_PROTOCOL_ID: [1, string] = [1, "bap"];
+const BAP_PROTOCOL_ID: [1, string] = [1, "bapid"];
 const BAP_KEY_ID = "identity";
-const BAP_INVOICE_NUMBER = "1-bap-identity";
+const BAP_INVOICE_NUMBER = "1-bapid-identity";
 
 // Paths
 const SIGNING_PATH_PREFIX = "m/424150'/0'/0'";

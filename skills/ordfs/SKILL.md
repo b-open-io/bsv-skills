@@ -289,5 +289,5 @@ const currentOutpoint = response.headers.get("X-Outpoint");
 ### Related Packages
 
 - `bitcoin-image` - URL normalization for ordfs.network
-- `js-1sat-ord` - Create inscriptions
+- `@1sat/actions` - Create inscriptions
 - `@bopen-io/templates` - Inscription templates

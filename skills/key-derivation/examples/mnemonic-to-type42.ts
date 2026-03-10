@@ -54,7 +54,7 @@ function basicExample() {
   // Now use Type42 derivation
   const signingKey = masterKey.deriveChild(
     masterKey.toPublicKey(),
-    "1-bap-identity"
+    "1-bapid-identity"
   );
   console.log("Signing Address:", signingKey.toPublicKey().toAddress());
 }
@@ -98,7 +98,7 @@ function bapMultiIdentityExample() {
   console.log("Mnemonic:", mnemonic.toString());
 
   const masterKey = mnemonicToMasterKey(mnemonic);
-  const BAP_INVOICE = "1-bap-identity";
+  const BAP_INVOICE = "1-bapid-identity";
 
   console.log("\nDerived Identities:");
   for (let i = 0; i < 3; i++) {

@@ -273,7 +273,7 @@ Root Key → Member Key (at path) → Signing Key (for on-chain ops)
 
 **Type 42 signing key derivation**:
 ```typescript
-signingKey = memberKey.deriveChild(memberKey.toPublicKey(), "1-bap-identity");
+signingKey = memberKey.deriveChild(memberKey.toPublicKey(), "1-bapid-identity");
 ```
 
 ### Signing Paths

@@ -242,7 +242,7 @@ Base metadata schema for ordinals inscriptions.
 |---------|---------|
 | `@bsv/sdk` | Core BSV functionality |
 | `@b-open-io/templates` | Script template implementations (replaces bmapjs) |
-| `js-1sat-ord` | Ordinals/inscriptions (migrating to `@1sat/sdk` - in progress) |
+| `@1sat/sdk` | Ordinals/inscriptions (replaces `js-1sat-ord`) |
 | `bsv-bap` | BAP identity management |
 | `sigma-protocol` | SIGMA signing |
 | `bitcoin-auth` | HTTP authentication |
@@ -269,7 +269,7 @@ Base metadata schema for ordinals inscriptions.
 - **ORDFS Gateway**: https://ordfs.network
 - **@b-open-io/templates**: https://github.com/b-open-io/ts-templates
 - **sigma-protocol**: https://github.com/BitcoinSchema/sigma
-- **js-1sat-ord**: https://github.com/BitcoinSchema/js-1sat-ord
+- **@1sat/sdk**: https://github.com/b-open-io/1sat-sdk
 - **bsv-bap**: https://github.com/BitcoinSchema/bap
 - **bitcoin-auth**: https://github.com/b-open-io/bitcoin-auth
 - **STAS Token**: https://docs.stastoken.com/
