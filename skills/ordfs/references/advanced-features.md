@@ -83,18 +83,14 @@ const directory = {
   "app.js": `${jsTxid}_0`
 };
 
-// Inscribe directory
-const dirTx = await createOrdinals({
-  utxos,
-  destinations: [{
-    address: ownerAddress,
-    inscription: {
-      dataB64: btoa(JSON.stringify(directory)),
-      contentType: "ord-fs/json"
-    }
-  }],
-  changeAddress
-});
+// Inscribe directory using @1sat/actions
+import { inscribe, createContext } from '@1sat/actions'
+
+const ctx = createContext(wallet)
+const result = await inscribe.execute(ctx, {
+  base64Content: btoa(JSON.stringify(directory)),
+  contentType: 'ord-fs/json',
+})
 ```
 
 ### Accessing Directory Files

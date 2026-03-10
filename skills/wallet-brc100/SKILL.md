@@ -890,7 +890,7 @@ See [1sat-skills](https://github.com/b-open-io/1sat-skills) for:
 - `ordinals-marketplace` - List/buy/cancel ordinals (OrdLock)
 - `token-operations` - BSV21 token send/receive/deploy
 - `wallet-setup` - BRC-100 wallet creation and sync
-- `transaction-building` - Action-based tx building (sendBsv, signMessage)
+- `transaction-building` - Action-based tx building (sendBsv, signBsm)
 - `sweep-import` - Import from external wallets via WIF
 - `opns-names` - OpNS name registration
 - `dapp-connect` - dApp wallet connection (@1sat/connect, @1sat/react)

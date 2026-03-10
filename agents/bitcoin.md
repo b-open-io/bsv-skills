@@ -71,7 +71,7 @@ Always invoke the relevant skill rather than building from scratch.
 
 ### 1Sat Ordinals & Tokens (1sat-skills plugin)
 - `1sat-skills:wallet-setup` — BRC-100 wallet creation and sync
-- `1sat-skills:transaction-building` — Action-based tx building (`sendBsv`, `signMessage`)
+- `1sat-skills:transaction-building` — Action-based tx building (`sendBsv`, `signBsm`)
 - `1sat-skills:wallet-create-ordinals` — Inscribe ordinals/NFTs
 - `1sat-skills:ordinals-marketplace` — List/buy/cancel ordinals (OrdLock)
 - `1sat-skills:token-operations` — BSV21 token send/receive/deploy

@@ -129,12 +129,18 @@ const inscription = Inscription.create(data, "image/png", {
 
 ```typescript
 import { Inscription } from "@bopen-io/templates";
-// or
-import { createOrdinals, sendOrdinals } from "js-1sat-ord";
 
-// Create inscription
+// Create inscription (low-level script template)
 const inscription = Inscription.fromText("Hello, Ordinals!", "text/plain");
 const lockingScript = inscription.lock();
+
+// Preferred: use @1sat/actions for full inscription workflow
+import { inscribe, createContext } from '@1sat/actions'
+const ctx = createContext(wallet)
+const result = await inscribe.execute(ctx, {
+  base64Content: btoa('Hello, Ordinals!'),
+  contentType: 'text/plain',
+})
 
 // With parent (collection item)
 const child = Inscription.create(data, "image/png", {

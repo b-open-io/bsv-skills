@@ -145,40 +145,30 @@ id := bap.NewIdentity(privateKey)
 
 ## 1Sat Ordinals
 
-### js-1sat-ord
+### @1sat/actions (recommended)
 
-**Location**: `local clone/js-1sat-ord`
-**Repository**: https://github.com/BitcoinSchema/js-1sat-ord
-**Package**: `js-1sat-ord` (v0.1.91)
+**Package**: `@1sat/actions`
 
-JavaScript library for 1Sat Ordinals.
+The action system provides high-level operations for ordinals, tokens, payments, and more via a BRC-100 compatible wallet.
 
 ```typescript
-import {
-  createOrdinals,
-  sendOrdinals,
-  deployBsv20,
-  mintBsv20,
-  transferBsv20
-} from "js-1sat-ord";
+import { inscribe, createContext } from '@1sat/actions'
 
-// Create inscription
-const tx = await createOrdinals({
-  utxos,
-  destinations: [{
-    address: "1A1zP...",
-    inscription: {
-      dataB64: btoa("Hello, Ordinals!"),
-      contentType: "text/plain"
-    }
-  }],
-  changeAddress: "1B2c..."
-});
+const ctx = createContext(wallet)
+const result = await inscribe.execute(ctx, {
+  base64Content: btoa('Hello, Ordinals!'),
+  contentType: 'text/plain',
+})
+// result.txid — broadcast transaction ID
 ```
 
-**Dependencies**:
-- `@bopen-io/templates` - Script templates
-- `sigma-protocol` - Transaction signing
+See the `transaction-building` skill for the full action registry and two-phase signing pattern.
+
+### js-1sat-ord (legacy)
+
+> **Legacy**: Use `@1sat/actions` for new development. `js-1sat-ord` is maintained for backward compatibility only.
+
+**Package**: `js-1sat-ord`
 
 ### go-1sat-ord (Go)
 
@@ -400,7 +390,7 @@ Ordinals File System - HTTP gateway for on-chain content.
 | B | `@bopen-io/templates` | `go-b` | Binary storage |
 | BAP | `bsv-bap` | `go-bap` | Identity management |
 | SIGMA | `sigma-protocol` | `go-sigma` | Tx signatures |
-| Ordinals | `js-1sat-ord` | `go-1sat-ord` | NFT inscriptions |
+| Ordinals | `@1sat/actions` | `go-1sat-ord` | NFT inscriptions |
 | BSV-20 | `@bopen-io/templates` | - | Fungible tokens |
 | BMAP | `bmapjs` (deprecated) | `go-bmap` | Use @bopen-io/templates |
 | HTTP Auth | `bitcoin-auth` | - | BRC-77 authentication |
@@ -423,8 +413,8 @@ bun add sigma-protocol
 # BAP identity
 bun add bsv-bap
 
-# 1Sat ordinals
-bun add js-1sat-ord
+# 1Sat ordinals (actions + core)
+bun add @1sat/actions @1sat/core
 
 # BMAP parsing (deprecated - use @bopen-io/templates)
 # bun add bmapjs
