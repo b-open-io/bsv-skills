@@ -282,6 +282,57 @@ async function sendBSV(
 }
 ```
 
+### Spending Existing Outputs (inputBEEF Required)
+
+**CRITICAL**: When spending known wallet outputs via `createAction`, you **MUST** provide `inputBEEF`. The wallet needs the full BEEF proof chain (merkle proofs back to confirmed ancestors) for every input being spent. Without it, `createAction` will fail with "missing full proof in the inputBEEF".
+
+Two ways to obtain BEEF for inputs:
+
+**1. From `listOutputs` with `include: 'entire transactions'`** — for wallet-owned outputs:
+
+```typescript
+// Fetch outputs WITH their BEEF proof chain
+const result = await wallet.listOutputs({
+  basket: 'my-basket',
+  include: 'entire transactions',  // Returns result.BEEF
+  includeTags: true,
+})
+
+// Pass the BEEF when spending those outputs
+const createResult = await wallet.createAction({
+  description: 'Spend basket outputs',
+  inputBEEF: result.BEEF,  // Full proof chain for inputs
+  inputs: result.outputs.map(o => ({
+    outpoint: o.outpoint,
+    inputDescription: 'Basket output',
+    unlockingScriptLength: 180,
+    sequenceNumber: 0xffffffff,
+  })),
+  outputs: [],
+  options: { signAndProcess: false },
+})
+```
+
+**2. From a service BEEF lookup** — for external inputs (sweep, purchase):
+
+```typescript
+// Fetch BEEF from chain services
+const beef = await services.getBeefForTxid(txid)
+// Merge multiple if needed
+for (const additionalTxid of otherTxids) {
+  beef.mergeBeef(await services.getBeefForTxid(additionalTxid))
+}
+
+const createResult = await wallet.createAction({
+  description: 'Spend external inputs',
+  inputBEEF: beef.toBinary(),
+  inputs: [...],
+  outputs: [...],
+})
+```
+
+**Never call `createAction` with `inputs` but without `inputBEEF`** — even if the wallet "owns" the outputs.
+
 ### noSend + BEEF Relay Pattern
 
 Use `noSend: true` when you want to create and sign a transaction but let a backend service validate and/or broadcast it. The result is returned as **BEEF** (Background Evaluation Extended Format) — a bundle of the transaction plus merkle proofs of its inputs, enabling SPV verification without a full node.
@@ -320,7 +371,52 @@ await fetch(`https://your-service.example.com/pay?session=${sessionId}`, {
 
 **Common mistake**: forgetting the `$` in template literals — `{session}` is a literal string, `${session}` interpolates the variable.
 
-### Sign a Transaction
+### Sign a Transaction (Two-Phase with completeSignedAction)
+
+For two-phase actions (`signAndProcess: false`), use the `completeSignedAction` helper from `@1sat/actions` instead of calling `signAction` directly:
+
+```typescript
+import { completeSignedAction } from '@1sat/actions'
+
+const result = await completeSignedAction(
+  wallet,
+  createResult,           // from createAction with signAndProcess: false
+  inputBEEF as number[],  // BEEF from listOutputs (full SPV proof chain)
+  async (tx) => {
+    // tx is a fully-wired Transaction; return unlocking scripts by input index
+    return { 0: { unlockingScript: myScript.toHex() } }
+  },
+)
+```
+
+The helper handles BEEF merge, script verification, `signAction`, and `abortAction` on failure.
+
+#### signableTransaction BEEF Stripping
+
+`makeSignableTransactionBeef` in wallet-toolbox intentionally strips merkle proofs (uses `mergeRawTx`). The `completeSignedAction` helper fixes this by merging the unsigned tx into the original `inputBEEF`:
+
+```typescript
+import { Beef } from '@bsv/sdk'  // Beef IS exported from @bsv/sdk
+
+const beef = Beef.fromBinary(inputBEEF)
+beef.mergeRawTx(unsignedTx.toBinary())
+const atomicTx = beef.findAtomicTransaction(txid)
+```
+
+This reconstructs the full BEEF with merkle proofs intact.
+
+#### abortAction Scope
+
+`abortAction({ reference })` works on these statuses only:
+- `nosend`, `unsigned`, `unprocessed`
+
+Does NOT work on: `completed`, `failed`, `sending`, `unproven`.
+
+Server-side `processAction` verifies unlocking scripts independently after `signAction`. On verification failure, the server sets status to `failed` and releases inputs automatically.
+
+### Sign a Transaction (Direct signAction)
+
+For simple cases where you need raw `signAction`:
 
 ```typescript
 async function signTransaction(
