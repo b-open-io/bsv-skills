@@ -20,7 +20,7 @@ function selfDerivationExample() {
   console.log("Master Address:", masterKey.toPublicKey().toAddress());
 
   // Derive keys for different purposes using invoice numbers
-  const signingKey = masterKey.deriveChild(masterPubKey, "1-bapid-identity");
+  const signingKey = masterKey.deriveChild(masterPubKey, "1-sigma-identity");
   const encryptionKey = masterKey.deriveChild(masterPubKey, "2-encryption-default");
   const paymentKey = masterKey.deriveChild(masterPubKey, "payment:0");
 
@@ -112,7 +112,7 @@ function bapStyleDerivationExample() {
   // 1. Member key from counter
   // 2. Signing key from BAP invoice
 
-  const BAP_INVOICE = "1-bapid-identity";
+  const BAP_INVOICE = "1-sigma-identity";
 
   for (let identityIndex = 0; identityIndex < 3; identityIndex++) {
     // Level 1: Member key
