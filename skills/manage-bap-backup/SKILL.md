@@ -119,6 +119,37 @@ bap import backup.json  # Import from file
 bap info                # View current identity
 ```
 
+## Master vs Member Backups
+
+BAP supports two backup levels with different capabilities:
+
+| Backup Type | Contains | Can Derive New IDs? | Use Case |
+|-------------|----------|-------------------|----------|
+| **Master** | rootPk (Type42) or xprv (legacy) + ids | Yes | Full identity management, key rotation |
+| **Member** | Single derived WIF + encrypted identity data | No | Delegated access, agent auth, app-scoped signing |
+
+### Member Backup Export
+
+`exportMemberBackup()` produces a `MemberIdentity` with:
+- `derivedPrivateKey` — the stable member key WIF (from rootPath, never changes)
+- `address` — the current signing address (changes on rotation)
+- `counter` — rotation counter for the signing key derivation
+- `identityKey` — the BAP identity key
+
+### Stable Member Key
+
+The member key is the **stable identity anchor** for authentication:
+
+```typescript
+import { getStableMemberWif, getStableMemberPubkey } from "./bap/utils";
+
+// These stay fixed even after key rotation
+const wif = getStableMemberWif(identity);    // For auth token signing
+const pubkey = getStableMemberPubkey(identity); // For identity resolution
+```
+
+Auth tokens (bitcoin-auth) are signed with the stable member WIF, not the rotating signing key. This ensures identity continuity across rotations.
+
 ## Related Skills
 
 - **`create-bap-identity`** - Create new BAP identities

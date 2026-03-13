@@ -190,6 +190,39 @@ On-chain identity management.
 - Attestations (claims about identity)
 - Key rotation (address transitions)
 
+### BRC-68 Trust Anchor
+
+Certifier discovery at internet domains. A certifier publishes its identity at a well-known HTTPS path.
+
+**Location**: `https://<domain>/manifest.json`
+
+```json
+{
+  "metanet": {
+    "trust": {
+      "name": "Certifier Name",
+      "note": "What this certifier attests",
+      "icon": "https://example.com/icon.png",
+      "publicKey": "02<64-hex-chars>"
+    }
+  }
+}
+```
+
+**Constraints**: name 5-30 chars, note 5-50 chars, icon HTTPS URL, publicKey 66-char compressed secp256k1 hex.
+
+**Use cases**: BRC-52 certifier discovery, domain-anchored trust, identity provider metadata. Sigma Identity publishes a BRC-68 trust anchor at `sigmaidentity.com/manifest.json`.
+
+### did:bap (Provisional)
+
+W3C DID method for BAP identities, defined in BAP PROTOCOL.md.
+
+**Format**: `did:bap:id:<identityKey>`
+
+**Verification key type**: `EcdsaSecp256k1VerificationKey2019`
+
+Supports key rotation — new signing keys are added to the DID document with `authentication` and `assertionMethod` pointing to the current key. The root key is always present as `#root`.
+
 ## Off-Chain Standards
 
 ### bitcoin-auth

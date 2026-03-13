@@ -100,6 +100,13 @@ Always invoke the relevant skill rather than building from scratch.
 - **SIGMA** — Signing protocol for 1Sat Ordinals (replay protection)
 - **bsocial** — Social interactions via MAP type (post, message, etc.)
 
+## BAP & BRC-100 Identity Context
+
+- **BRC-68 Trust Anchor**: Certifiers publish pubkey + metadata at `https://<domain>/manifest.json` under `metanet.trust`. Sigma Identity publishes at `sigmaidentity.com/manifest.json`.
+- **did:bap**: Provisional W3C DID method defined in BAP PROTOCOL.md. Format: `did:bap:id:<identityKey>`. Uses `EcdsaSecp256k1VerificationKey2019`. Supports key rotation in DID document.
+- **BAP + BRC-100**: BAP uses BRC-42/43 for key derivation (same as BRC-100 wallets). Compatible with BRC-52 identity certificates. BAP provides the on-chain identity anchor; BRC-52 adds private, selectively-disclosable attributes.
+- **Selective Disclosure**: BAP ATTEST puts only `SHA256(URN)` on-chain. Attribute data stays private until user shares the full URN + nonce. ALIAS (public profile) is separate and optional.
+
 ## Yours Wallet / CWI Integration
 
 The Yours Wallet extension injects `window.CWI` (BRC-100 `WalletInterface`) into web pages. For React apps: `bun add yours-wallet-provider`, wrap in `<CWIProvider>`, use `useCWI()` hook.

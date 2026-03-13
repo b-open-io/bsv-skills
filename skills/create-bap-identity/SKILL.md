@@ -31,6 +31,26 @@ console.log("Root Address:", identity.rootAddress);
 console.log("Signing Address:", identity.getCurrentAddress());
 ```
 
+## BAP ID Format
+
+The BAP library calls this the `identityKey` (via `getIdentityKey()`), but to avoid confusion with BRC-31 "identity keys" (which are public keys), we call it the **BAP ID** everywhere else.
+
+**Derivation:** `base58(ripemd160(sha256(rootAddress)))` where `rootAddress` is the Bitcoin address of the member key.
+
+This is NOT a Bitcoin address, NOT a public key, and NOT a BRC-31 identity key. It is a stable hash identifier that persists across signing key rotations.
+
+### BAP ID vs BRC-31 Identity Key
+
+| | BAP ID | BRC-31 Identity Key |
+|---|---|---|
+| **What** | Stable identity hash | Compressed secp256k1 public key |
+| **Format** | ~27 char base58 string | 66 hex chars (`02`/`03` prefix) |
+| **Example** | `Go8vCHAa4S6AhXK...` | `02a08a4bbb07ead...` |
+| **Used in** | BAP attestations, ClawNet `bapId`, Sigma Auth `bap_id` | BRC-31 Authrite headers, BRC-42/43 key derivation |
+| **Derived from** | Member key's address (rootAddress) | Direct from private key |
+
+In BRC-100 wallets, the member key's pubkey is the BRC-31 identity key. You can derive the BAP ID from it: `pubkey.toAddress()` = rootAddress, then hash. This only works for the member key — NOT signing keys.
+
 ## Key Derivation
 
 BAP uses Type42 (BRC-42) key derivation with BRC-43 invoice numbers:
@@ -97,6 +117,57 @@ bap encrypt <data> <bapId>    # Encrypt for friend
 bap decrypt <text> <bapId>    # Decrypt from friend
 bap export                    # Export backup JSON
 bap import <file>             # Import from backup
+```
+
+## Key Rotation & Path Management
+
+BAP separates **stable identity** from **active signing key**:
+
+- **rootPath** (e.g., `bap:0`) — derives the stable member key. Never changes. This is the key used for identity linkage and member backup export.
+- **currentPath** (e.g., `bap:0:1`) — derives the active wallet/signing key. Rotates with `incrementPath()`.
+- **Identity key** persists across all rotations — it's derived from the rootAddress, not the signing address.
+
+```typescript
+// Key rotation
+const identity = bap.newId("Alice");
+console.log(identity.currentPath); // "bap:0" (initially same as rootPath)
+
+identity.incrementPath();
+console.log(identity.currentPath); // "bap:0:1" (rotated)
+// identity.identityKey is unchanged!
+```
+
+### Identity Destruction
+
+To permanently destroy an identity (emergency kill switch if signing key is compromised), broadcast an ID transaction with address `0`, signed by the rootAddress:
+
+```
+BAP_PREFIX | ID | identityKey | 0 | AIP_SIGNATURE(rootAddress)
+```
+
+### MemberID Counter-Based Rotation
+
+MemberID uses a counter for signing key derivation:
+
+```
+memberKey → deriveChild(pubkey, "bap:{counter}") → currentKey
+currentKey → deriveChild(pubkey, "1-sigma-identity") → signingKey
+```
+
+The protocol name `sigma-identity` is 5 characters to meet BRC-100 derivation requirements. Calling `member.rotate()` increments the counter, producing a new signing key while the member key stays fixed.
+
+### Stable vs Active Keys
+
+| Key | Derivation | Changes? | Use |
+|-----|-----------|----------|-----|
+| Member key | rootPath derived from master | Never | Identity linkage, auth tokens, backup export |
+| Signing key | currentPath derived from member + counter | On rotation | On-chain attestations, AIP signatures |
+
+```typescript
+import { getStableMemberPubkey, getActiveWalletPubkey } from "./bap/utils";
+
+const stablePubkey = getStableMemberPubkey(identity); // Fixed
+const activePubkey = getActiveWalletPubkey(identity);  // Rotates
 ```
 
 ## Identity Actions via @1sat/actions (Recommended)
