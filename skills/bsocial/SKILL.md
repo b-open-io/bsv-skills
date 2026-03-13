@@ -16,9 +16,35 @@ Complete on-chain social protocol for BSV blockchain. Posts, likes, follows, mes
 - Real-time messaging (channels, direct messages)
 - Query social data by address or transaction
 
-## Create Operations
+## Create via @1sat/actions (Recommended)
 
-All create scripts require a funded WIF (Wallet Import Format) private key.
+The `createSocialPost` action handles B:// + MAP + AIP construction and wallet signing.
+
+```typescript
+import { createSocialPost, createContext } from '@1sat/actions'
+
+const ctx = createContext(wallet)
+
+const result = await createSocialPost.execute(ctx, {
+  app: 'my-app',           // MAP attribution — identifies the calling application
+  content: 'Hello BSV!',
+  contentType: 'text/plain', // or 'text/markdown'
+  tags: ['intro', 'bsv'],   // optional
+})
+
+// result: { txid, rawtx, error }
+```
+
+The action:
+- Signs with the wallet's BAP identity key via AIP (using `WalletSigner` from `@bopen-io/templates`)
+- Stores the 0-sat OP_RETURN output in the `bsocial` basket for post history
+- Tags outputs with MAP fields (`app:my-app`, `type:post`, `tag:intro`, etc.) for filtered queries
+
+Query post history: `wallet.listOutputs({ basket: 'bsocial' })`
+
+## Create via CLI Scripts
+
+Alternative for raw WIF usage without BRC-100 wallet.
 
 ### Post
 
@@ -130,8 +156,9 @@ bun run skills/bsocial/scripts/read-friends.ts <address> [--json]
 
 ## Dependencies
 
+- `@1sat/actions` - BRC-100 action system (recommended for wallet-based operations)
 - `@bsv/sdk` - Transaction building
-- `@bopen-io/templates` - BSocial protocol templates
+- `@bopen-io/templates` - BSocial protocol templates (Signer abstraction, BSocial class)
 
 ## API
 

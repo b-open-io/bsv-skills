@@ -6,20 +6,48 @@ Key derivation patterns used in Bitcoin Attestation Protocol (BAP).
 **Repository**: https://github.com/BitcoinSchema/bap
 **Protocol Spec**: https://github.com/BitcoinSchema/bap/blob/master/PROTOCOL.md
 
-## Overview
+## Key Hierarchy
 
-BAP uses a two-level key derivation hierarchy:
-1. **Member Key**: Derived from master using path/invoice
-2. **Identity Signing Key**: Derived from member key using BAP invoice number
+```text
+Master Key (xprv or WIF)
+│   Stored in master backup. Spans ALL accounts.
+│   BIP32 (xprv) or Type42 (WIF) — used ONLY to derive member keys.
+│   Multiple accounts = multiple member keys. No on-chain relationship
+│   between them. "currentPath" on MasterID = which account is active.
+│
+└── Member Key (WIF) — ONE per account, stable, never changes
+    │   Derived from master via BIP32 path or Type42 invoice ("bap:N").
+    │   rootAddress = memberKey.toPublicKey().toAddress()
+    │   BAP ID = base58(ripemd160(sha256(rootAddress)))
+    │   Used to sign: identity publication, key rotation transactions.
+    │   This WIF is stored in the member backup.
+    │
+    ├── Current Key = BRC-100 wallet root (Type42, rotates)
+    │   │   memberKey.deriveChild(memberPub, "bap:{counter}")
+    │   │   counter = 0 initially, increments on rotation.
+    │   │   This is the active wallet/auth root.
+    │   │
+    │   └── Signing Key (Type42)
+    │       currentKey.deriveChild(currentPub, "1-bapid-identity")
+    │       signingAddress = signingKey.toPublicKey().toAddress()
+    │       Used for BAP attestations from the active wallet.
+    │
+    └── Encryption Key (Type42)
+        memberKey.deriveChild(memberPub, ENCRYPTION_PATH)
+        Used for ECIES encrypt/decrypt of identity data.
+```
 
-This separation enables:
-- Multiple identities from single master
-- Consistent signing key derivation
-- Type42 and BIP32 compatibility
+### Rules
+
+- **Master → Member**: BIP32 (path) or Type42 (invoice). This is the ONLY place BIP32 may be used.
+- **Member → everything below**: Type42 derivation only. Member key is a plain WIF, not an HD key.
+- **Member key never changes**. It defines the BAP ID and root address permanently.
+- **Rotation** increments a counter. New current key = `memberKey.deriveChild(pub, "bap:{counter}")`. On-chain, a BAP ID transaction signed with the member key's root address announces the new signing address.
+- **Multiple accounts** from one master are independent identities with no on-chain link between them.
 
 ## Mode Detection
 
-BAP supports both Type42 and BIP32:
+BAP supports both Type42 and BIP32 for master → member derivation:
 
 ```typescript
 import { BAP } from "bsv-bap";
@@ -41,23 +69,37 @@ import { PrivateKey } from "@bsv/sdk";
 const masterKey = PrivateKey.fromWif("L1...");
 ```
 
-### Step 2: Member Key (Path Derivation)
+### Step 2: Member Key (from master)
 
 ```typescript
-// Using counter-based invoice
+// Type42 derivation from master — one per account
 const memberKey = masterKey.deriveChild(
   masterKey.toPublicKey(),
-  "bap:0"  // "bap:1", "bap:2", etc. for additional identities
+  "bap:0"  // "bap:1", "bap:2", etc. for additional accounts
+);
+
+// Root address and BAP ID — stable, never changes
+const rootAddress = memberKey.toPublicKey().toAddress();
+```
+
+### Step 3: Current Key / BRC-100 Wallet Root (from member)
+
+```typescript
+// Type42 derivation from member key — rotates with counter
+const counter = 0; // increments on rotation
+const currentKey = memberKey.deriveChild(
+  memberKey.toPublicKey(),
+  `bap:${counter}`
 );
 ```
 
-### Step 3: Identity Signing Key
+### Step 4: Signing Key (from current key)
 
 ```typescript
 const BAP_INVOICE = "1-bapid-identity";
 
-const signingKey = memberKey.deriveChild(
-  memberKey.toPublicKey(),
+const signingKey = currentKey.deriveChild(
+  currentKey.toPublicKey(),
   BAP_INVOICE
 );
 
@@ -67,137 +109,104 @@ const signingAddress = signingKey.toPublicKey().toAddress();
 ### Complete Pattern
 
 ```typescript
-function deriveIdentitySigningKey(
+function deriveKeys(
   masterKey: PrivateKey,
-  identityIndex: number
-): { memberKey: PrivateKey; signingKey: PrivateKey; address: string } {
-  // Level 1: Member key
+  accountIndex: number,
+  rotationCounter: number
+): {
+  memberKey: PrivateKey;
+  currentKey: PrivateKey;
+  signingKey: PrivateKey;
+  rootAddress: string;
+  signingAddress: string;
+} {
+  // Level 1: Member key (from master, stable)
   const memberKey = masterKey.deriveChild(
     masterKey.toPublicKey(),
-    `bap:${identityIndex}`
+    `bap:${accountIndex}`
   );
 
-  // Level 2: Signing key
-  const signingKey = memberKey.deriveChild(
+  // Root address — defines BAP ID, never changes
+  const rootAddress = memberKey.toPublicKey().toAddress();
+
+  // Level 2: Current key / BRC-100 wallet root (from member, rotates)
+  const currentKey = memberKey.deriveChild(
     memberKey.toPublicKey(),
+    `bap:${rotationCounter}`
+  );
+
+  // Level 3: Signing key (from current key)
+  const signingKey = currentKey.deriveChild(
+    currentKey.toPublicKey(),
     "1-bapid-identity"
   );
 
   return {
     memberKey,
+    currentKey,
     signingKey,
-    address: signingKey.toPublicKey().toAddress()
+    rootAddress,
+    signingAddress: signingKey.toPublicKey().toAddress()
   };
 }
 ```
 
-## BIP32 Derivation Flow
+## BIP32 Derivation Flow (Legacy)
 
-### Standard Paths
-
-```typescript
-// Root signing path
-const SIGNING_PATH_PREFIX = "m/424150'/0'/0'";
-
-// Member paths
-const member0 = "m/424150'/0'/0'/0/0/0";
-const member1 = "m/424150'/0'/0'/0/0/1";
-
-// Encryption path (max hardened indices)
-const ENCRYPTION_PATH = "m/424150'/2147483647'/2147483647'";
-```
-
-### Step 1: HD Key
+BIP32 is only used for master → member derivation in legacy mode:
 
 ```typescript
 import { HD } from "@bsv/sdk";
 
 const hdKey = HD.fromString("xprv9s21ZrQH143K...");
-```
 
-### Step 2: Member Key (Path Derivation)
+// BIP32 paths for member derivation
+const SIGNING_PATH_PREFIX = "m/424150'/0'/0'";
+const member0Path = "m/424150'/0'/0'/0/0/0";
+const member1Path = "m/424150'/0'/0'/0/0/1";
 
-```typescript
-const memberPath = "m/424150'/0'/0'/0/0/0";
-const memberHD = hdKey.derive(memberPath);
-const memberKey = memberHD.privKey;
-```
+// Derive member key via BIP32
+const memberKey = hdKey.derive(member0Path).privKey;
 
-### Step 3: Identity Signing Key (Type42 from BIP32)
-
-```typescript
-// Even in BIP32 mode, signing key uses Type42 derivation
-const signingKey = memberKey.deriveChild(
-  memberHD.pubKey,
-  "1-bapid-identity"
-);
-
-const signingAddress = signingKey.toPublicKey().toAddress();
+// From here, ALL further derivation uses Type42 (same as above)
+const currentKey = memberKey.deriveChild(memberKey.toPublicKey(), "bap:0");
+const signingKey = currentKey.deriveChild(currentKey.toPublicKey(), "1-bapid-identity");
 ```
 
 ## Encryption Key Derivation
 
-### Type42 Mode
+Encryption keys are derived from the member key via Type42:
 
 ```typescript
 const ENCRYPTION_PATH = "m/424150'/2147483647'/2147483647'";
 
-// First derive to root path
-const rootKey = masterKey.deriveChild(
-  masterKey.toPublicKey(),
-  "m/424150'/0'/0'"
-);
-
-// Then derive encryption key
-const encryptionKey = rootKey.deriveChild(
-  rootKey.toPublicKey(),
+const encryptionKey = memberKey.deriveChild(
+  memberKey.toPublicKey(),
   ENCRYPTION_PATH
 );
 ```
 
-### BIP32 Mode
-
-```typescript
-const rootHD = hdKey.derive("m/424150'/0'/0'");
-const encryptionHD = rootHD.derive("m/424150'/2147483647'/2147483647'");
-const encryptionKey = encryptionHD.privKey;
-```
-
 ## Seed-Based Derivation
 
-Derive deterministic keys from arbitrary seed strings:
+Derive deterministic keys from arbitrary seed strings (e.g., friend encryption):
 
 ```typescript
 import { Hash, Utils } from "@bsv/sdk";
 const { toHex } = Utils;
 
-function deriveFromSeed(masterKey: PrivateKey, seed: string): PrivateKey {
-  // Hash seed to get deterministic invoice
+function deriveFromSeed(memberKey: PrivateKey, seed: string): PrivateKey {
   const seedHash = toHex(Hash.sha256(seed, "utf8"));
 
-  // First derive to root path
-  const rootKey = masterKey.deriveChild(
-    masterKey.toPublicKey(),
-    "m/424150'/0'/0'"
-  );
-
-  // Derive with seed hash as invoice
-  const seedKey = rootKey.deriveChild(
-    rootKey.toPublicKey(),
+  return memberKey.deriveChild(
+    memberKey.toPublicKey(),
     seedHash
-  );
-
-  // Apply identity signing derivation
-  return seedKey.deriveChild(
-    seedKey.toPublicKey(),
-    "1-bapid-identity"
   );
 }
 ```
 
 ## Identity Key Linkage
 
-Deterministic identity key derived from root address:
+BAP ID is deterministically derived from root address:
 
 ```typescript
 import { Hash, Utils } from "@bsv/sdk";
@@ -210,93 +219,69 @@ function deriveIdentityKey(rootAddress: string): string {
 }
 ```
 
-## Migration: BIP32 to Type42
+## Backup Formats
 
-**Important**: No direct upgrade path exists. Keys derived with different methods produce different results.
+### Master Backup
 
-### Migration Process
+Contains everything needed to reconstruct all accounts:
 
-1. **Extract WIF from HD**:
-```typescript
-const hdKey = HD.fromString(xprv);
-const rootWif = hdKey.privKey.toWif();
-```
-
-2. **Create rotation transaction** (links old identity to new):
-```typescript
-// Sign with OLD (BIP32) key pointing to NEW (Type42) address
-const legacyKey = hdKey.derive("m/424150'/0'/0'/0/0/0").privKey;
-const newAddress = type42Key.deriveChild(type42Key.toPublicKey(), "bap:0")
-  .deriveChild(/*..*/, "1-bapid-identity")
-  .toPublicKey()
-  .toAddress();
-
-// Create ID transaction with rotation
-```
-
-3. **Continue with Type42** for new attestations
-
-### Checking Migration Need
-
-```typescript
-function needsRotation(
-  hdKey: HD,
-  type42Key: PrivateKey,
-  registeredAddress: string
-): boolean {
-  const path = "m/424150'/0'/0'/0/0/0";
-
-  // Get BIP32 address
-  const bip32Key = hdKey.derive(path).privKey;
-  const bip32Signing = bip32Key.deriveChild(
-    hdKey.derive(path).pubKey,
-    "1-bapid-identity"
-  );
-  const bip32Address = bip32Signing.toPublicKey().toAddress();
-
-  // If registered with BIP32 address, needs rotation
-  return registeredAddress === bip32Address;
+```json
+{
+  "rootPk": "L4vB5...",        // Master key WIF (Type42) or xprv (BIP32)
+  "ids": "<encrypted string>", // All account metadata, encrypted with master
+  "label": "optional",
+  "createdAt": "2026-03-13T..."
 }
 ```
+
+### Member Backup
+
+Contains one account's key and metadata:
+
+```json
+{
+  "wif": "KwDiB...",           // Member key WIF (stable, never changes)
+  "id": "<encrypted string>",  // Identity metadata, encrypted with member key
+  "label": "optional",
+  "createdAt": "2026-03-13T..."
+}
+```
+
+The encrypted `id` blob contains:
+- `name`, `description` — human-readable identity info
+- `identityKey` — BAP ID
+- `identityAttributes` — attestation attributes
+- `counter` — current rotation index (needed to derive current BRC-100 wallet root)
+
+## Rotation
+
+Key rotation changes the active wallet/signing key while keeping the BAP ID stable:
+
+1. Increment counter
+2. Derive new current key: `memberKey.deriveChild(pub, "bap:{newCounter}")`
+3. Derive new signing key: `currentKey.deriveChild(pub, "1-bapid-identity")`
+4. Publish BAP ID transaction signed with **member key's root address** announcing the new signing address
+5. Update counter in member backup
+
+The BAP ID never changes because it comes from the member key, which never changes.
 
 ## Constants
 
 ```typescript
-// BAP-specific constants
 const BAP_PROTOCOL_PREFIX = 424150;  // Used in BIP32 paths
 const BAP_PROTOCOL_ID: [1, string] = [1, "bapid"];
 const BAP_KEY_ID = "identity";
 const BAP_INVOICE_NUMBER = "1-bapid-identity";
 
-// Paths
 const SIGNING_PATH_PREFIX = "m/424150'/0'/0'";
 const ENCRYPTION_PATH = "m/424150'/2147483647'/2147483647'";
 const MAX_INT = 2147483647;  // 2^31 - 1
 ```
 
-## Path Validation
-
-BAP paths must:
-- Have exactly 6 integer components
-- Each integer max 10 digits
-- Values <= 2^31 - 1
-
-```typescript
-function validatePath(path: string): boolean {
-  const parts = path.replace(/'/g, "").split("/").slice(1);
-  if (parts.length !== 6) return false;
-
-  return parts.every(part => {
-    const num = parseInt(part, 10);
-    return !isNaN(num) && num >= 0 && num <= 2147483647;
-  });
-}
-```
-
 ## Security Notes
 
-1. **Master key protection**: Never expose; derive child keys for operations
-2. **Type42 preferred**: Enhanced privacy, no public derivation
-3. **Invoice numbers public**: Can be shared; security from ECDH secrets
-4. **Backup both formats**: During migration, maintain both backups
-5. **Test recovery**: Always verify backup restoration before migration
+1. **Master key protection**: Never expose; only used to derive member keys
+2. **Member key**: Stored in member backup, used for identity publication and rotation signing
+3. **Type42 below member**: All derivation from member key downward uses Type42
+4. **Invoice numbers public**: Can be shared; security from ECDH secrets
+5. **Backup both levels**: Master backup for full recovery, member backup for single-account use

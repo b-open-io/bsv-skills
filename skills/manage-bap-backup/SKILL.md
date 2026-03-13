@@ -13,53 +13,73 @@ Export and import BAP identity backups using the `bsv-bap` library.
 bun add bsv-bap @bsv/sdk
 ```
 
-## Export Identity
+## Backup Formats
+
+### Master Backup
+
+Contains everything needed to reconstruct all accounts:
+
+```json
+{
+  "rootPk": "L4vB5...",        // Master key WIF (Type42) or xprv (BIP32)
+  "ids": "<encrypted string>", // All account metadata, encrypted with master
+  "label": "optional",
+  "createdAt": "2026-03-13T..."
+}
+```
+
+### Member Backup
+
+Contains one account's key and metadata:
+
+```json
+{
+  "wif": "KwDiB...",           // Member key WIF (stable, never changes)
+  "id": "<encrypted string>",  // Identity metadata, encrypted with member key
+  "label": "optional",
+  "createdAt": "2026-03-13T..."
+}
+```
+
+The encrypted `id` blob contains: name, description, identityKey (BAP ID), identityAttributes, and counter (current rotation index for deriving the BRC-100 wallet root).
+
+The `wif` is the member key — it defines the BAP ID and root address permanently. From it, the current BRC-100 wallet root is derived via Type42: `memberKey.deriveChild(pub, "bap:{counter}")`. See `key-derivation` skill's `bap-derivation` reference for the full hierarchy.
+
+## Export Master Backup
 
 ```typescript
 import { BAP } from "bsv-bap";
 
-// Load existing identity
 const bap = new BAP({ rootPk: storedWif });
 bap.importIds(encryptedIds);
 
-// Export for backup
 const backup = bap.exportForBackup("My Identity");
-// {
-//   ids: "QklFMQ...",
-//   createdAt: "2026-01-17T02:45:04.015Z",
-//   rootPk: "L1SJx4SfhuGkZHwjgYatQfe2yn8iqHpenvHxsDt9Vnsz7wMT8FqG"
-// }
+// { rootPk: "L1SJ...", ids: "QklFMQ...", createdAt: "..." }
 
-// Save to file
 import { writeFileSync } from "node:fs";
 writeFileSync("backup.json", JSON.stringify(backup, null, 2));
 ```
 
-## Import Identity
+## Import Master Backup
 
 ```typescript
 import { BAP } from "bsv-bap";
 import { readFileSync } from "node:fs";
 
-// Load backup
 const backup = JSON.parse(readFileSync("backup.json", "utf-8"));
-
-// Create BAP from backup
 const bap = new BAP({ rootPk: backup.rootPk });
 if (backup.ids) {
   bap.importIds(backup.ids);
 }
 
-// Access identities
 const idKeys = bap.listIds();
 const identity = bap.getId(idKeys[0]);
 console.log(identity.idName, identity.getIdentityKey());
 ```
 
-## List Identities
+## List Accounts
 
 ```typescript
-// List all identity keys
 const idKeys = bap.listIds();
 
 for (const key of idKeys) {

@@ -100,21 +100,39 @@ const lockingScript = sigma.lock();
 
 ### AIP Template
 
+`AIP.sign()` accepts a `Signer` — either `PrivateKeySigner` (raw key) or `WalletSigner` (BRC-100 wallet).
+
 ```typescript
-import { AIP, BitCom } from "@bopen-io/templates";
+import { AIP, BitCom, PrivateKeySigner, WalletSigner } from "@bopen-io/templates";
 
 // Decode AIP from script
 const bitcom = BitCom.decode(script);
 const aips = AIP.decode(bitcom);
 
-// Create AIP signature
-const aip = await AIP.sign(dataBytes, privateKey, {
-  algorithm: "BITCOIN_ECDSA",
-  fieldIndexes: [0, 1, 2]  // optional: specific fields to sign
-});
+// Sign with raw PrivateKey
+const signer = new PrivateKeySigner(privateKey);
+const aip = await AIP.sign(dataBytes, signer);
+
+// Sign with BRC-100 wallet (uses BAP identity key derivation)
+const walletSigner = new WalletSigner(wallet, [1, "bapid"], "identity", "self");
+const aip2 = await AIP.sign(dataBytes, walletSigner);
 
 const valid = aip.verify();
 ```
+
+### AIP via @1sat/actions
+
+The `applyAip` helper signs OP_RETURN data and appends the AIP suffix to a locking script:
+
+```typescript
+import { applyAip } from '@1sat/actions'
+
+// ctx is a OneSatContext with a BRC-100 wallet
+const signedScript = await applyAip(ctx, lockingScript)
+// Appends: | AIP_PREFIX BITCOIN_ECDSA <address> <compactSig>
+```
+
+Uses the wallet's BAP identity key (`protocolID: [1, "bapid"]`, `keyID: "identity"`). Delegates signing to `AIP.sign()` from templates via `WalletSigner`.
 
 **See:** `examples/sigma-template.ts`
 
@@ -190,6 +208,8 @@ sigma2.verify();  // Platform
 | BAP identity signing | `bsv-bap` library |
 | Parse existing Sigma/AIP scripts | Templates |
 | Build BitCom transaction outputs | Templates |
+| AIP-sign OP_RETURN with BRC-100 wallet | `applyAip` from `@1sat/actions` |
+| Sigma-sign inscription with BRC-100 wallet | `inscribe` with `signWithBAP: true` |
 | Sign transaction OP_RETURN data | sigma-protocol |
 | Multiple signatures per output | sigma-protocol |
 | Platform + user dual signing | sigma-protocol |
