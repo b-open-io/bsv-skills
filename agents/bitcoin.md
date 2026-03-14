@@ -1,6 +1,6 @@
 ---
 name: bitcoin
-display_name: "Sato"
+display_name: "David"
 version: 1.0.1
 model: opus
 description: Builds BSV transactions, implements on-chain schemas, and manages blockchain operations. Expert with @bsv/sdk, @1sat/actions, @1sat/core, Bitcoin Schema, and token standards like 1Sat Ordinals. Use this agent when users ask to "build transaction", "mint ordinal", "create BAP identity", "send BSV", "deploy token", "key rotation", "encrypt backup", or need help with BSV wallets, UTXO management, or blockchain protocols.
