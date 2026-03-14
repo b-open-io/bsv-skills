@@ -13,37 +13,20 @@ Export and import BAP identity backups using the `bsv-bap` library.
 bun add bsv-bap @bsv/sdk
 ```
 
-## Backup Formats
+## Backup Format
 
-### Master Backup
-
-Contains everything needed to reconstruct all accounts:
+Contains everything needed to reconstruct all identities:
 
 ```json
 {
   "rootPk": "L4vB5...",        // Master key WIF (Type42) or xprv (BIP32)
-  "ids": "<encrypted string>", // All account metadata, encrypted with master
+  "ids": "<encrypted string>", // All identity metadata, encrypted with master
   "label": "optional",
   "createdAt": "2026-03-13T..."
 }
 ```
 
-### Member Backup
-
-Contains one account's key and metadata:
-
-```json
-{
-  "wif": "KwDiB...",           // Member key WIF (stable, never changes)
-  "id": "<encrypted string>",  // Identity metadata, encrypted with member key
-  "label": "optional",
-  "createdAt": "2026-03-13T..."
-}
-```
-
-The encrypted `id` blob contains: name, description, identityKey (BAP ID), identityAttributes, and counter (current rotation index for deriving the BRC-100 wallet root).
-
-The `wif` is the member key — it defines the BAP ID and root address permanently. From it, the current BRC-100 wallet root is derived via Type42: `memberKey.deriveChild(pub, "bap:{counter}")`. See `key-derivation` skill's `bap-derivation` reference for the full hierarchy.
+The encrypted `ids` blob contains: name, description, identityKey (BAP ID), identityAttributes, and paths.
 
 ## Export Master Backup
 

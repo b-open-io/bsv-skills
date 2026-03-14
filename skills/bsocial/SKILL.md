@@ -184,25 +184,37 @@ Base URL: `https://bmap-api-production.up.railway.app`
 
 ## Friend Encryption
 
-Friend requests use Type42 key derivation with BRC-43 invoice numbers (`2-friend-{sha256(friendBapId)}`).
+Friend requests use Type42 key derivation with BRC-43 invoice numbers (`2-friend-{sha256(friendBapId)}`) via the BRC-100 wallet.
 
 ```typescript
-import { BAP } from "bsv-bap";
+import { Hash, Utils } from "@bsv/sdk";
+const { toHex, toArray } = Utils;
 
-const bap = new BAP({ rootPk: wif });
-const identity = bap.getId(bap.listIds()[0]);
+const keyID = toHex(Hash.sha256(toArray(friendBapId, "utf8")));
 
 // Get encryption pubkey for friend request
-const friendPubKey = identity.getEncryptionPublicKeyWithSeed(friendBapId);
+const { publicKey } = await wallet.getPublicKey({
+  protocolID: [2, "friend"],
+  keyID,
+  counterparty: "self",
+});
 
 // Encrypt private message for friend
-const ciphertext = identity.encryptWithSeed("secret message", friendBapId);
+const { ciphertext } = await wallet.encrypt({
+  protocolID: [2, "friend"],
+  keyID,
+  counterparty: friendIdentityKey,
+  plaintext: toArray("secret message", "utf8"),
+});
 
 // Decrypt message from friend
-const plaintext = identity.decryptWithSeed(ciphertext, friendBapId);
+const { plaintext } = await wallet.decrypt({
+  protocolID: [2, "friend"],
+  keyID,
+  counterparty: friendIdentityKey,
+  ciphertext,
+});
 ```
-
-A CLI is also available: `npm install -g bsv-bap` (see **`create-bap-identity`** skill).
 
 ## See Also
 

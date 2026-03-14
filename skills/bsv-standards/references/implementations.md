@@ -103,7 +103,7 @@ const valid = sigma.verify();
 Full BAP identity management with Type42 and BIP32 support.
 
 ```typescript
-import { BAP, MasterID, MemberID } from "bsv-bap";
+import { BAP } from "bsv-bap";
 
 // Type42 mode (recommended)
 const bap = new BAP({ rootPk: privateKeyWif });
@@ -119,12 +119,12 @@ id.setAttribute("name", "Alice");
 const backup = bap.exportForBackup("My Wallet");
 ```
 
+Exports: `BAP` (main entry point), `MasterID` (identity via `bap.getId()`, `bap.newId()`).
+
 **Key Files**:
 - `src/index.ts` - Main BAP class
 - `src/MasterID.ts` - Master identity management
-- `src/MemberID.ts` - Member identity operations
 - `src/constants.ts` - Protocol constants
-- `docs/TYPE42_MIGRATION.md` - Migration guide
 
 ### go-bap (Go)
 
@@ -315,7 +315,7 @@ const encrypted = await encryptBackup(payload, passphrase);
 const backup = await decryptBackup(encrypted, passphrase);
 ```
 
-**Supported Types**: BapMasterBackup, BapMemberBackup, WifBackup, OneSatBackup, VaultBackup, YoursWalletBackup
+**Supported Types**: BapMasterBackup, WifBackup, OneSatBackup, VaultBackup, YoursWalletBackup
 
 ### bitcoin-image
 

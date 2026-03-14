@@ -265,15 +265,18 @@ Prevents identity confusion by linking to root address:
 identityKey = base58(ripemd160(sha256(rootAddress)))
 ```
 
-### Two-Level Key Hierarchy
+### Key Hierarchy
 
 ```
-Root Key → Member Key (at path) → Signing Key (for on-chain ops)
+Root Key (identity-0) → BAP ID = base58(ripemd160(sha256(rootAddress)))
+  └─ Signing Key (Type42: "1-bapid-identity") → on-chain operations
 ```
+
+The root key is derived by the BRC-100 wallet at `protocolID=[1,"sigma"], keyID="identity-0"`.
 
 **Type 42 signing key derivation**:
 ```typescript
-signingKey = memberKey.deriveChild(memberKey.toPublicKey(), "1-bapid-identity");
+signingKey = rootKey.deriveChild(rootKey.toPublicKey(), "1-bapid-identity");
 ```
 
 ### Signing Paths
@@ -300,7 +303,7 @@ did:bap:id:[identity-key]
 ### Package: bsv-bap
 
 ```typescript
-import { BAP, MasterID, MemberID } from "bsv-bap";
+import { BAP } from "bsv-bap";
 
 // Type 42 mode (recommended)
 const bap = new BAP({ rootPk: wifKey });
@@ -315,10 +318,6 @@ id.setAttribute("name", "Alice");
 // Get ID transaction
 const idTx = id.getIdTransaction();
 
-// Attestation
-const hash = id.getAttestationHash("email");
-bap.signAttestationWithAIP(hash, sequence);
-
 // Encryption
 const encrypted = bap.encrypt(data);
 const decrypted = bap.decrypt(encrypted);
@@ -327,32 +326,33 @@ const decrypted = bap.decrypt(encrypted);
 const backup = bap.exportForBackup("My Wallet");
 ```
 
+### Identity Actions via @1sat/actions
+
+For wallet-driven identity operations (publish, attest, rotate, profile):
+
+```typescript
+import { publishIdentity, attest, updateProfile, createContext } from '@1sat/actions'
+
+const ctx = createContext(wallet)
+await publishIdentity.execute(ctx, { signedScript: scriptHex })
+await attest.execute(ctx, { attestationHash: hash, counter: '0' })
+await updateProfile.execute(ctx, { profile: { '@type': 'Person', name: 'Alice' } })
+```
+
 ### Key Classes
 
 | Class | Purpose |
 |-------|---------|
-| `BAP` | Main entry point, manages identities |
-| `MasterID` | Single identity with HD derivation |
-| `MemberID` | Standalone identity without hierarchy |
+| `BAP` | Main entry point, manages identities and backup |
+| `MasterID` | Single identity with HD derivation (via `bap.getId()`, `bap.newId()`) |
 
-### Backup Formats
+### Backup Format
 
-**Type 42 Master Backup**:
 ```json
 {
   "ids": "<encrypted>",
   "rootPk": "<WIF>",
   "label": "My Wallet",
-  "createdAt": "2024-01-01T00:00:00Z"
-}
-```
-
-**Member Backup**:
-```json
-{
-  "wif": "<WIF>",
-  "id": "<encrypted>",
-  "label": "Member",
   "createdAt": "2024-01-01T00:00:00Z"
 }
 ```

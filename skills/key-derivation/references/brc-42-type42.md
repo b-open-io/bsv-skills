@@ -164,29 +164,38 @@ const friendKey = masterKey.deriveChild(masterKey.toPublicKey(), invoiceNumber);
 const friendPubKey = friendKey.toPublicKey().toString();
 ```
 
-**bsv-bap Implementation** (canonical):
+**BRC-100 Wallet Implementation** (canonical):
 
 ```typescript
-import { MemberID } from "bsv-bap";
+import { Hash, Utils } from "@bsv/sdk";
+const { toHex, toArray } = Utils;
 
-const member = new MemberID(privateKey);
+// Derive friend-specific encryption key via wallet
+const friendBapId = "abc123...";
+const keyID = toHex(Hash.sha256(toArray(friendBapId, "utf8")));
 
-// Get pubkey to share in friend request
-const pubKey = member.getEncryptionPublicKeyWithSeed(friendBapId);
+// Get encryption pubkey to share in friend request
+const { publicKey } = await wallet.getPublicKey({
+  protocolID: [2, "friend"],
+  keyID,
+  counterparty: "self",
+});
 
 // Encrypt data for friend
-const ciphertext = member.encryptWithSeed(data, friendBapId, theirPubKey?);
+const { ciphertext } = await wallet.encrypt({
+  protocolID: [2, "friend"],
+  keyID,
+  counterparty: friendIdentityKey,
+  plaintext: Utils.toArray("secret message", "utf8"),
+});
 
 // Decrypt data from friend
-const plaintext = member.decryptWithSeed(ciphertext, friendBapId, theirPubKey?);
-```
-
-**bap CLI**:
-
-```bash
-bap friend-pubkey <friendBapId>   # Get encryption pubkey for friend
-bap encrypt <data> <friendBapId>  # Encrypt for friend
-bap decrypt <text> <friendBapId>  # Decrypt from friend
+const { plaintext } = await wallet.decrypt({
+  protocolID: [2, "friend"],
+  keyID,
+  counterparty: friendIdentityKey,
+  ciphertext,
+});
 ```
 
 ## Key Linkage Revelation (BRC-69)

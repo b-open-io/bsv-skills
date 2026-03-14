@@ -76,17 +76,36 @@ const isValid = bap.verifySignature("Hello World", address, signature);
 
 ## Friend Encryption
 
-Derive friend-specific encryption keys for private communication:
+Derive friend-specific encryption keys via the BRC-100 wallet:
 
 ```typescript
+import { Hash, Utils } from "@bsv/sdk";
+const { toHex, toArray } = Utils;
+
+const keyID = toHex(Hash.sha256(toArray(friendBapId, "utf8")));
+
 // Get encryption pubkey for a friend (share in friend requests)
-const friendPubKey = identity.getEncryptionPublicKeyWithSeed(friendBapId);
+const { publicKey } = await wallet.getPublicKey({
+  protocolID: [2, "friend"],
+  keyID,
+  counterparty: "self",
+});
 
 // Encrypt data for friend
-const ciphertext = identity.encryptWithSeed("secret message", friendBapId);
+const { ciphertext } = await wallet.encrypt({
+  protocolID: [2, "friend"],
+  keyID,
+  counterparty: friendIdentityKey,
+  plaintext: toArray("secret message", "utf8"),
+});
 
 // Decrypt data from friend
-const plaintext = identity.decryptWithSeed(ciphertext, friendBapId);
+const { plaintext } = await wallet.decrypt({
+  protocolID: [2, "friend"],
+  keyID,
+  counterparty: friendIdentityKey,
+  ciphertext,
+});
 ```
 
 ## Export/Import
@@ -112,9 +131,6 @@ bap create --name "Alice"     # Create identity (~/.bap/identity.json)
 bap sign "Hello World"        # Sign message
 bap verify "msg" "sig" "addr" # Verify signature
 bap info                      # Show identity info
-bap friend-pubkey <bapId>     # Get friend encryption pubkey
-bap encrypt <data> <bapId>    # Encrypt for friend
-bap decrypt <text> <bapId>    # Decrypt from friend
 bap export                    # Export backup JSON
 bap import <file>             # Import from backup
 ```
@@ -260,12 +276,10 @@ const bapId = await resolveBapId(createContext(wallet))
 ## Identity Architecture
 
 ```
-Sigma Identity (root key domain)
-  └─ BAP Master Key (xprv)
-      └─ Identity N
-          ├─ Root key (member key) → BAP ID = base58(ripemd160(sha256(rootAddress)))
-          └─ Active key → BRC-100 wallet root key
-              └─ BAP signing key (Type42: "1-bapid-identity")
+BRC-100 Wallet
+  └─ identity-0 key (protocolID=[1,"sigma"], keyID="identity-0")
+      ├─ Root address → BAP ID = base58(ripemd160(sha256(rootAddress)))
+      └─ BAP signing key (Type42: "1-bapid-identity") → on-chain operations
 ```
 
 - **Sigma Identity** handles: key generation, identity creation, ID record publication (root key), key rotation, OAuth
