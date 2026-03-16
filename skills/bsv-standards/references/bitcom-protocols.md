@@ -52,10 +52,11 @@ OP_RETURN
 ### Package
 
 ```typescript
-import { AIP } from "@bopen-io/templates";
+import { AIP, PrivateKeySigner } from "@bopen-io/templates";
 
 // Sign
-const aip = await AIP.sign(dataBytes, privateKey, { algorithm: "BITCOIN_ECDSA" });
+const signer = new PrivateKeySigner(privateKey);
+const aip = await AIP.sign(dataBytes, signer);
 
 // Verify
 const valid = aip.verify();
@@ -269,14 +270,14 @@ identityKey = base58(ripemd160(sha256(rootAddress)))
 
 ```
 Root Key (identity-0) → BAP ID = base58(ripemd160(sha256(rootAddress)))
-  └─ Signing Key (Type42: "1-bapid-identity") → on-chain operations
+  └─ Signing Key (Type42: "1-sigma-identity") → on-chain operations
 ```
 
 The root key is derived by the BRC-100 wallet at `protocolID=[1,"sigma"], keyID="identity-0"`.
 
 **Type 42 signing key derivation**:
 ```typescript
-signingKey = rootKey.deriveChild(rootKey.toPublicKey(), "1-bapid-identity");
+signingKey = rootKey.deriveChild(rootKey.toPublicKey(), "1-sigma-identity");
 ```
 
 ### Signing Paths
@@ -345,6 +346,7 @@ await updateProfile.execute(ctx, { profile: { '@type': 'Person', name: 'Alice' }
 |-------|---------|
 | `BAP` | Main entry point, manages identities and backup |
 | `MasterID` | Single identity with HD derivation (via `bap.getId()`, `bap.newId()`) |
+| `BapAccountBackup` | Type definition for backup objects returned by `exportForBackup()` |
 
 ### Backup Format
 
@@ -360,7 +362,7 @@ await updateProfile.execute(ctx, { profile: { '@type': 'Person', name: 'Alice' }
 ### Configuration
 
 ```typescript
-BAP_SERVER = "https://api.sigmaidentity.com/api/v1"
+BAP_SERVER = "https://api.1sat.app/1sat/bap"
 BAP_TOKEN = "<auth-token>"
 ```
 

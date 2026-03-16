@@ -87,7 +87,7 @@ const valid = verifyAuthToken(token, {
 |------|------------|---------|
 | `BapMasterBackup` | `rootPk`, `ids` | BAP master identity (Type42) |
 | `BapMasterBackupLegacy` | `xprv`, `mnemonic`, `ids` | BAP master identity (BIP32) |
-| `BapMemberBackup` | `wif`, `id` | Individual BAP member |
+| `BapAccountBackup` | `wif`, `id` | Individual BAP account (delegated access) |
 | `WifBackup` | `wif` | Simple private key |
 | `OneSatBackup` | `ordPk`, `payPk`, `identityPk` | 1Sat Ordinals wallet |
 | `VaultBackup` | `encryptedVault`, `scheme` | Pre-encrypted vault |

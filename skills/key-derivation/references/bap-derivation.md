@@ -28,7 +28,7 @@ Master Key (xprv or WIF)
     │   │   This is the active wallet/auth root.
     │   │
     │   └── Signing Key (Type42)
-    │       currentKey.deriveChild(currentPub, "1-bapid-identity")
+    │       currentKey.deriveChild(currentPub, "1-sigma-identity")
     │       signingAddress = signingKey.toPublicKey().toAddress()
     │       Used for BAP attestations from the active wallet.
     │
@@ -96,7 +96,7 @@ const currentKey = memberKey.deriveChild(
 ### Step 4: Signing Key (from current key)
 
 ```typescript
-const BAP_INVOICE = "1-bapid-identity";
+const BAP_INVOICE = "1-sigma-identity";
 
 const signingKey = currentKey.deriveChild(
   currentKey.toPublicKey(),
@@ -138,7 +138,7 @@ function deriveKeys(
   // Level 3: Signing key (from current key)
   const signingKey = currentKey.deriveChild(
     currentKey.toPublicKey(),
-    "1-bapid-identity"
+    "1-sigma-identity"
   );
 
   return {
@@ -170,7 +170,7 @@ const memberKey = hdKey.derive(member0Path).privKey;
 
 // From here, ALL further derivation uses Type42 (same as above)
 const currentKey = memberKey.deriveChild(memberKey.toPublicKey(), "bap:0");
-const signingKey = currentKey.deriveChild(currentKey.toPublicKey(), "1-bapid-identity");
+const signingKey = currentKey.deriveChild(currentKey.toPublicKey(), "1-sigma-identity");
 ```
 
 ## Encryption Key Derivation
@@ -259,7 +259,7 @@ Key rotation changes the active wallet/signing key while keeping the BAP ID stab
 
 1. Increment counter
 2. Derive new current key: `memberKey.deriveChild(pub, "bap:{newCounter}")`
-3. Derive new signing key: `currentKey.deriveChild(pub, "1-bapid-identity")`
+3. Derive new signing key: `currentKey.deriveChild(pub, "1-sigma-identity")`
 4. Publish BAP ID transaction signed with **member key's root address** announcing the new signing address
 5. Update counter in member backup
 
@@ -269,9 +269,9 @@ The BAP ID never changes because it comes from the member key, which never chang
 
 ```typescript
 const BAP_PROTOCOL_PREFIX = 424150;  // Used in BIP32 paths
-const BAP_PROTOCOL_ID: [1, string] = [1, "bapid"];
+const BAP_PROTOCOL_ID: [1, string] = [1, "sigma"];
 const BAP_KEY_ID = "identity";
-const BAP_INVOICE_NUMBER = "1-bapid-identity";
+const BAP_INVOICE_NUMBER = "1-sigma-identity";
 
 const SIGNING_PATH_PREFIX = "m/424150'/0'/0'";
 const ENCRYPTION_PATH = "m/424150'/2147483647'/2147483647'";

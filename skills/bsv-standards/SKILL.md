@@ -239,7 +239,7 @@ Encrypted backup file standard (.bep files).
 
 **Encryption**: AES-256-GCM, PBKDF2-SHA256 (600k iterations)
 
-**Types**: BapMasterBackup, BapMemberBackup, WifBackup, OneSatBackup, VaultBackup
+**Types**: BapMasterBackup, BapAccountBackup, WifBackup, OneSatBackup, VaultBackup
 
 ### bitcoin-image
 
@@ -274,15 +274,15 @@ Base metadata schema for ordinals inscriptions.
 | Package | Purpose |
 |---------|---------|
 | `@bsv/sdk` | Core BSV functionality |
-| `@b-open-io/templates` | Script template implementations (replaces bmapjs) |
-| `@1sat/sdk` | Ordinals/inscriptions (replaces `js-1sat-ord`) |
+| `@bopen-io/templates` | Script template implementations (replaces bmapjs) |
+| `@1sat/actions` | Ordinals/inscriptions (replaces `js-1sat-ord`) |
 | `bsv-bap` | BAP identity management |
 | `sigma-protocol` | SIGMA signing |
 | `bitcoin-auth` | HTTP authentication |
 | `bitcoin-backup` | Encrypted backup files |
 | `bitcoin-image` | URL normalization |
 
-**Deprecated**: `bmapjs` - replaced by `@b-open-io/templates`
+**Deprecated**: `bmapjs` - replaced by `@bopen-io/templates`
 
 ## Additional Resources
 
@@ -300,9 +300,9 @@ Base metadata schema for ordinals inscriptions.
 - **Bitcoin Schema**: https://bitcoinschema.org
 - **1Sat Ordinals Docs**: https://docs.1satordinals.com/
 - **ORDFS Gateway**: https://ordfs.network
-- **@b-open-io/templates**: https://github.com/b-open-io/ts-templates
+- **@bopen-io/templates**: https://github.com/b-open-io/ts-templates
 - **sigma-protocol**: https://github.com/BitcoinSchema/sigma
-- **@1sat/sdk**: https://github.com/b-open-io/1sat-sdk
+- **@1sat/actions**: https://github.com/b-open-io/1sat-sdk
 - **bsv-bap**: https://github.com/BitcoinSchema/bap
 - **bitcoin-auth**: https://github.com/b-open-io/bitcoin-auth
 - **STAS Token**: https://docs.stastoken.com/

@@ -38,7 +38,7 @@ For protocol-specific derivations, use the format: `{securityLevel}-{protocol}-{
 
 ```typescript
 // BAP identity signing key
-const bapKey = masterKey.deriveChild(masterKey.toPublicKey(), "1-bapid-identity");
+const bapKey = masterKey.deriveChild(masterKey.toPublicKey(), "1-sigma-identity");
 
 // Encryption key
 const encKey = masterKey.deriveChild(masterKey.toPublicKey(), "2-encryption-default");
@@ -155,7 +155,7 @@ BAP uses a two-level derivation hierarchy:
 const memberKey = masterKey.deriveChild(masterKey.toPublicKey(), "bap:0");
 
 // Level 2: Identity signing key using BAP invoice number
-const signingKey = memberKey.deriveChild(memberKey.toPublicKey(), "1-bapid-identity");
+const signingKey = memberKey.deriveChild(memberKey.toPublicKey(), "1-sigma-identity");
 const signingAddress = signingKey.toPublicKey().toAddress();
 ```
 
@@ -163,7 +163,7 @@ For BIP32 legacy:
 ```typescript
 const memberHD = hdKey.derive("m/424150'/0'/0'/0/0/0");
 // Then apply Type42 for signing key
-const signingKey = memberHD.privKey.deriveChild(memberHD.pubKey, "1-bapid-identity");
+const signingKey = memberHD.privKey.deriveChild(memberHD.pubKey, "1-sigma-identity");
 ```
 
 ## Security Considerations
@@ -184,7 +184,7 @@ import { PrivateKey } from "@bsv/sdk";
 const bap = new BAP({ rootPk: PrivateKey.fromRandom().toWif() });
 const identity = bap.newId("Alice");
 
-// Signing key derived with "1-bapid-identity"
+// Signing key derived with "1-sigma-identity"
 const { address, signature } = identity.signMessage(messageBytes);
 
 // Friend encryption key derived with "2-friend-{sha256(friendBapId)}"

@@ -1,6 +1,6 @@
 ---
 name: encrypt-decrypt-backup
-description: This skill should be used when the user asks to "encrypt backup", "decrypt .bep file", "bitcoin-backup CLI", "backup wallet", or needs to encrypt/decrypt BSV backup files using bitcoin-backup CLI.
+description: This skill should be used when the user asks to "encrypt backup", "decrypt .bep file", "bitcoin-backup CLI", "backup wallet", "Touch ID password cache", "upgrade backup iterations", or needs to encrypt/decrypt BSV backup files using the bbackup CLI.
 allowed-tools: "Bash(bun:*)"
 ---
 
@@ -21,7 +21,7 @@ Encrypt and decrypt BSV backup files using the bitcoin-backup CLI (`bbackup`).
 All backups use `.bep` format (AES-256-GCM encryption):
 
 - **BapMasterBackup** - BAP identity (Type42 or Legacy)
-- **BapMemberBackup** - Individual BAP member
+- **BapAccountBackup** - Individual BAP account key
 - **WifBackup** - Single private key
 - **OneSatBackup** - Ordinals + Payment + Identity keys
 - **VaultBackup** - Encrypted vault
@@ -68,11 +68,22 @@ Scripts accept passwords in two ways (priority order):
 
 ## CLI Reference
 
-The bitcoin-backup CLI provides three commands:
+The bitcoin-backup CLI provides four commands:
 
 - `bbackup enc <input> -p <password> -o <output>` - Encrypt JSON to .bep
 - `bbackup dec <input> -p <password> -o <output>` - Decrypt .bep to JSON
 - `bbackup upg <input> -p <password> -o <output>` - Upgrade legacy backups
+- `bbackup forget <file>` - Remove cached Touch ID password
+
+## Touch ID Password Caching (macOS arm64)
+
+On Apple Silicon Macs, `bbackup` can cache passwords in the Secure Enclave via `@1sat/vault`:
+
+- `bbackup enc backup.json -o backup.bep --touchid` — encrypt and cache the password
+- `bbackup dec backup.bep --touchid` — decrypt using cached password (Touch ID prompt)
+- `bbackup forget backup.bep` — remove cached password
+
+Requires macOS arm64 with Xcode Command Line Tools. Cached passwords are hardware-bound and cannot be extracted.
 
 ## Error Handling
 

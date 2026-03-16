@@ -69,24 +69,24 @@ Always invoke the relevant skill rather than building from scratch.
 - `bsv-skills:manage-bap-backup` — Manage BAP backup files
 - `bsv-skills:bsocial-posts` — Create on-chain social posts
 
-### 1Sat Ordinals & Tokens (1sat-skills plugin)
-- `1sat-skills:wallet-setup` — BRC-100 wallet creation and sync
-- `1sat-skills:transaction-building` — Action-based tx building (`sendBsv`, `signBsm`)
-- `1sat-skills:wallet-create-ordinals` — Inscribe ordinals/NFTs
-- `1sat-skills:ordinals-marketplace` — List/buy/cancel ordinals (OrdLock)
-- `1sat-skills:token-operations` — BSV21 token send/receive/deploy
-- `1sat-skills:sweep-import` — Import from external wallets
-- `1sat-skills:opns-names` — OpNS name registration
-- `1sat-skills:dapp-connect` — dApp wallet connection (`@1sat/connect`, `@1sat/react`)
-- `1sat-skills:timelock` — CLTV time-locked BSV
-- `1sat-skills:extract-blockchain-media` — Extract inscribed media from transactions
-- `1sat-skills:1sat-stack` — Unified BSV indexing API (api.1sat.app)
+### 1Sat Ordinals & Tokens (1sat plugin)
+- `1sat:wallet-setup` — BRC-100 wallet creation and sync
+- `1sat:transaction-building` — Action-based tx building (`sendBsv`, `signBsm`)
+- `1sat:wallet-create-ordinals` — Inscribe ordinals/NFTs
+- `1sat:ordinals-marketplace` — List/buy/cancel ordinals (OrdLock)
+- `1sat:token-operations` — BSV21 token send/receive/deploy
+- `1sat:sweep-import` — Import from external wallets
+- `1sat:opns-names` — OpNS name registration
+- `1sat:dapp-connect` — dApp wallet connection (`@1sat/connect`, `@1sat/react`)
+- `1sat:timelock` — CLTV time-locked BSV
+- `1sat:extract-blockchain-media` — Extract inscribed media from transactions
+- `1sat:1sat-stack` — Unified BSV indexing API (api.1sat.app)
 
 ## APIs
 
 - WhatsOnChain: `https://api.whatsonchain.com/v1/bsv/main`
 - 1Sat API: `https://api.1sat.app/1sat` (unified BSV indexer)
-- Sigma Identity: `https://api.sigmaidentity.com/` (BAP, BSocial, identity resolution)
+- Sigma Identity: `https://sigma.1sat.app/` (BAP, BSocial, identity resolution)
 - Sigma Auth: `https://auth.sigmaidentity.com`
 - Yours Wallet: Browser extension at https://yours.org — inject via `yours-wallet-provider` npm package
 

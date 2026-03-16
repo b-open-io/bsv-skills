@@ -57,7 +57,7 @@ BAP uses Type42 (BRC-42) key derivation with BRC-43 invoice numbers:
 
 | Purpose | Invoice Number | Security Level |
 |---------|---------------|----------------|
-| Signing key | `1-bapid-identity` | 1 (public protocol) |
+| Signing key | `1-sigma-identity` | 1 (public protocol) |
 | Friend encryption | `2-friend-{sha256(friendBapId)}` | 2 (user-approved) |
 
 ## Signing Messages
@@ -185,7 +185,7 @@ memberKey → deriveChild(pubkey, "bap:{counter}") → currentKey
 currentKey → deriveChild(pubkey, "1-sigma-identity") → signingKey
 ```
 
-The protocol name `sigma-identity` is 5 characters to meet BRC-100 derivation requirements. Calling `member.rotate()` increments the counter, producing a new signing key while the member key stays fixed.
+The protocol name "sigma" is 5 characters, meeting BRC-100 minimum length requirements for protocol IDs. Calling `member.rotate()` increments the counter, producing a new signing key while the member key stays fixed.
 
 ### Stable vs Active Keys
 
@@ -294,47 +294,13 @@ const bapId = await resolveBapId(createContext(wallet))
 BRC-100 Wallet
   └─ identity-0 key (protocolID=[1,"sigma"], keyID="identity-0")
       ├─ Root address → BAP ID = base58(ripemd160(sha256(rootAddress)))
-      └─ BAP signing key (Type42: "1-bapid-identity") → on-chain operations
+      └─ BAP signing key (Type42: "1-sigma-identity") → on-chain operations
 ```
 
 - **Sigma Identity** handles: key generation, identity creation, ID record publication (root key), key rotation, OAuth
 - **@1sat/actions** handles: `publishIdentity` (pre-signed script), `attest`, `updateProfile`, `getProfile` (signing key only)
 - **BAP ID** is stable across key rotations — it's the identity anchor
 - **AIP signature** proves who authorized each transaction
-
-## Using bsv-bap Library Directly
-
-For operations outside the BRC-100 wallet (raw WIF usage, CLI scripts).
-
-## Installation
-
-```bash
-bun add bsv-bap @bsv/sdk
-```
-
-## Creating an Identity
-
-```typescript
-import { BAP } from "bsv-bap";
-import { PrivateKey } from "@bsv/sdk";
-
-const privateKey = PrivateKey.fromRandom();
-const bap = new BAP({ rootPk: privateKey.toWif() });
-const identity = bap.newId("Alice Smith");
-
-console.log("BAP ID:", identity.getIdentityKey());
-console.log("Root Address:", identity.rootAddress);
-console.log("Signing Address:", identity.getCurrentAddress());
-```
-
-## Key Derivation
-
-BAP uses Type42 (BRC-42) key derivation with BRC-43 invoice numbers:
-
-| Purpose | Invoice Number | Security Level |
-|---------|---------------|----------------|
-| Signing key | `1-bapid-identity` | 1 (public protocol) |
-| Friend encryption | `2-friend-{sha256(friendBapId)}` | 2 (user-approved) |
 
 ## Related Skills
 

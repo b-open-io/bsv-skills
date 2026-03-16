@@ -58,7 +58,7 @@ Derives child public key without private key (requires own private key to know t
 
 | Level | Description | Example |
 |-------|-------------|---------|
-| 1 | Low security, public protocol | `1-bapid-identity` |
+| 1 | Low security, public protocol | `1-sigma-identity` |
 | 2 | Standard security, may involve signatures | `2-encryption-default` |
 | 3 | High security, sensitive operations | `3-auth-session` |
 
@@ -69,7 +69,7 @@ Derives child public key without private key (requires own private key to know t
 ```
 
 Examples:
-- `1-bapid-identity` - BAP identity signing
+- `1-sigma-identity` - BAP identity signing
 - `2-social-4` - Social protocol, key index 4
 - `2-encryption-default` - Default encryption key
 
@@ -77,7 +77,7 @@ Examples:
 
 | Purpose | Invoice Number | Notes |
 |---------|---------------|-------|
-| BAP identity signing | `1-bapid-identity` | Security level 1, public protocol |
+| BAP identity signing | `1-sigma-identity` | Security level 1, public protocol |
 | Per-host auth key | `2-sigma auth-{host}` | Security level 2, host-specific |
 | Friend encryption | `2-friend-{sha256(friendBapId)}` | Security level 2, counterparty-specific |
 | Generic encryption | `2-encrypt-{sha256(purpose)}` | Security level 2, purpose-hashed |
@@ -109,7 +109,7 @@ const masterKey = PrivateKey.fromWif("L1...");
 const ownPubKey = masterKey.toPublicKey();
 
 // Derive multiple keys from same master
-const signingKey = masterKey.deriveChild(ownPubKey, "1-bapid-identity");
+const signingKey = masterKey.deriveChild(ownPubKey, "1-sigma-identity");
 const encryptKey = masterKey.deriveChild(ownPubKey, "2-encryption-default");
 const paymentKey = masterKey.deriveChild(ownPubKey, "payment:0");
 ```
