@@ -8,7 +8,7 @@ description: This skill should be used when the user asks "what is ORDFS", "how 
 HTTP gateway for accessing on-chain content (inscriptions) from BSV blockchain.
 
 **Live Gateway**: https://ordfs.network
-**Repository**: https://github.com/b-open-io/go-ordfs-server
+**Repository**: https://github.com/b-open-io/1sat-stack
 
 ## Quick Reference
 
@@ -71,23 +71,35 @@ All formats resolve to the same content:
 
 Track inscription updates using sequence numbers.
 
-### Special "-1" (Latest)
+### No Sequence (Raw Content)
 
 ```
-/content/{pointer}         # Same as :-1, gets latest version
-/content/{pointer}:-1      # Explicit latest
+/content/{pointer}         # Raw content from the outpoint, no origin resolution
 ```
 
-**Behavior**: Short TTL caching (60s), returns most recent version.
+**Behavior**: Returns content directly from the specified outpoint. No crawl is performed.
 
-### Specific Sequence
+### Sequence Values
+
+| Seq | Behavior |
+|-----|----------|
+| (none) | Raw content from the outpoint, no origin resolution, no crawl |
+| -2 | Origin only — backward crawl to find origin, returns origin data, no forward crawl |
+| 0 | Resolve at the requested outpoint, also resolves origin to return in metadata |
+| -1 | Latest state — full forward crawl to current tip |
+| N (positive) | Specific sequence in the ordinal's transfer chain |
 
 ```
-/content/{pointer}:0       # Original inscription
-/content/{pointer}:5       # 5th update
+/content/{pointer}:-2      # Origin only
+/content/{pointer}:0       # Resolve at outpoint, with origin metadata
+/content/{pointer}:-1      # Latest state (full forward crawl)
+/content/{pointer}:5       # 5th transfer in chain
 ```
 
-**Behavior**: Long TTL caching (30 days), immutable content.
+### Caching
+
+- Specific sequence (`:N` where N >= 0): Long TTL (30 days), immutable content
+- Latest (`:-1`): Short TTL (60s)
 
 ### Response Headers
 

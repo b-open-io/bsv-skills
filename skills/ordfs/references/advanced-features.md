@@ -132,36 +132,44 @@ Track and access different versions of an inscription.
 
 ### Sequence Numbers
 
-| Sequence | Meaning |
-|----------|---------|
-| 0 | Original inscription |
-| 1, 2, 3... | Subsequent updates |
-| -1 | Latest version |
+| Seq | Behavior |
+|-----|----------|
+| (none) | Raw content from the outpoint, no origin resolution, no crawl |
+| -2 | Origin only — backward crawl to find origin, returns origin data, no forward crawl |
+| 0 | Resolve at the requested outpoint, also resolves origin to return in metadata |
+| -1 | Latest state — full forward crawl to current tip |
+| N (positive) | Specific sequence in the ordinal's transfer chain |
 
 ### Accessing Versions
 
 ```
-/{origin}          # Latest (implicit -1)
-/{origin}:-1       # Latest (explicit)
-/{origin}:0        # Original
-/{origin}:5        # Version 5
+/{origin}          # Raw content, no origin resolution, no crawl
+/{origin}:-2       # Origin only (backward crawl)
+/{origin}:0        # Resolve at outpoint, with origin metadata
+/{origin}:-1       # Latest state (full forward crawl)
+/{origin}:5        # 5th transfer in chain
 ```
 
 ### Version Chain
 
 Each time an inscription output is spent, a new version can be created. The sequence tracks this chain.
 
-**Chain Resolution**:
+**Chain Resolution** (for seq >= 0 or -1):
 1. Backward crawl from requested outpoint to find origin
-2. Forward crawl from origin to find requested sequence
+2. Forward crawl from origin to find requested sequence (or tip for -1)
 3. Return content at target sequence
+
+**No sequence**: Skips all crawling, returns raw content at the outpoint directly.
+
+**seq -2**: Only performs backward crawl to find origin, returns origin data.
 
 ### Caching Strategy
 
 | Access Pattern | Cache TTL |
 |---------------|-----------|
-| Specific sequence (`:N`) | 30 days (immutable) |
-| Latest (`:-1` or none) | 60 seconds |
+| Specific sequence (`:N`, N >= 0) | 30 days (immutable) |
+| Latest (`:-1`) | 60 seconds |
+| No sequence | 60 seconds |
 
 ---
 
@@ -321,8 +329,8 @@ ORDFS_NAME=My ORDFS
 ### Running
 
 ```bash
-git clone https://github.com/b-open-io/go-ordfs-server
-cd go-ordfs-server
+git clone https://github.com/b-open-io/1sat-stack
+cd 1sat-stack
 go mod tidy
 go run cmd/server/main.go
 ```
@@ -330,8 +338,8 @@ go run cmd/server/main.go
 ### Production Build
 
 ```bash
-go build -o ordfs ./cmd/server
-./ordfs
+go build -o server ./cmd/server
+./server
 ```
 
 ### Redis Requirements
