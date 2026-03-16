@@ -17,7 +17,7 @@
 		"plugin"
 	],
 	"dependencies": {
-		"@bopen-io/templates": "1.2.3",
+		"@1sat/templates": "latest",
 		"@bsv/sdk": "^1.0.0",
 		"bitcoin-backup": "latest",
 		"bmap-api-types": "latest"

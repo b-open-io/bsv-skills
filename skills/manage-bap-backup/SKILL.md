@@ -94,7 +94,7 @@ See **`encrypt-decrypt-backup`** skill for full bitcoin-backup reference.
 For quick operations, use the `bap` CLI:
 
 ```bash
-npm install -g bsv-bap
+bun add -g bsv-bap
 
 bap export              # Export identity JSON to stdout
 bap export > backup.json

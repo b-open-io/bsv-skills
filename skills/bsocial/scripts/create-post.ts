@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { PrivateKey, Transaction } from "@bsv/sdk";
-import BSocial, { BSocialActionType, BSocialContext, type BSocialPost } from "@bopen-io/templates/template/bsocial/BSocial.ts";
+import { BSocial, BSocialActionType, BSocialContext, type BSocialPost } from "@1sat/templates";
 import { fundAndBroadcast } from "../lib/broadcast.js";
 
 const HELP = `
@@ -91,7 +91,7 @@ async function main() {
       post.context = BSocialContext.CHANNEL;
       post.contextValue = args.channel;
     } else if (args.url) {
-      post.context = "url" as BSocialContext;
+      post.context = BSocialContext.PROVIDER;
       post.contextValue = args.url;
     }
 

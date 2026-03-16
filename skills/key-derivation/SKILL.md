@@ -192,7 +192,7 @@ const friendPubKey = identity.getEncryptionPublicKeyWithSeed(friendBapId);
 const ciphertext = identity.encryptWithSeed("secret", friendBapId);
 ```
 
-A CLI is also available: `npm install -g bsv-bap` (see **`create-bap-identity`** skill).
+A CLI is also available: `bun add -g bsv-bap` (see **`create-bap-identity`** skill).
 
 ## Official Specifications
 

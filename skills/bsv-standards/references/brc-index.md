@@ -309,7 +309,7 @@ Most BRCs are implemented in:
 |---------|----------|
 | `@bsv/sdk` | Core BRCs (key derivation, signing, encryption, Merkle paths, BEEF) |
 | `@bsv/wallet-toolbox` | BRC-100 conformant wallet |
-| `@bopen-io/templates` | Script templates (BRC-48, etc.) |
+| `@1sat/templates` | Script templates (BRC-48, etc.) |
 
 ## Related Standards
 

@@ -6,7 +6,7 @@ Complete guide for contributing a new template to b-open-io/ts-templates.
 
 - Fork of b-open-io/ts-templates
 - Local clone with remotes configured
-- @bsv/sdk installed (`npm install`)
+- @bsv/sdk installed (`bun install`)
 
 ## Step 1: Create Feature Branch
 
@@ -129,5 +129,5 @@ git branch -d feature/protocol-name-template
 |-------|-------|
 | Repository | b-open-io/ts-templates |
 | Main branch | master |
-| Package name | @bopen-io/templates |
+| Package name | @1sat/templates |
 | License | SEE LICENSE IN LICENSE.txt |

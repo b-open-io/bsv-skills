@@ -64,7 +64,7 @@ Define what transactions to capture using AND logic (all conditions must match):
 ### Installation
 
 ```bash
-npm install @gorillapool/js-junglebus
+bun add @gorillapool/js-junglebus
 ```
 
 ### Basic Usage

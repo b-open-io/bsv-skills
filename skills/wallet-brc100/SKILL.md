@@ -71,11 +71,11 @@ Most apps (dApps, payment integrations) should use `WalletClient`. Only wallet *
 ### Install Dependencies
 
 ```bash
-npm install @bsv/wallet-toolbox @bsv/sdk
+bun add @bsv/wallet-toolbox @bsv/sdk
 # Optional storage backends:
-npm install knex sqlite3          # SQLite
-npm install knex mysql2           # MySQL
-npm install idb                   # IndexedDB (browser)
+bun add knex sqlite3          # SQLite
+bun add knex mysql2           # MySQL
+bun add idb                   # IndexedDB (browser)
 ```
 
 ### Basic Imports
@@ -372,6 +372,8 @@ await fetch(`https://your-service.example.com/pay?session=${sessionId}`, {
 **Common mistake**: forgetting the `$` in template literals — `{session}` is a literal string, `${session}` interpolates the variable.
 
 ### Sign a Transaction (Two-Phase with completeSignedAction)
+
+> **Note:** `completeSignedAction` requires `@1sat/actions` and `@bsv/sdk` v2+. If using `@bsv/wallet-toolbox` v1.x without `@1sat/actions`, use `wallet.signAction()` directly instead.
 
 For two-phase actions (`signAndProcess: false`), use the `completeSignedAction` helper from `@1sat/actions` instead of calling `signAction` directly:
 

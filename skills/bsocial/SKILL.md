@@ -1,6 +1,6 @@
 ---
 name: bsocial
-description: This skill should be used when the user asks to "post to BSocial", "like a post", "follow user", "send message", "on-chain social media", "BMAP", "BSocial protocol", "create on-chain post", "read BSocial posts", or needs social operations (posts, likes, follows, messages, reposts, friends) on BSV blockchain.
+description: This skill should be used when the user asks to "post to BSocial", "like a post", "unlike", "follow user", "unfollow", "send message", "repost", "friend request", "on-chain social media", "BMAP", "BSocial protocol", "channel message", "create on-chain post", "read BSocial posts", or needs social operations (posts, likes, follows, messages, reposts, friends) on BSV blockchain.
 allowed-tools: "Bash(bun:*)"
 disable-model-invocation: true
 ---
@@ -36,7 +36,7 @@ const result = await createSocialPost.execute(ctx, {
 ```
 
 The action:
-- Signs with the wallet's BAP identity key via AIP (using `WalletSigner` from `@bopen-io/templates`)
+- Signs with the wallet's BAP identity key via AIP (using `WalletSigner` from `@1sat/templates`)
 - Stores the 0-sat OP_RETURN output in the `bsocial` basket for post history
 - Tags outputs with MAP fields (`app:my-app`, `type:post`, `tag:intro`, etc.) for filtered queries
 
@@ -152,13 +152,17 @@ bun run skills/bsocial/scripts/read-friends.ts <address> [--json]
 | `tx` | Reply/like a transaction |
 | `channel` | Post/message to named channel |
 | `bapID` | Target specific identity |
-| `url` | Associate with external URL |
+| `provider` | Associate with external URL or provider |
+| `videoId` | Reference a video |
+| `geohash` | Geolocation context |
+| `btcTx` | Reference a BTC transaction |
+| `ethTx` | Reference an ETH transaction |
 
 ## Dependencies
 
 - `@1sat/actions` - BRC-100 action system (recommended for wallet-based operations)
 - `@bsv/sdk` - Transaction building
-- `@bopen-io/templates` - BSocial protocol templates (Signer abstraction, BSocial class)
+- `@1sat/templates` - BSocial protocol templates (Signer abstraction, BSocial class)
 
 ## API
 

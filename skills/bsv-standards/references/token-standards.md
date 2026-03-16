@@ -128,7 +128,7 @@ const inscription = Inscription.create(data, "image/png", {
 ### Package
 
 ```typescript
-import { Inscription } from "@bopen-io/templates";
+import { Inscription } from "@1sat/templates";
 
 // Create inscription (low-level script template)
 const inscription = Inscription.fromText("Hello, Ordinals!", "text/plain");
@@ -255,7 +255,7 @@ OP_0 OP_IF "ord" OP_1 "application/bsv-20" OP_0 <json_payload> OP_ENDIF
 ### Package
 
 ```typescript
-import { BSV20 } from "@bopen-io/templates";
+import { BSV20 } from "@1sat/templates";
 
 // Deploy token
 const deploy = BSV20.deploy({
@@ -312,7 +312,7 @@ Enhanced fungible tokens with contract control.
 ### Package
 
 ```typescript
-import { BSV21 } from "@bopen-io/templates";
+import { BSV21 } from "@1sat/templates";
 
 const deploy = BSV21.deploy({
   sym: "TEST",
@@ -451,7 +451,7 @@ OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG
 Lock an ordinal to a specific address, requiring signature to unlock.
 
 ```typescript
-import { OrdLock } from "@bopen-io/templates";
+import { OrdLock } from "@1sat/templates";
 
 const locked = OrdLock.lock(inscriptionData, ownerPubKeyHash);
 ```

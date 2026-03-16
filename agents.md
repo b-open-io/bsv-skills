@@ -66,7 +66,7 @@ Each skill follows progressive disclosure:
 - `@bsv/sdk` - Core BSV transaction building, cryptography
 - `bitcoin-backup` - Encrypted .bep backup management
 - `bmap-api-types` - BSocial API type definitions
-- `@bopen-io/templates` - ScriptTemplate implementations
+- `@1sat/templates` - ScriptTemplate implementations
 
 ## Cross-Platform Compatibility
 

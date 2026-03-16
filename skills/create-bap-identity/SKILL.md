@@ -125,7 +125,7 @@ bap2.importIds(backup.ids);
 For quick operations, the `bsv-bap` package includes a CLI:
 
 ```bash
-npm install -g bsv-bap
+bun add -g bsv-bap
 
 bap create --name "Alice"     # Create identity (~/.bap/identity.json)
 bap sign "Hello World"        # Sign message
@@ -213,7 +213,7 @@ For BRC-100 wallet operations, use the identity actions from `@1sat/actions`. Th
 
 ```typescript
 import { publishIdentity, createContext } from '@1sat/actions'
-import { AIP, PrivateKeySigner } from '@bopen-io/templates'
+import { AIP, PrivateKeySigner } from '@1sat/templates'
 import { OP, Script, Utils } from '@bsv/sdk'
 
 // Sigma Identity builds and signs the BAP ID OP_RETURN with the root key

@@ -274,7 +274,7 @@ Base metadata schema for ordinals inscriptions.
 | Package | Purpose |
 |---------|---------|
 | `@bsv/sdk` | Core BSV functionality |
-| `@bopen-io/templates` | Script template implementations (replaces bmapjs) |
+| `@1sat/templates` | Script template implementations (replaces bmapjs) |
 | `@1sat/actions` | Ordinals/inscriptions (replaces `js-1sat-ord`) |
 | `bsv-bap` | BAP identity management |
 | `sigma-protocol` | SIGMA signing |
@@ -282,7 +282,7 @@ Base metadata schema for ordinals inscriptions.
 | `bitcoin-backup` | Encrypted backup files |
 | `bitcoin-image` | URL normalization |
 
-**Deprecated**: `bmapjs` - replaced by `@bopen-io/templates`
+**Deprecated**: `bmapjs` - replaced by `@1sat/templates`
 
 ## Additional Resources
 
@@ -300,7 +300,7 @@ Base metadata schema for ordinals inscriptions.
 - **Bitcoin Schema**: https://bitcoinschema.org
 - **1Sat Ordinals Docs**: https://docs.1satordinals.com/
 - **ORDFS Gateway**: https://ordfs.network
-- **@bopen-io/templates**: https://github.com/b-open-io/ts-templates
+- **@1sat/templates**: https://github.com/b-open-io/ts-templates
 - **sigma-protocol**: https://github.com/BitcoinSchema/sigma
 - **@1sat/actions**: https://github.com/b-open-io/1sat-sdk
 - **bsv-bap**: https://github.com/BitcoinSchema/bap

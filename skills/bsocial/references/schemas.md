@@ -99,4 +99,4 @@ Query format (v3):
 
 - [BitcoinSchema.org](https://bitcoinschema.org)
 - [BMAP API](https://b.map.sv)
-- [@bopen-io/templates](https://github.com/b-open-io/ts-templates)
+- [@1sat/templates](https://github.com/b-open-io/ts-templates)

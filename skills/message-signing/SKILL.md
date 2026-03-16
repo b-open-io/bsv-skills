@@ -1,6 +1,6 @@
 ---
 name: message-signing
-description: This skill should be used when the user asks to "sign a message", "verify a signature", "use BSM", "use BRC-77", "implement Sigma signing", "create signed messages", "authenticate with Bitcoin", or mentions message signing, signature verification, or authentication protocols on BSV.
+description: This skill should be used when the user asks to "sign a message", "verify a signature", "use BSM", "use BRC-77", "implement Sigma signing", "create signed messages", "authenticate with Bitcoin", "sign with AIP", "AIP protocol", or mentions message signing, signature verification, ECDSA signatures, or authentication protocols on BSV.
 ---
 
 # BSV Message Signing
@@ -12,7 +12,7 @@ Three approaches for message signing on BSV, from simple to full-featured.
 | Approach | Package | Use Case |
 |----------|---------|----------|
 | **Direct SDK** | `@bsv/sdk` | Simple message signing (BSM, BRC-77) |
-| **Templates** | `@bopen-io/templates` | Script parsing/creation for protocols |
+| **Templates** | `@1sat/templates` | Script parsing/creation for protocols |
 | **Sigma Protocol** | `sigma-protocol` | Transaction-bound signatures |
 
 ## 1. Direct SDK Signing
@@ -70,12 +70,12 @@ const privateValid = SignedMessage.verify(message, privateSig, recipientKey);
 
 ## 2. Template-Based Signing
 
-For working with BitCom protocols and script parsing. Uses `@bopen-io/templates`.
+For working with BitCom protocols and script parsing. Uses `@1sat/templates`.
 
 ### Sigma Template
 
 ```typescript
-import { Sigma, SigmaAlgorithm, BitCom } from "@bopen-io/templates";
+import { Sigma, SigmaAlgorithm, BitCom } from "@1sat/templates";
 import { PrivateKey, Hash } from "@bsv/sdk";
 
 // Decode from existing script
@@ -103,7 +103,7 @@ const lockingScript = sigma.lock();
 `AIP.sign()` accepts a `Signer` — either `PrivateKeySigner` (raw key) or `WalletSigner` (BRC-100 wallet).
 
 ```typescript
-import { AIP, BitCom, PrivateKeySigner, WalletSigner } from "@bopen-io/templates";
+import { AIP, BitCom, PrivateKeySigner, WalletSigner } from "@1sat/templates";
 
 // Decode AIP from script
 const bitcom = BitCom.decode(script);
@@ -234,7 +234,7 @@ const { address, signature } = identity.signMessage(message);
 const isValid = bap.verifySignature("Hello World", address, signature);
 ```
 
-A CLI is also available: `npm install -g bsv-bap` (see **`create-bap-identity`** skill).
+A CLI is also available: `bun add -g bsv-bap` (see **`create-bap-identity`** skill).
 
 ## Sigma Signing via @1sat/actions
 

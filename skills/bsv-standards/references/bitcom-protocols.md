@@ -52,7 +52,7 @@ OP_RETURN
 ### Package
 
 ```typescript
-import { AIP, PrivateKeySigner } from "@bopen-io/templates";
+import { AIP, PrivateKeySigner } from "@1sat/templates";
 
 // Sign
 const signer = new PrivateKeySigner(privateKey);
@@ -109,7 +109,7 @@ OP_RETURN | MAP_PREFIX | "ADD" | "tags" | "bitcoin" | "bsv" | "ordinals"
 ### Package
 
 ```typescript
-import { MAP, MAPCommand } from "@bopen-io/templates";
+import { MAP, MAPCommand } from "@1sat/templates";
 
 // Create SET
 const script = MAP.set({ app: "myapp", type: "post", title: "Hello" });
@@ -164,7 +164,7 @@ OP_RETURN | B_PREFIX | <data> | <media_type> | <encoding> | [filename]
 ### Package
 
 ```typescript
-import { B, MediaType, Encoding } from "@bopen-io/templates";
+import { B, MediaType, Encoding } from "@1sat/templates";
 
 // Store text
 const script = B.lock({
@@ -478,6 +478,6 @@ This creates:
 ## Implementation
 
 All protocols implemented in:
-- `@bopen-io/templates` - Script templates
+- `@1sat/templates` - Script templates
 - `bmapjs` - Transaction parsing
 - Individual packages (bap, sigma-protocol)

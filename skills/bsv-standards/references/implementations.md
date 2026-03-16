@@ -28,11 +28,11 @@ import {
 
 ## BitCom Protocol Templates
 
-### @bopen-io/templates
+### @1sat/templates
 
 **Location**: `local clone/ts-templates`
 **Repository**: https://github.com/b-open-io/ts-templates
-**Package**: `@bopen-io/templates`
+**Package**: `@1sat/templates`
 
 Implements:
 - AIP (Author Identity Protocol)
@@ -47,7 +47,7 @@ import {
   AIP, MAP, B, BAP, Sigma, BitCom,
   Inscription, BSV20, BSV21,
   OrdLock, PushDrop
-} from "@bopen-io/templates";
+} from "@1sat/templates";
 ```
 
 **Key Files**:
@@ -183,23 +183,23 @@ Go implementation for ordinals.
 
 ### bmapjs
 
-> **DEPRECATED**: Use `@bopen-io/templates` instead for transaction parsing.
+> **DEPRECATED**: Use `@1sat/templates` instead for transaction parsing.
 
 **Location**: `local clone/bmap`
 **Repository**: https://github.com/BitcoinSchema/bmapjs
 **Package**: `bmapjs`
 
-Legacy transaction parser. Functionality now integrated into `@bopen-io/templates`.
+Legacy transaction parser. Functionality now integrated into `@1sat/templates`.
 
 ```typescript
-// DEPRECATED - use @bopen-io/templates instead
+// DEPRECATED - use @1sat/templates instead
 import { TransformTx, BmapTx } from "bmapjs";
 
 // NEW - preferred approach
-import { BitCom, AIP, MAP, B, BAP, Sigma } from "@bopen-io/templates";
+import { BitCom, AIP, MAP, B, BAP, Sigma } from "@1sat/templates";
 ```
 
-**Supported Protocols** (now in @bopen-io/templates):
+**Supported Protocols** (now in @1sat/templates):
 - B (Binary)
 - MAP (Metadata)
 - BAP (Attestation)
@@ -385,14 +385,14 @@ Ordinals File System - HTTP gateway for on-chain content.
 |----------|------------|-----|-------|
 | BRC-42 (Type42) | `@bsv/sdk` | `go-sdk` | Key derivation |
 | BRC-32 (BIP32) | `@bsv/sdk` | `go-sdk` | HD wallets |
-| AIP | `@bopen-io/templates` | `go-aip` | Author identity |
-| MAP | `@bopen-io/templates` | `go-map` | Metadata |
-| B | `@bopen-io/templates` | `go-b` | Binary storage |
+| AIP | `@1sat/templates` | `go-aip` | Author identity |
+| MAP | `@1sat/templates` | `go-map` | Metadata |
+| B | `@1sat/templates` | `go-b` | Binary storage |
 | BAP | `bsv-bap` | `go-bap` | Identity management |
 | SIGMA | `sigma-protocol` | `go-sigma` | Tx signatures |
 | Ordinals | `@1sat/actions` | `go-1sat-ord` | NFT inscriptions |
-| BSV-20 | `@bopen-io/templates` | - | Fungible tokens |
-| BMAP | `bmapjs` (deprecated) | `go-bmap` | Use @bopen-io/templates |
+| BSV-20 | `@1sat/templates` | - | Fungible tokens |
+| BMAP | `bmapjs` (deprecated) | `go-bmap` | Use @1sat/templates |
 | HTTP Auth | `bitcoin-auth` | - | BRC-77 authentication |
 | Backup | `bitcoin-backup` | - | Encrypted .bep files |
 | Image URLs | `bitcoin-image` | - | URL normalization |
@@ -405,7 +405,7 @@ Ordinals File System - HTTP gateway for on-chain content.
 bun add @bsv/sdk
 
 # Templates
-bun add @bopen-io/templates
+bun add @1sat/templates
 
 # Sigma protocol
 bun add sigma-protocol
@@ -416,7 +416,7 @@ bun add bsv-bap
 # 1Sat ordinals (actions + core)
 bun add @1sat/actions @1sat/core
 
-# BMAP parsing (deprecated - use @bopen-io/templates)
+# BMAP parsing (deprecated - use @1sat/templates)
 # bun add bmapjs
 
 # Off-chain standards

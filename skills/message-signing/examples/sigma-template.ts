@@ -1,13 +1,13 @@
 /**
  * Sigma Template Example
  *
- * Demonstrates using @bopen-io/templates for script-level Sigma operations.
+ * Demonstrates using @1sat/templates for script-level Sigma operations.
  * Use this approach when working with existing scripts or building BitCom transactions.
  *
  * For full transaction signing, use sigma-protocol instead.
  */
 
-import { Sigma, SigmaAlgorithm, BitCom } from "@bopen-io/templates";
+import { Sigma, SigmaAlgorithm, BitCom } from "@1sat/templates";
 import { PrivateKey, Hash, Utils, Script, Transaction } from "@bsv/sdk";
 
 const { toHex } = Utils;
