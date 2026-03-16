@@ -135,6 +135,21 @@ bap export                    # Export backup JSON
 bap import <file>             # Import from backup
 ```
 
+### Touch ID / Secure Enclave Protection (macOS arm64)
+
+The BAP CLI supports hardware-level protection of the master key via `@1sat/vault`, which uses the macOS Secure Enclave (CryptoKit P-256 + ECIES encryption). When enabled, the `rootPk` is encrypted with a Secure Enclave key that never leaves the chip, and all decryption requires Touch ID.
+
+```bash
+bap touchid status            # Show SE availability and protection state
+bap touchid enable            # Encrypt rootPk with SE, remove plaintext from disk
+bap touchid disable           # Decrypt from SE, store as plaintext
+```
+
+- Config stores `se:bap-master` sentinel in `rootPkEncrypted` field when enabled
+- Vault directory: `~/.secure-enclave-vault/`
+- macOS arm64 only (fails informatively on other platforms)
+- `BAP_NO_TOUCHID=1` env var or `--no-touchid` flag on `create`/`import` for CI/headless environments
+
 ## Key Rotation & Path Management
 
 BAP separates **stable identity** from **active signing key**:

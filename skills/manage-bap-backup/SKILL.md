@@ -102,6 +102,10 @@ bap import backup.json  # Import from file
 bap info                # View current identity
 ```
 
+### Secure Enclave Protection (macOS arm64)
+
+On macOS arm64, the BAP CLI can protect the master key with the Secure Enclave via `@1sat/vault`. When Touch ID protection is enabled (`bap touchid enable`), the `rootPk` is encrypted with a hardware-bound P-256 key and removed from disk. All backup/export operations that need the master key will trigger Touch ID. Use `bap touchid status` to check protection state. Set `BAP_NO_TOUCHID=1` for headless/CI environments.
+
 ## Master vs Member Backups
 
 BAP supports two backup levels with different capabilities:
