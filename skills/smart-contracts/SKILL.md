@@ -33,7 +33,9 @@ Two frameworks compile high-level languages to Bitcoin Script:
 | **IDE** | Full IDE support (valid TS/Go/Rust) | VS Code extension |
 | **Playground** | https://runar.run | https://playground.scrypt.io |
 | **Install** | `pnpm add runar-lang runar-compiler runar-cli` | `npx scrypt-cli project my-app` |
-| **Maturity** | Experimental (v0.1.0) | Production |
+| **Builtins** | 54 functions (crypto, math, EC, post-quantum, BLAKE3) | Standard Bitcoin Script ops |
+| **Codegen** | SDK wrappers in TS, Go, Rust, Python from one compile | N/A |
+| **Maturity** | v0.3.0 (21 examples, 44 conformance tests) | Production |
 | **Source** | https://github.com/icellan/runar | https://github.com/sCrypt-Inc/scrypt-ts |
 
 **Decision guide:**
@@ -79,6 +81,10 @@ See `references/contract-patterns.md` for complete side-by-side code examples of
 | NFT | Transfer/burn ownership | Yes |
 | Oracle Price Feed | Rabin signature verification | No |
 | Hash Time Lock | Atomic swaps | No |
+| Multi-Sig (M-of-N) | Corporate treasury, shared custody | No |
+| BLAKE3 Hash Lock | Modern hash verification | No |
+| Post-Quantum Wallet | WOTS+, SLH-DSA signatures | No |
+| TicTacToe | On-chain game logic | Yes |
 
 See `references/runar-guide.md` and `references/scrypt-guide.md` for complete examples of each pattern.
 
@@ -122,10 +128,11 @@ const callTx = await instance.methods.unlock(sig, pubKey);
 
 ```typescript
 // Runar — SDK deployment
-import { RunarProvider, WifSigner } from 'runar-sdk';
-const provider = new RunarProvider('mainnet');
-const signer = new WifSigner(wif);
-const deployed = await provider.deploy(artifact, constructorArgs, { signer, satoshis: 1000 });
+import { Contract, WocProvider, LocalSigner } from 'runar-sdk';
+const provider = new WocProvider('mainnet');
+const signer = new LocalSigner(privateKey);
+const contract = new Contract(artifact, provider, signer);
+const deployTx = await contract.deploy([constructorArg], { satoshis: 1000 });
 ```
 
 ```typescript
