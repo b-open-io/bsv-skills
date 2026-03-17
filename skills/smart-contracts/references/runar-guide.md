@@ -15,7 +15,7 @@ Runar compiles a strict subset of TypeScript, Go, Rust, Python, Solidity, or Mov
 pnpm add runar-lang runar-compiler runar-cli
 ```
 
-- **runar-lang** — Types, base classes, and 54 built-in function declarations
+- **runar-lang** — Types, base classes, and 53+ built-in function declarations (compile-time stubs — `hash160()` etc. throw at runtime)
 - **runar-compiler** — Reference TypeScript compiler (6 nanopass transforms)
 - **runar-cli** — CLI: init, compile, test, deploy, verify, codegen, debug
 
@@ -129,6 +129,24 @@ Specialized codegens: `blake3-codegen.ts`, `sha256-codegen.ts`, `ec-codegen.ts`,
 
 Peephole optimizer (`optimizer/peephole-rules.json`) runs between passes 5-6 (always enabled). EC-specific optimizer (`optimizer/ec-rules.json`) for elliptic curve operations. Automatic OP_CODESEPARATOR insertion reduces stateful contract script size.
 
+## Compiled Artifact Structure
+
+`npx runar compile` outputs a JSON artifact with these fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `version` | string | `"runar-v0.1.0"` |
+| `compilerVersion` | string | `"0.1.0"` |
+| `contractName` | string | Contract class name |
+| `abi` | object | Constructor params + method signatures |
+| `script` | string | Compiled Bitcoin Script (hex) — constructor slots are `OP_0` placeholders |
+| `asm` | string | Human-readable assembly |
+| `constructorSlots` | array | Byte offsets where constructor args are embedded |
+| `sourceMap` | object | Line/column mappings for debugger |
+| `buildTimestamp` | string | ISO 8601 compile time |
+
+Note: The compiled script field is `script`, not `lockingScript`. Constructor args are embedded at `constructorSlots[i].byteOffset` positions in the script hex.
+
 ## CLI Commands
 
 ```bash
@@ -147,17 +165,32 @@ npx runar debug <file>                   # Step-through debugger with source map
 ### TestContract API
 
 ```typescript
-import { TestContract } from 'runar-testing';
+import { TestContract, ALICE } from 'runar-testing';
 
-// Stateless
-const p2pkh = TestContract.fromSource(source, { pubKeyHash: '...' });
-const result = p2pkh.call('unlock', { sig: '...', pubKey: '...' });
-assert(result.success);
+// Stateless — use pubKeyHash (20-byte hex), NOT Base58Check address
+const p2pkh = TestContract.fromSource(source, { pubKeyHash: ALICE.pubKeyHash });
+const result = p2pkh.call('unlock', { sig: ALICE.testSig, pubKey: ALICE.pubKey });
+expect(result.success).toBe(true);
 
 // Stateful — automatic state tracking (v0.3)
 const counter = TestContract.fromSource(source, { count: 0n });
 counter.call('increment');
 console.log(counter.state.count); // 1n — ANF interpreter computes next state
+```
+
+### Test Keys
+
+`runar-testing` exports 10 named test keys: `ALICE`, `BOB`, `CHARLIE`, `DAVE`, `EVE`, `FRANK`, `GRACE`, `HEIDI`, `IVAN`, `JUDY`.
+
+Each key has: `name`, `privKey` (hex), `pubKey` (compressed hex), `pubKeyHash` (20-byte hex), `address` (Base58Check), `wif`, `testSig` (pre-signed DER).
+
+The `Addr` type in contracts expects `pubKeyHash` (40 hex chars), not `address` (Base58Check). This is a common mistake — `hash160(pubKey)` in the contract produces a 20-byte hex hash that must match the constructor arg exactly.
+
+### Peer Dependencies
+
+`runar-testing` requires `fast-check` for the fuzzer. Install it alongside:
+```bash
+bun add runar-testing fast-check
 ```
 
 ### Fuzzer

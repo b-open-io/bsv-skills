@@ -109,11 +109,13 @@ npx scrypt-cli compile
 ### 3. Test
 
 ```typescript
-// Runar — TestContract API
-import { TestContract } from 'runar-testing';
-const contract = TestContract.fromSource(source, { pubKeyHash: '...' });
-const result = contract.call('unlock', { sig: '...', pubKey: '...' });
-assert(result.success);
+// Runar — TestContract API with pre-generated test keys
+import { TestContract, ALICE, BOB } from 'runar-testing';
+// Addr type = 20-byte hex pubKeyHash, NOT Base58Check address
+const contract = TestContract.fromSource(source, { pubKeyHash: ALICE.pubKeyHash });
+// Test keys have: privKey, pubKey, pubKeyHash (hex), address (base58), wif, testSig
+const result = contract.call('unlock', { sig: ALICE.testSig, pubKey: ALICE.pubKey });
+expect(result.success).toBe(true);
 ```
 
 ```typescript
