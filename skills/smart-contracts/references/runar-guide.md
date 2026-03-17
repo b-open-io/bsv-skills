@@ -429,52 +429,105 @@ When checking N conditions where N is bounded and each condition is similar (e.g
 
 Bitcoin Script numbers are little-endian with a sign bit. Large values like `21000000` encode as `406f4001` (4 bytes LE). The `constructorSlots` in the artifact specify byte offsets where these encoded values are embedded in the script hex.
 
-### 8. No way to enforce non-contract outputs (inscription gap)
+### 8. `addRawOutput` for non-contract outputs
 
-`this.addOutput()` only creates continuation outputs — new instances of the same contract. There is no mechanism to verify arbitrary additional outputs (like a BSV21 reward inscription locked to a P2PKH).
+`this.addOutput(satoshis, ...mutableFields)` creates continuation outputs (new instances of the same contract). For arbitrary outputs — P2PKH payouts, inscription outputs, outputs locked to different contracts — use `this.addRawOutput(satoshis, scriptBytes)`.
 
-**Why this matters:** In sCrypt's `scrypt-ord`, the contract manually constructs ALL expected output bytes and verifies `hash256(outputs) === this.ctx.hashOutputs`. This lets a covenant enforce that a specific inscription + P2PKH output exists in the transaction. Without this, a stateful covenant can verify its own continuation but cannot enforce what other outputs the transaction contains.
+Both are included in the compiler's auto-generated `hashOutputs` verification:
+```
+hash256(addOutput_0 + addOutput_1 + ... + addRawOutput_0 + ... + changeOutput) == extractOutputHash(preimage)
+```
 
-**Workaround:** Accept that non-contract outputs are validated by the indexer (BSV21 token indexer), not the covenant. Economically, miners have no incentive to mine without claiming their reward inscription. But this is weaker than full covenant enforcement.
+The compiler always appends a P2PKH change output built from `_changePKH` + `_changeAmount`. There is no way to skip it.
 
-**Upstream need:** A `this.addRawOutput(scriptHex, satoshis)` or similar mechanism that includes arbitrary output scripts in the `hashOutputs` verification would close this gap and enable full BSV21 token covenants in Runar.
+**Example** (from BondedCounter in amm-swap):
+```typescript
+// Output 0: contract continuation
+this.addOutput(1n, this.count);
+
+// Output 1: inscription + BondedOutput locking script
+const envelopePrefix = toByteString('006303' + '6f7264' + '0101' + '0a' + '746578742f706c61696e' + '00');
+const inscriptionScript = cat(cat(cat(cat(envelopePrefix, countLen), countStr), toByteString('68')), this.bondedOutputScript);
+this.addRawOutput(1n, inscriptionScript);
+
+// Output 2: P2PKH (auto-appended change)
+```
+
+### 9. Auto-injected implicit parameters (full list)
+
+For stateful public methods, the compiler injects these beyond what the developer writes:
+- `_opPushTxSig` — OP_PUSH_TX DER signature (k=1 deterministic key)
+- `_codePart` — contract code portion (when method uses `addOutput` or `addRawOutput`)
+- `_changePKH` — 20-byte address hash for change output
+- `_changeAmount` — satoshis for change output
+- `_newAmount` — satoshis for continuation (single-output methods only)
+- `txPreimage` — BIP-143 sighash preimage
+
+### 10. Trailing outputs gap
+
+The compiler auto-appends a P2PKH change output to every stateful method's hashOutputs check. There is no `trailingOutputs` parameter pattern (like sCrypt's) for contracts with dynamic output structures. This limits contracts that need to include variable numbers of outputs after the contract's fixed outputs.
+
+### 11. `int2str` is NOT ASCII
+
+`int2str(n, byteLen)` compiles to `OP_NUM2BIN` — Bitcoin Script number encoding (little-endian sign-magnitude). `int2str(42n, 1n)` produces `0x2a`, NOT ASCII `"42"` (`0x3432`). For inscription content needing human-readable text (e.g., BSV-20 `amt` field), ASCII conversion must be done off-chain or via manual lookup table.
+
+### 12. State encoding format
+
+State is serialized after `OP_RETURN` in the locking script: `<code> OP_RETURN <field_0> <field_1> ... <field_n>`. Fixed-width for known types: 8 bytes bigint, 1 byte bool, 33 bytes PubKey, 20 bytes Addr. Variable-length types use standard Bitcoin push data framing. The artifact's `stateFields` array describes field order, types, and sizes.
+
+### 13. SDK hardcodes SIGHASH_ALL
+
+`computeOpPushTx` hardcodes `SIGHASH_ALL | SIGHASH_FORKID`. For contracts needing `SIGHASH_NONE` (like BondedOutput which enforces atomicity but not outputs), you must bypass the SDK's preimage computation. Per-input sighash requires manual transaction construction via `@bsv/sdk`.
 
 ## BSV21 Token Integration (inscription model)
 
-sCrypt's `scrypt-ord` library shows how BSV21 tokens integrate with smart contracts. The key insight: **inscriptions are NOP-prepended dead code in the locking script**.
+Inscriptions are NOP-prepended dead code in locking scripts: `OP_FALSE OP_IF "ord" OP_1 <contentType> OP_0 <content> OP_ENDIF`. The Bitcoin VM skips the false branch. The indexer reads it for token accounting.
 
-### How it works
+### Runar can construct inscriptions in-script
 
-A BSV21 token output's locking script looks like:
-```
-[OP_FALSE OP_IF "ord" OP_1 "application/bsv-20" OP_0 <json> OP_ENDIF] [actual locking script]
-```
+The primitives (`cat`, `num2bin`, `toByteString`) are sufficient to build inscription envelopes on-chain. Validated in the amm-swap BondedCounter prototype:
 
-The `OP_FALSE OP_IF...OP_ENDIF` envelope is never executed by the Bitcoin VM — it's dead code. The indexer reads it for token accounting. The actual locking script (P2PKH, covenant, etc.) follows after `OP_ENDIF`.
-
-### Deploy output (output 0)
-```
-inscription: {"p":"bsv-20","op":"deploy+mint","sym":"TOKEN","amt":"21000000","dec":"0"}
-+ contract locking script (1 sat)
+```typescript
+const envelopePrefix = toByteString('006303' + '6f7264' + '0101' + '0a' + '746578742f706c61696e' + '00');
+const envelope = cat(cat(cat(envelopePrefix, contentLenByte), content), toByteString('68'));
+const fullScript = cat(envelope, lockingScript);
+this.addRawOutput(1n, fullScript);
 ```
 
-### Continuation output after mining (output 0)
+This IS verified on-chain via hashOutputs — the covenant enforces the exact inscription content.
+
+### What's missing for full BSV21 support
+
+1. **`runar-ord` library** — No ordinals helper package yet. `scrypt-ord` provides `Ordinal.createInsciption()`, `BSV20V2.createTransferInsciption()`, `Ordinal.int2Str()` (ASCII conversion). Runar needs equivalents.
+2. **No-op prefixed continuation** — `addOutput` builds `<codePart> OP_RETURN <state>`. It can't prepend an inscription. For contracts where the contract IS the token (like POW20), the continuation output needs `<inscription> <code> OP_RETURN <state>`. This requires `addPrefixedOutput(satoshis, prefix, ...stateValues)` or exposing `_codePart` as a readable property.
+3. **ASCII integer conversion** — BSV-20 JSON `amt` field needs decimal text. `int2str` produces binary, not ASCII.
+4. **Trailing outputs** — Compiler auto-appends change. No way to add dynamic outputs after the contract's fixed outputs.
+
+### Transaction structure for BSV21 token contracts
+
 ```
-inscription: {"p":"bsv-20","op":"transfer","id":"<tokenId>","amt":"<remaining_supply>"}
-+ same contract locking script with updated state (1 sat)
+Deploy tx:
+  Output 0: [inscription: deploy+mint JSON] [contract script] (1 sat)
+  Output 1: Change P2PKH
+
+Mine/redeem tx:
+  Input 0: Spend contract UTXO
+  Output 0: [inscription: transfer JSON, remaining supply] [contract script, updated state] (1 sat)
+  Output 1: [inscription: transfer JSON, reward] [P2PKH to miner] (1 sat)
+  Output 2: Change P2PKH
 ```
 
-### Reward output to miner (output 1)
-```
-inscription: {"p":"bsv-20","op":"transfer","id":"<tokenId>","amt":"<reward>"}
-+ P2PKH to miner's address (1 sat)
-```
+### Runar ↔ sCrypt feature mapping for tokens
 
-### What Runar can and can't do here
-
-Runar's `StatefulSmartContract` handles the continuation output (contract restating with updated supply). The inscription envelope wrapping and the reward output construction happen in the **transaction builder** (SDK-side), not inside the contract.
-
-In sCrypt, the contract itself constructs these output byte strings on-chain and verifies them against `hashOutputs`. This is possible because sCrypt provides `Utils.buildOutput()`, `Utils.buildPublicKeyHashScript()`, and `Ordinal.createInsciption()` as on-chain helper methods. Runar would need equivalent on-chain string building + hashOutputs verification to match this capability.
+| sCrypt | Runar | Status |
+|---|---|---|
+| `Utils.buildOutput(script, value)` | `addRawOutput(satoshis, scriptBytes)` | Works |
+| `Ordinal.createInsciption(data, type)` | Manual byte assembly via `cat`/`toByteString` | Works (no helper) |
+| `Ordinal.int2Str(n)` (ASCII decimal) | Not available (`int2str` is `OP_NUM2BIN`) | Gap |
+| `BSV20V2.buildTransferOutput(addr, id, amt)` | Manual construction | Works (no helper) |
+| `this.buildStateOutput(amount)` with inscription prefix | `addOutput` (no prefix support) | Gap |
+| `this.ctx.hashOutputs` manual verification | Auto-injected by compiler | Works differently |
+| `trailingOutputs` parameter | Not supported | Gap |
 
 ## Multi-Language Examples
 
