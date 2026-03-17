@@ -276,28 +276,56 @@ const transfer = BSV20.transfer({ tick: "TEST", amt: "100" });
 
 ## BSV-21 (Enhanced Tokens)
 
-Enhanced fungible tokens with contract control.
+Enhanced fungible tokens with contract control. BSV-21 is sometimes called "BSV-20 v2" — the JSON protocol field is still `"p": "bsv-20"` but it uses `sym` instead of `tick`, `id` instead of ticker-based lookups, and supports `deploy+mint` as a single operation. The `scrypt-ord` library's `BSV20V2` class implements BSV-21.
 
 ### Differences from BSV-20
 
 | Feature | BSV-20 | BSV-21 |
 |---------|--------|--------|
-| Supply control | Fixed at deploy | Contract controlled |
-| Transfer rules | None | Programmable |
-| Metadata | Basic | Extended |
-| Contract | None | Optional |
+| Identifier | `tick` (1-4 char ticker) | `id` (txid_vout of deploy tx) |
+| Deploy | `deploy` then separate `mint` | `deploy+mint` (atomic) |
+| Supply control | Fixed at deploy, public mint | Contract controlled |
+| Transfer rules | None | Programmable via covenant |
+| Symbol field | `tick` | `sym` |
+
+### Inscription Model
+
+BSV-21 uses the same ordinals inscription envelope as BSV-20. The inscription is NOP-prepended dead code in the locking script:
+
+```
+OP_FALSE OP_IF
+  "ord"
+  OP_1 "application/bsv-20"
+  OP_0 <json_payload>
+OP_ENDIF
+[actual locking script: P2PKH or contract covenant]
+```
+
+The indexer reads the inscription for token accounting. The Bitcoin VM only executes the locking script after `OP_ENDIF`.
 
 ### Deploy Format
 
 ```json
 {
-  "p": "bsv-21",
-  "op": "deploy",
+  "p": "bsv-20",
+  "op": "deploy+mint",
   "sym": "TOKEN",
-  "icon": "<inscription_id>",
   "amt": "21000000",
-  "dec": "8",
-  "contract": "<optional_contract_id>"
+  "dec": "0",
+  "icon": "<icon_inscription_id>"
+}
+```
+
+Note: protocol field is `"p": "bsv-20"` (not `"bsv-21"`). The `deploy+mint` operation and `sym`/`id` fields distinguish BSV-21 from BSV-20.
+
+### Transfer Format
+
+```json
+{
+  "p": "bsv-20",
+  "op": "transfer",
+  "id": "<deploy_txid>_<vout>",
+  "amt": "1000"
 }
 ```
 
@@ -306,8 +334,9 @@ Enhanced fungible tokens with contract control.
 | Field | Description |
 |-------|-------------|
 | `sym` | Token symbol (replaces `tick`) |
-| `icon` | Icon inscription ID |
-| `contract` | Optional contract controlling transfers |
+| `id` | Token ID — outpoint of the deploy transaction |
+| `icon` | Icon inscription ID (outpoint) |
+| `dec` | Decimal precision (0-18) |
 
 ### Package
 
@@ -322,72 +351,119 @@ const deploy = BSV21.deploy({
 });
 ```
 
+### sCrypt Integration (scrypt-ord)
+
+For contract-controlled BSV-21 tokens, use `scrypt-ord`:
+
+```typescript
+import { BSV20V2 } from 'scrypt-ord';
+
+// BSV20V2 is the BSV-21 base class
+class MyToken extends BSV20V2 {
+  // Inscription envelope is prepended automatically
+  // Contract enforces outputs via hash256(outputs) === this.ctx.hashOutputs
+}
+```
+
+Source: https://github.com/sCrypt-Inc/scrypt-ord
+
 ---
 
 ## POW-20 (Proof-of-Work Tokens)
 
-Proof-of-work mineable fungible tokens using sCrypt smart contracts on 1Sat Ordinals. Combines 1Sat infrastructure with covenant-enforced mining for fair token distribution.
+Proof-of-work mineable BSV21 fungible tokens using sCrypt smart contracts on 1Sat Ordinals. The contract is a recursive covenant (`HashToMintBsv20` extending `BSV20V2` from `scrypt-ord`) that enforces mining rules and token issuance on-chain.
 
-**Reference implementation**: https://github.com/b-open-io/pow20-miner (Go)
+**Protocol spec**: https://protocol.pow20.io/
+**Contract source**: https://github.com/danwag06/htm-contract
+**Miner implementation**: https://github.com/b-open-io/pow20-miner (Go)
+**sCrypt ordinals library**: https://github.com/sCrypt-Inc/scrypt-ord
 
-### Core Concepts
+### How the Inscription + Contract Model Works
 
-- **sCrypt covenant**: Recursive smart contract enforces mining rules on-chain
-- **Proof-of-work**: SHA256d mining with configurable difficulty (leading zero nibbles)
-- **Layer 1 settlement**: Validated by miners, no off-chain computation required
-- **State machine**: Each mine output becomes the next mining target
+Each output's locking script is: `[inscription envelope] [contract or P2PKH script]`
+
+The inscription is dead code — `OP_FALSE OP_IF "ord" OP_1 <contentType> OP_0 <content> OP_ENDIF` — never executed by the Bitcoin VM. The indexer reads it for BSV21 token accounting. The actual locking script follows after `OP_ENDIF`.
+
+This is implemented by `scrypt-ord`'s `Ordinal.createInsciption()` which prepends the envelope as NOP script. `BSV20V2` (the base class for POW-20) uses `prependNOPScript()` to wrap its locking script with the BSV21 inscription.
+
+The contract enforces ALL outputs via `hash256(outputs) === this.ctx.hashOutputs` — it manually constructs the expected output byte strings (inscription + locking script + satoshis) and verifies the hash matches. This is full covenant enforcement — the miner cannot omit the reward inscription or change the amounts.
 
 ### Mining Algorithm
 
+The on-chain contract (`HashToMintBsv20.redeem`) checks:
+```
+hash = sha256(sha256(this.ctx.utxo.outpoint.txid + nonce))
+```
+Where `txid` is the contract UTXO being spent (32 bytes, internal byte order).
+
+The Go miner builds the preimage as:
 ```
 Preimage (64 bytes):
   Bytes 0-31:   Previous transaction ID (32 bytes, reversed)
   Bytes 32-39:  Nonce counter (uint64, little-endian)
   Bytes 40-47:  Worker thread ID (uint64, little-endian)
-
-Solution = SHA256(SHA256(preimage))
-Must have N leading zero nibbles where N = difficulty
+  Bytes 48-63:  Padding (zeros)
 ```
+
+### Difficulty (nibble-based, 16x per step)
+
+Difficulty = number of leading zero **nibbles** (hex digits) in the hash. Each nibble is 4 bits, so each +1 difficulty is a **16x** increase in work. The contract checks nibbles with bitwise AND masking:
+- Even positions: `byte & 0xF0 === 0` (high nibble)
+- Odd positions: `byte & 0x0F === 0` (low nibble)
+
+Dynamic adjustment (stepped, not linear):
+
+| Supply remaining | Extra difficulty |
+|-----------------|-----------------|
+| 80-100% | +0 |
+| 60-80% | +1 (16x harder) |
+| 40-60% | +2 (256x harder) |
+| 20-40% | +3 (4096x harder) |
+| 0-20% | +4 (65536x harder) |
 
 ### Transaction Structure
 
-When a solution is found:
+**Deploy transaction:**
 
-| Output | Purpose |
-|--------|---------|
-| 1 | Restate contract (1 sat) — same sCrypt template, reduced supply |
-| 2 | Token reward — BSV-20 inscription locked to miner's address |
-| 3 | Change (optional) |
+| Output | Script | Satoshis |
+|--------|--------|----------|
+| 0 | `[inscription: deploy+mint JSON]` `[contract locking script]` | 1 |
+| 1 | Change P2PKH | remainder |
 
-### Token Inscription (Output 2)
+Deploy inscription: `{"p":"bsv-20","op":"deploy+mint","sym":"TOKEN","amt":"21000000","dec":"0"}`
 
-```json
-{
-  "p": "bsv-20",
-  "op": "transfer",
-  "id": "<TOKEN_ID>",
-  "amt": "<REWARD>"
-}
-```
+**Mine (redeem) transaction:**
 
-### Contract State
+| Output | Script | Satoshis |
+|--------|--------|----------|
+| 0 | `[inscription: transfer JSON, amt=remaining_supply]` `[contract locking script with updated state]` | 1 |
+| 1 | `[inscription: transfer JSON, amt=reward]` `[P2PKH to miner]` | 1 |
+| 2 | Change P2PKH | remainder |
 
-| Field | Description |
-|-------|-------------|
-| `symbol` | Token ticker |
-| `max` | Maximum supply |
-| `dec` | Decimal places |
-| `reward` | Current reward (decreases over time) |
-| `difficulty` | Leading zero nibbles required (1-16) |
-| `supply` | Remaining supply to mine |
-| `id` | Token ID (txid_0 format) |
+Continuation inscription: `{"p":"bsv-20","op":"transfer","id":"<tokenId>","amt":"<remaining>"}`
+Reward inscription: `{"p":"bsv-20","op":"transfer","id":"<tokenId>","amt":"<reward>"}`
+
+### Contract State (on-chain, in locking script)
+
+| Field | Mutable | Description |
+|-------|---------|-------------|
+| `id` | Yes (set once at genesis) | Token ID (`txid_vout` format) |
+| `sym` | No | Token symbol |
+| `max` | No | Maximum supply |
+| `dec` | No | Decimal places |
+| `totalSupply` | No | Same as max (for ratio calculation) |
+| `supply` | Yes | Remaining supply to mine |
+| `currentReward` | No | Tokens per mine |
+| `startingDifficulty` | No | Base difficulty (nibbles) |
+| `maxDifficulty` | No | Hard cap at 15 nibbles |
 
 ### APIs
 
 | Endpoint | Purpose |
 |----------|---------|
-| `https://api.1sat.market/mine/pow20/` | List POW-20 tokens |
-| `https://ordinals.gorillapool.io/api/subscribe?channel=<tokenid>` | WebSocket mine updates |
+| `https://api.1sat.app/1sat/bsv21/{tokenId}` | Token details via 1sat-stack |
+| `https://api.1sat.app/1sat/bsv21/{tokenId}/p2pkh/{addr}/balance` | Miner's token balance |
+| WebSocket on token channel | Real-time mine event updates |
 
 ---
 

@@ -429,6 +429,53 @@ When checking N conditions where N is bounded and each condition is similar (e.g
 
 Bitcoin Script numbers are little-endian with a sign bit. Large values like `21000000` encode as `406f4001` (4 bytes LE). The `constructorSlots` in the artifact specify byte offsets where these encoded values are embedded in the script hex.
 
+### 8. No way to enforce non-contract outputs (inscription gap)
+
+`this.addOutput()` only creates continuation outputs — new instances of the same contract. There is no mechanism to verify arbitrary additional outputs (like a BSV21 reward inscription locked to a P2PKH).
+
+**Why this matters:** In sCrypt's `scrypt-ord`, the contract manually constructs ALL expected output bytes and verifies `hash256(outputs) === this.ctx.hashOutputs`. This lets a covenant enforce that a specific inscription + P2PKH output exists in the transaction. Without this, a stateful covenant can verify its own continuation but cannot enforce what other outputs the transaction contains.
+
+**Workaround:** Accept that non-contract outputs are validated by the indexer (BSV21 token indexer), not the covenant. Economically, miners have no incentive to mine without claiming their reward inscription. But this is weaker than full covenant enforcement.
+
+**Upstream need:** A `this.addRawOutput(scriptHex, satoshis)` or similar mechanism that includes arbitrary output scripts in the `hashOutputs` verification would close this gap and enable full BSV21 token covenants in Runar.
+
+## BSV21 Token Integration (inscription model)
+
+sCrypt's `scrypt-ord` library shows how BSV21 tokens integrate with smart contracts. The key insight: **inscriptions are NOP-prepended dead code in the locking script**.
+
+### How it works
+
+A BSV21 token output's locking script looks like:
+```
+[OP_FALSE OP_IF "ord" OP_1 "application/bsv-20" OP_0 <json> OP_ENDIF] [actual locking script]
+```
+
+The `OP_FALSE OP_IF...OP_ENDIF` envelope is never executed by the Bitcoin VM — it's dead code. The indexer reads it for token accounting. The actual locking script (P2PKH, covenant, etc.) follows after `OP_ENDIF`.
+
+### Deploy output (output 0)
+```
+inscription: {"p":"bsv-20","op":"deploy+mint","sym":"TOKEN","amt":"21000000","dec":"0"}
++ contract locking script (1 sat)
+```
+
+### Continuation output after mining (output 0)
+```
+inscription: {"p":"bsv-20","op":"transfer","id":"<tokenId>","amt":"<remaining_supply>"}
++ same contract locking script with updated state (1 sat)
+```
+
+### Reward output to miner (output 1)
+```
+inscription: {"p":"bsv-20","op":"transfer","id":"<tokenId>","amt":"<reward>"}
++ P2PKH to miner's address (1 sat)
+```
+
+### What Runar can and can't do here
+
+Runar's `StatefulSmartContract` handles the continuation output (contract restating with updated supply). The inscription envelope wrapping and the reward output construction happen in the **transaction builder** (SDK-side), not inside the contract.
+
+In sCrypt, the contract itself constructs these output byte strings on-chain and verifies them against `hashOutputs`. This is possible because sCrypt provides `Utils.buildOutput()`, `Utils.buildPublicKeyHashScript()`, and `Ordinal.createInsciption()` as on-chain helper methods. Runar would need equivalent on-chain string building + hashOutputs verification to match this capability.
+
 ## Multi-Language Examples
 
 ### Go
