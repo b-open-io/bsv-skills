@@ -457,13 +457,116 @@ Reward inscription: `{"p":"bsv-20","op":"transfer","id":"<tokenId>","amt":"<rewa
 | `startingDifficulty` | No | Base difficulty (nibbles) |
 | `maxDifficulty` | No | Hard cap at 15 nibbles |
 
-### APIs
+### APIs (verified by live testing)
 
-| Endpoint | Purpose |
-|----------|---------|
-| `https://api.1sat.app/1sat/bsv21/{tokenId}` | Token details via 1sat-stack |
-| `https://api.1sat.app/1sat/bsv21/{tokenId}/p2pkh/{addr}/balance` | Miner's token balance |
-| WebSocket on token channel | Real-time mine event updates |
+**Discover POW20 tokens:**
+```
+# List all unspent POW20 contract UTXOs (GorillaPool)
+GET https://ordinals.gorillapool.io/api/txos/search/unspent?q={base64_query}
+  query = btoa('{"insc":{"json":{"contract":"pow-20"}}}')
+
+# Response: array of TXOs with origin.data.insc.json containing:
+#   sym, difficulty, startingReward, amt, dec, contract:"pow-20"
+```
+
+**Get current mining target (latest contract UTXO):**
+```
+# Via GorillaPool inscriptions API
+GET https://ordinals.gorillapool.io/api/inscriptions/{tokenId}/latest?script=true
+
+# Response includes:
+#   outpoint     — current UTXO to mine against (txid for preimage)
+#   script       — current locking script (for transaction building)
+#   origin.data  — deploy params (difficulty, reward, supply)
+#   data.bsv20   — current BSV21 state (remaining supply)
+```
+
+**Token details via 1sat-stack:**
+```
+GET https://api.1sat.app/1sat/bsv21/{tokenId}
+GET https://api.1sat.app/1sat/bsv21/{tokenId}/p2pkh/{address}/balance
+GET https://api.1sat.app/1sat/txo/{outpoint}
+```
+
+**Submit mined transaction:**
+```
+POST https://api.1sat.app/1sat/arcade/tx
+  Content-Type: application/octet-stream
+  Body: BEEF-encoded transaction hex
+
+# Or via pow20-broadcaster (if running):
+POST https://pow20-broadcaster/pow20/submit
+  Body: { outpoint, nonce, recipientPkh, payment, tokenId }
+```
+
+**Real-time updates (WebSocket/SSE):**
+```
+GET https://api.1sat.app/1sat/sse/{tokenId}
+  # SSE stream of token topic events (new mines, state changes)
+```
+
+### Mining Flow (verified against live TEST token at difficulty 6)
+
+1. **Fetch state**: `GET /inscriptions/{tokenId}/latest?script=true` → get current outpoint + script
+2. **Calculate difficulty**: `startingDifficulty + stepped_adjustment(supply_remaining / total_supply)`
+3. **Mine**: `SHA256d(reverse(outpoint_txid) || counter_u64_LE || worker_u64_LE || zeros)` until N leading zero nibbles
+4. **Build transaction**: Spend the contract UTXO with nonce in unlocking script, create 3 outputs (continuation + reward inscription + change)
+5. **Broadcast**: `POST /arcade/tx` with BEEF-encoded transaction
+6. **Repeat**: New outpoint from step 5's output becomes next mining target
+
+### Transaction Building for Mining Submission
+
+The redeem transaction spends the contract UTXO and must produce exactly 3 outputs:
+
+**Unlocking script (scriptSig):**
+```
+<rewardPkh>     — 20-byte hash of miner's public key
+<nonce>         — the solution nonce bytes (32 bytes from preimage[32:64])
+<changeAmount>  — satoshis for change output (8-byte LE)
+<changePKH>     — 20-byte hash of change address
+<txPreimage>    — BIP-143 sighash preimage (for OP_PUSH_TX verification)
+```
+
+**Output 0 — Contract continuation (1 sat):**
+```
+[BSV-20 transfer inscription: {"p":"bsv-20","op":"transfer","id":"<tokenId>","amt":"<remaining_supply>"}]
+[Same contract locking script with updated state (supply -= reward)]
+```
+
+**Output 1 — Reward to miner (1 sat):**
+```
+[BSV-20 transfer inscription: {"p":"bsv-20","op":"transfer","id":"<tokenId>","amt":"<reward>"}]
+[P2PKH locking script to miner's address]
+```
+
+**Output 2 — Change:**
+```
+[P2PKH to change address with remaining satoshis]
+```
+
+The contract verifies `hash256(output0 || output1 || output2) === hashOutputs` from the BIP-143 preimage, enforcing all three outputs are exactly as expected.
+
+### No BSV Transaction Library in Zig
+
+There is no native Zig implementation of BSV transaction building, ECDSA signing, or BIP-143 sighash computation. Options for the Zig miner:
+
+1. **Shell out to `@bsv/sdk`** via `bun` for transaction building + signing (practical, the Go miner does similar via its SDK)
+2. **Implement BIP-143 + ECDSA in Zig** using `std.crypto` (secp256k1 is not in std, would need C interop with libsecp256k1)
+3. **Use the pow20-broadcaster API** — mine in Zig, submit nonce + payment to the broadcaster which handles transaction construction
+4. **FFI to go-sdk or @bsv/sdk** — call Go or Node from Zig via C ABI
+
+Option 3 (broadcaster) is the fastest path. The Go miner already uses this pattern — it finds nonces and submits to the broadcaster service which constructs and broadcasts the transaction.
+
+### Implementations
+
+| Implementation | Language | URL |
+|---------------|----------|-----|
+| Contract (sCrypt) | TypeScript | https://github.com/danwag06/htm-contract |
+| Contract (Runar) | TypeScript/Zig | https://github.com/b-open-io/pow20-runar |
+| Miner (Go) | Go | https://github.com/b-open-io/pow20-miner |
+| Miner (Zig) | Zig | https://github.com/b-open-io/pow20-miner-zig |
+| Broadcaster | TypeScript | ~/code/pow20-broadcaster |
+| 1sat-api | TypeScript | ~/code/1sat-api (routes at /mine/pow20/) |
 
 ---
 
