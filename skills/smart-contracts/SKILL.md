@@ -54,6 +54,8 @@ All properties are immutable. The contract is satisfied in a single transaction.
 
 Mutable properties persist across transactions via OP_PUSH_TX. Runar handles preimage verification automatically in `StatefulSmartContract`. sCrypt requires explicit `buildStateOutput` + `hashOutputs` verification in each public method.
 
+In Runar, `this.addOutput(satoshis, ...mutableFields)` creates continuation outputs — pass only MUTABLE state values (readonly props are embedded in the script). Access `this.txPreimage` for BIP-143 preimage data (e.g., `substr(this.txPreimage, 68n, 32n)` for the outpoint txid). The compiler auto-adds `_changePKH`, `_changeAmount`, and `txPreimage` params to the ABI.
+
 ### Key Syntax Differences
 
 | Feature | Runar | sCrypt |

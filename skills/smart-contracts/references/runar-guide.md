@@ -349,6 +349,86 @@ All contracts available in 6 formats (TypeScript, Go, Rust, Solidity, Move, Pyth
 
 **Disallowed:** Unbounded loops, recursion, async/await, closures, exceptions, dynamic arrays, arbitrary function calls (Math.floor, console.log, etc.).
 
+## Compiler Gotchas (verified by live testing)
+
+These behaviors were discovered by compiling real contracts and hitting actual errors. They stem from the stack-based compilation model — the compiler maps variables to stack positions, and complex variable lifetimes can exceed what the stack-lower pass handles.
+
+### 1. Variables get dropped inside loops
+
+The compiler's stack management drops outer variables when loop bodies reference too many values. If you declare a variable before a `for` loop and reference it inside, the compiler may report "Value not found on stack."
+
+**Fails:**
+```typescript
+const difficulty = this.startingDifficulty + extraBits;
+const fullBytes = safediv(difficulty, 8n);
+for (let i = 0; i < 8; i++) {
+  if (i < fullBytes) {  // ERROR: fullBytes or difficulty not on stack
+    assert(bin2num(substr(hash, i, 1n)) === 0n);
+  }
+}
+```
+
+**Fix:** Recompute inside the loop, or unroll the loop into sequential if/else chains. Unrolling avoids the stack pressure entirely and often produces smaller script.
+
+### 2. Public methods cannot return values to other methods
+
+Public methods compile to separate script entry points. A public method that returns `bigint` will fail if another method tries to use the return value — the compiler treats public method calls as void.
+
+**Fails:**
+```typescript
+public calculateDifficulty(): bigint { return this.startingDifficulty + extra; }
+public redeem(nonce: ByteString) {
+  const diff = this.calculateDifficulty();  // ERROR: got 'void'
+}
+```
+
+**Fix:** Inline the logic directly into the calling method. If shared logic is needed, keep it as a computation block, not a separate public method.
+
+### 3. `this.addOutput()` takes only MUTABLE state fields
+
+For `StatefulSmartContract`, `this.addOutput(satoshis, ...mutableFields)` only needs the values for mutable properties. Readonly properties are embedded in the compiled script at constructor slots and carry forward automatically.
+
+```typescript
+class MyContract extends StatefulSmartContract {
+  counter: bigint;           // mutable → pass to addOutput
+  readonly max: bigint;      // readonly → embedded in script, do NOT pass
+
+  public increment() {
+    this.counter = this.counter + 1n;
+    this.addOutput(1n, this.counter);  // only mutable field
+  }
+}
+```
+
+### 4. `this.txPreimage` is available but raw
+
+Stateful contracts can access `this.txPreimage` (BIP-143 sighash preimage). The compiler verifies the preimage automatically via `OP_CHECKSIGVERIFY` with the secp256k1 generator point.
+
+To extract the outpoint txid (e.g. for proof-of-work puzzles):
+```typescript
+// BIP-143 preimage layout: offset 68 = outpoint (36 bytes: txid[32] + vout[4])
+const txid = substr(this.txPreimage, 68n, 32n);
+```
+
+The FungibleToken example imports `extractOutpoint` from `runar-lang`, but raw `substr` on the preimage also works and is simpler.
+
+### 5. The compiler auto-adds method parameters
+
+The compiled ABI adds parameters the developer didn't write:
+- `_changePKH: Ripemd160` — change address
+- `_changeAmount: bigint` — change satoshis
+- `txPreimage: SigHashPreimage` — BIP-143 preimage
+
+These are provided by the transaction builder (runar-sdk), not the miner/user. The contract source only declares the "logical" parameters.
+
+### 6. Unrolled if/else chains beat loops for stack management
+
+When checking N conditions where N is bounded and each condition is similar (e.g., checking bytes of a hash), unrolled if/else chains compile cleanly while `for` loops with the same logic hit stack issues. The compiled script is similar size either way because loop iterations get unrolled during compilation anyway.
+
+### 7. Script number encoding for bigint
+
+Bitcoin Script numbers are little-endian with a sign bit. Large values like `21000000` encode as `406f4001` (4 bytes LE). The `constructorSlots` in the artifact specify byte offsets where these encoded values are embedded in the script hex.
+
 ## Multi-Language Examples
 
 ### Go
