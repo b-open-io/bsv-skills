@@ -1,6 +1,6 @@
 # Runar v0.3 Framework Guide
 
-Runar compiles a strict subset of TypeScript, Go, Rust, Python, Solidity, or Move into Bitcoin SV Script. Four independent compiler implementations (TypeScript, Go, Rust, Python) produce identical output for the same input. 27 conformance tests verify cross-compiler consistency.
+Runar compiles a strict subset of TypeScript, Go, Rust, Python, Solidity, or Move into Bitcoin SV Script. Four independent compiler implementations (TypeScript, Go, Rust, Python) produce identical output for the same input. 28 conformance tests verify cross-compiler consistency.
 
 **Version**: 0.3.0
 **Source**: https://github.com/icellan/runar
@@ -280,7 +280,7 @@ Templates in `codegen/templates/`: `wrapper.ts.mustache`, `wrapper.go.mustache`,
 | `SigHashPreimage` | Transaction preimage |
 | `FixedArray<T, N>` | Fixed-size array |
 
-## Example Contracts (21)
+## Example Contracts (23)
 
 | Contract | Pattern | Stateful | v0.3 New |
 |----------|---------|----------|----------|
@@ -300,6 +300,8 @@ Templates in `codegen/templates/`: `wrapper.ts.mustache`, `wrapper.go.mustache`,
 | ConvergenceProof | Convergence pattern | No | |
 | ECDemo | EC point operations | No | |
 | BoundedCounter | Property initializers | Yes | |
+| BooleanLogic | Boolean operations | No | |
+| Arithmetic | Arithmetic operations | No | |
 | P2Blake3PKH | BLAKE3 hash verification | No | v0.3 |
 | BLAKE3 | BLAKE3 compress/hash | No | v0.3 |
 | SHA256Compress | SHA-256 compression | No | v0.3 |

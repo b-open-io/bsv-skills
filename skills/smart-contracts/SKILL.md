@@ -33,9 +33,9 @@ Two frameworks compile high-level languages to Bitcoin Script:
 | **IDE** | Full IDE support (valid TS/Go/Rust) | VS Code extension |
 | **Playground** | https://runar.run | https://playground.scrypt.io |
 | **Install** | `pnpm add runar-lang runar-compiler runar-cli` | `npx scrypt-cli project my-app` |
-| **Builtins** | 54 functions (crypto, math, EC, post-quantum, BLAKE3) | Standard Bitcoin Script ops |
+| **Builtins** | 53+ functions (crypto, math, EC, post-quantum, BLAKE3) | Standard Bitcoin Script ops |
 | **Codegen** | SDK wrappers in TS, Go, Rust, Python from one compile | N/A |
-| **Maturity** | v0.3.0 (21 examples, 44 conformance tests) | Production |
+| **Maturity** | v0.3.0 (23 examples, 28 conformance tests) | Production |
 | **Source** | https://github.com/icellan/runar | https://github.com/sCrypt-Inc/scrypt-ts |
 
 **Decision guide:**
