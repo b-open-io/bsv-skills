@@ -1,9 +1,17 @@
 #!/usr/bin/env bun
 
-import { PrivateKey, Transaction, Script, Hash } from "@bsv/sdk";
+import { PrivateKey, Script, Transaction, Utils } from "@bsv/sdk";
+import {
+  AIP,
+  BitCom,
+  MAP,
+  PrivateKeySigner,
+  type Protocol,
+} from "@1sat/templates";
 import { fundAndBroadcast } from "../lib/broadcast.js";
 
 const MAP_PREFIX = "1PuQa7K62MiKCtssSLKy1kh56WWU7MtUR5";
+const AIP_PREFIX = "15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva";
 
 const HELP = `
 create-friend - Send a friend request on the BSV blockchain
@@ -16,7 +24,7 @@ OPTIONS:
   --json       Output JSON format
   -h, --help   Show this help
 
-NOTE: Friend requests include a derived public key for encrypted messaging.
+NOTE: Friend requests include the sender's public key for encrypted messaging.
       This creates a two-way relationship when both parties send friend requests.
 
 EXAMPLES:
@@ -53,13 +61,6 @@ function parseArgs(args: string[]): Args {
   return result;
 }
 
-function textToHex(text: string): string {
-  const bytes = new TextEncoder().encode(text);
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 async function main() {
   const args = parseArgs(process.argv.slice(2));
 
@@ -72,29 +73,56 @@ async function main() {
     const privateKey = PrivateKey.fromWif(args.wif);
     const publicKey = privateKey.toPublicKey().toString();
 
-    // Derive a friend-specific public key using the bapId as input
-    // This follows the BitcoinSchema friend protocol
-    const bapIdHash = Hash.sha256(args.bapId, "utf8");
-    // For now, use the main public key (proper derivation would use BAP library)
-    const friendPublicKey = publicKey;
+    // BSocial doesn't have a createFriend() method -- BSocialActionType doesn't
+    // include "friend". Friend requests require custom MAP fields (bapID, publicKey)
+    // that BSocial.lock() won't produce. Build MAP + AIP manually using the same
+    // BitCom primitives that BSocial uses internally.
 
-    // Build friend MAP data
-    const mapData = [
-      MAP_PREFIX,
-      "SET",
-      "app",
-      "bsocial",
-      "type",
-      "friend",
-      "bapID",
-      args.bapId,
-      "publicKey",
-      friendPublicKey,
+    const mapData: Record<string, string> = {
+      app: "bsocial",
+      type: "friend",
+      bapID: args.bapId,
+      publicKey: publicKey,
+    };
+
+    const mapScript = MAP.set(mapData);
+
+    // Extract MAP protocol data (skip OP_RETURN and protocol address chunks)
+    const mapChunks = mapScript.chunks.slice(2);
+    const mapDataScript = new Script(mapChunks);
+
+    const protocols: Protocol[] = [
+      {
+        protocol: MAP_PREFIX,
+        script: mapDataScript.toBinary(),
+        pos: 0,
+      },
     ];
 
-    // Build OP_RETURN script
-    const asmParts = mapData.map((d) => textToHex(d)).join(" ");
-    const lockingScript = Script.fromASM(`OP_0 OP_RETURN ${asmParts}`);
+    // Sign with AIP -- mirrors BSocial.lock() signing logic exactly
+    const signatureData: number[] = [];
+    for (const proto of protocols) {
+      signatureData.push(...Utils.toArray(proto.protocol, "utf8"));
+      signatureData.push(...proto.script);
+      signatureData.push(0x7c); // '|' separator
+    }
+
+    const signer = new PrivateKeySigner(privateKey);
+    const aipData = await AIP.sign(signatureData, signer);
+    const aipScript = aipData.lock();
+
+    // Extract AIP data (skip OP_RETURN and protocol address chunks)
+    const aipChunks = aipScript.chunks.slice(2);
+    const aipDataScript = new Script(aipChunks);
+
+    protocols.push({
+      protocol: AIP_PREFIX,
+      script: aipDataScript.toBinary(),
+      pos: 1,
+    });
+
+    const bitcom = new BitCom(protocols);
+    const lockingScript = bitcom.lock();
 
     const tx = new Transaction();
     tx.addOutput({
@@ -106,14 +134,14 @@ async function main() {
       const result = {
         status: "dry-run",
         bapId: args.bapId,
-        publicKey: friendPublicKey,
+        publicKey: publicKey,
         txSize: tx.toBinary().length,
       };
       if (args.json) {
         console.log(JSON.stringify(result, null, 2));
       } else {
         console.log(`Dry run - would send friend request to: ${args.bapId}`);
-        console.log(`Public key: ${friendPublicKey.substring(0, 20)}...`);
+        console.log(`Public key: ${publicKey.substring(0, 20)}...`);
         console.log(`TX size: ${result.txSize} bytes`);
       }
       process.exit(0);

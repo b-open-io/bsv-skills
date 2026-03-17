@@ -16,35 +16,9 @@ Complete on-chain social protocol for BSV blockchain. Posts, likes, follows, mes
 - Real-time messaging (channels, direct messages)
 - Query social data by address or transaction
 
-## Create via @1sat/actions (Recommended)
-
-The `createSocialPost` action handles B:// + MAP + AIP construction and wallet signing.
-
-```typescript
-import { createSocialPost, createContext } from '@1sat/actions'
-
-const ctx = createContext(wallet)
-
-const result = await createSocialPost.execute(ctx, {
-  app: 'my-app',           // MAP attribution — identifies the calling application
-  content: 'Hello BSV!',
-  contentType: 'text/plain', // or 'text/markdown'
-  tags: ['intro', 'bsv'],   // optional
-})
-
-// result: { txid, rawtx, error }
-```
-
-The action:
-- Signs with the wallet's BAP identity key via AIP (using `WalletSigner` from `@1sat/templates`)
-- Stores the 0-sat OP_RETURN output in the `bsocial` basket for post history
-- Tags outputs with MAP fields (`app:my-app`, `type:post`, `tag:intro`, etc.) for filtered queries
-
-Query post history: `wallet.listOutputs({ basket: 'bsocial' })`
-
 ## Create via CLI Scripts
 
-Alternative for raw WIF usage without BRC-100 wallet.
+Build and broadcast social transactions using raw WIF keys and the `@1sat/templates` BSocial class (included in this plugin).
 
 ### Post
 
@@ -134,6 +108,34 @@ bun run skills/bsocial/scripts/read-messages.ts --address <addr>
 bun run skills/bsocial/scripts/read-friends.ts <address> [--json]
 ```
 
+## Using @1sat/actions (via 1sat plugin)
+
+For BRC-100 wallet users, `@1sat/actions` provides high-level social actions that handle B:// + MAP + AIP construction and wallet signing automatically. This requires the **1sat plugin** and the `@1sat/actions` package — it is not part of bsv-skills.
+
+See the `1sat:transaction-building` skill for details.
+
+```typescript
+import { createSocialPost, createContext } from '@1sat/actions'
+
+const ctx = createContext(wallet)
+
+const result = await createSocialPost.execute(ctx, {
+  app: 'my-app',           // MAP attribution — identifies the calling application
+  content: 'Hello BSV!',
+  contentType: 'text/plain', // or 'text/markdown'
+  tags: ['intro', 'bsv'],   // optional
+})
+
+// result: { txid, rawtx, error }
+```
+
+The action:
+- Signs with the wallet's BAP identity key via AIP (using `WalletSigner` from `@1sat/templates`)
+- Stores the 0-sat OP_RETURN output in the `bsocial` basket for post history
+- Tags outputs with MAP fields (`app:my-app`, `type:post`, `tag:intro`, etc.) for filtered queries
+
+Query post history: `wallet.listOutputs({ basket: 'bsocial' })`
+
 ## Protocol Stack
 
 ```
@@ -160,9 +162,9 @@ bun run skills/bsocial/scripts/read-friends.ts <address> [--json]
 
 ## Dependencies
 
-- `@1sat/actions` - BRC-100 action system (recommended for wallet-based operations)
 - `@bsv/sdk` - Transaction building
 - `@1sat/templates` - BSocial protocol templates (Signer abstraction, BSocial class)
+- `@1sat/actions` - BRC-100 action system (external — requires the 1sat plugin)
 
 ## API
 

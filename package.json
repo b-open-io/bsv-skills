@@ -20,7 +20,8 @@
 		"@1sat/templates": "latest",
 		"@bsv/sdk": "^1.0.0",
 		"bitcoin-backup": "latest",
-		"bmap-api-types": "latest"
+		"bmap-api-types": "latest",
+		"sigma-protocol": "^0.1.9"
 	},
 	"devDependencies": {
 		"@types/node": "latest",

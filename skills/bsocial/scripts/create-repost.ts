@@ -1,10 +1,12 @@
 #!/usr/bin/env bun
 
-import { PrivateKey, Transaction, Script, Utils } from "@bsv/sdk";
+import { PrivateKey, Transaction } from "@bsv/sdk";
+import { BSocial, BSocialContext, PrivateKeySigner, type BSocialAction } from "@1sat/templates";
 import { fundAndBroadcast } from "../lib/broadcast.js";
 
-const MAP_PREFIX = "1PuQa7K62MiKCtssSLKy1kh56WWU7MtUR5";
-const AIP_PREFIX = "15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva";
+// BSocialActionType enum doesn't include REPOST, but the protocol supports it.
+// Cast the string directly since BSocial.lock() writes the type value to MAP as-is.
+const REPOST_TYPE = "repost" as import("@1sat/templates").BSocialActionType;
 
 const HELP = `
 create-repost - Repost content on the BSV blockchain
@@ -13,7 +15,7 @@ USAGE:
   bun run create-repost.ts <wif> <txid> [options]
 
 OPTIONS:
-  --context <type>    New context (topic, url, channel)
+  --context <type>    Additional context (channel, geohash, etc.)
   --value <value>     Context value
   --dry-run           Build tx but don't broadcast
   --json              Output JSON format
@@ -62,13 +64,6 @@ function parseArgs(args: string[]): Args {
   return result;
 }
 
-function textToHex(text: string): string {
-  const bytes = new TextEncoder().encode(text);
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 async function main() {
   const args = parseArgs(process.argv.slice(2));
 
@@ -85,25 +80,26 @@ async function main() {
   try {
     const privateKey = PrivateKey.fromWif(args.wif);
 
-    // Build repost MAP data
-    const mapData = [
-      MAP_PREFIX,
-      "SET",
-      "app",
-      "bsocial",
-      "type",
-      "repost",
-      "tx",
-      args.txid,
-    ];
+    // Build repost action. The tx being reposted is the primary context.
+    // Additional user-specified context (e.g. channel) goes into subcontext.
+    const action: BSocialAction = {
+      app: "bsocial",
+      type: REPOST_TYPE,
+      context: BSocialContext.TX,
+      contextValue: args.txid,
+    };
 
     if (args.context && args.contextValue) {
-      mapData.push("context", args.context, args.context, args.contextValue);
+      action.subcontext = args.context as BSocialContext;
+      action.subcontextValue = args.contextValue;
     }
 
-    // Build OP_RETURN script
-    const asmParts = mapData.map((d) => textToHex(d)).join(" ");
-    const lockingScript = Script.fromASM(`OP_0 OP_RETURN ${asmParts}`);
+    // Use BSocial class directly -- no static helper exists for repost since
+    // BSocialActionType doesn't include REPOST, but lock() writes the type
+    // string to MAP and signs with AIP via the provided signer.
+    const signer = new PrivateKeySigner(privateKey);
+    const bsocial = new BSocial(action, undefined, undefined, signer);
+    const lockingScript = await bsocial.lock();
 
     const tx = new Transaction();
     tx.addOutput({

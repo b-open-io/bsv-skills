@@ -1,10 +1,6 @@
 #!/usr/bin/env bun
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
 import path from "node:path";
 import fs from "node:fs/promises";
-
-const execAsync = promisify(exec);
 
 // Agent's BSV convention
 const BSV_DIR = "/.flow/.bsv";
@@ -32,9 +28,12 @@ function showHelp(): void {
 }
 
 async function checkBbackupCli(): Promise<void> {
-	try {
-		await execAsync("which bbackup");
-	} catch {
+	const proc = Bun.spawn(["which", "bbackup"], {
+		stdout: "pipe",
+		stderr: "pipe",
+	});
+	const exitCode = await proc.exited;
+	if (exitCode !== 0) {
 		throw new Error(
 			"bbackup CLI not installed. Install with:\n" +
 				"  bun add -g bitcoin-backup",
@@ -95,12 +94,23 @@ async function decrypt(options: DecryptOptions): Promise<void> {
       console.log(`Temporary output: ${outputPath}`);
     }
 
-    // Build command
-    const cmd = outputPath
-      ? `bbackup dec "${inputPath}" -p "${password}" -o "${outputPath}"`
-      : `bbackup dec "${inputPath}" -p "${password}"`;
+    // Build command args to avoid shell injection
+    const args = ["bbackup", "dec", inputPath, "-p", password];
+    if (outputPath) {
+      args.push("-o", outputPath);
+    }
 
-    const { stdout, stderr } = await execAsync(cmd);
+    const proc = Bun.spawn(args, {
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    const exitCode = await proc.exited;
+    const stdout = await new Response(proc.stdout).text();
+    const stderr = await new Response(proc.stderr).text();
+
+    if (exitCode !== 0) {
+      throw new Error(stderr || stdout || "bbackup dec exited with non-zero status");
+    }
 
     if (stderr && !stderr.includes("Decrypted")) {
       console.error("Warning:", stderr);

@@ -9,6 +9,7 @@
         "@bsv/sdk": "^1.0.0",
         "bitcoin-backup": "latest",
         "bmap-api-types": "latest",
+        "sigma-protocol": "^0.1.9",
       },
       "devDependencies": {
         "@types/node": "latest",
@@ -30,6 +31,8 @@
     "bmap-api-types": ["bmap-api-types@0.0.9", "", {}, "sha512-roR00JPdrRqjUvGjxc2raHKIhh2bVdvDgpO4pkmQ1UMgoqQYEVZdeUKO5ilwwA9owjP2MTfIw32wKR9Ro2lh7A=="],
 
     "commander": ["commander@14.0.2", "", {}, "sha512-TywoWNNRbhoD0BXs1P3ZEScW8W5iKrnbithIl0YH+uCmBd0QpPOA8yc82DS3BIE5Ma6FnBVUsJ7wVUDz4dvOWQ=="],
+
+    "sigma-protocol": ["sigma-protocol@0.1.9", "", { "peerDependencies": { "@bsv/sdk": "^2.0.1" } }, "sha512-jHn44KbqhbAvYLY2efKG0cGgb2q9hkXbddEJ7ZusqXIvD5lWMs6bro5mRhdOSrhI/kp4rEbvdZxDy99N8YsPKw=="],
 
     "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
