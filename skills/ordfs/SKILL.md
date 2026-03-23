@@ -128,6 +128,46 @@ Inscriptions with content type `ord-fs/json` represent directories.
 Values can be:
 - `ord://txid_vout` - Full ordinal reference
 - `txid_vout` or `txid` - Direct reference
+- `_N` - Relative vout reference (resolved to `{manifest_txid}_N`)
+
+### Relative Vout Resolution (`_N`)
+
+ORDFS natively resolves `_N` patterns in directory manifests. When an ord-fs/json entry has a value like `_1`, ORDFS resolves it to `{manifest_txid}_1` — the sibling output in the same transaction.
+
+```json
+{
+  "SKILL.md": "_1",
+  "README.md": "_2",
+  "lib/utils.ts": "_3"
+}
+```
+
+Clients do NOT need to parse the manifest and construct outpoint URLs. Instead, request files by path:
+```
+/content/{manifest_outpoint}/SKILL.md      → resolves _1 → {txid}_1
+/content/{manifest_outpoint}/lib/utils.ts  → resolves _3 → {txid}_3
+```
+
+### Recursive Directory Traversal
+
+ORDFS supports nested directories. If a directory entry points to another ord-fs/json inscription, ORDFS recurses into it automatically:
+
+```json
+{
+  "SKILL.md": "_1",
+  "references": "_2"
+}
+```
+
+Where `_2` is itself an ord-fs/json manifest:
+```json
+{
+  "api-docs.md": "_1",
+  "examples.md": "_2"
+}
+```
+
+Accessing `/content/{root_manifest}/references/api-docs.md` traverses both levels.
 
 ### Accessing Directory Files
 
