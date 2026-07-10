@@ -6,3 +6,5 @@ dist/
 .env.local
 *.bep
 /.flow/.bsv/temp/*
+__pycache__/
+*.pyc
