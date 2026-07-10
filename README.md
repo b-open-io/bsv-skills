@@ -1,6 +1,8 @@
 ![BSV Skills](assets/banner.png)
 
-BSV blockchain operations for Claude Code and AI agents. 25 skills covering wallets, identity, transactions, broadcasting, mining, and protocol implementation.
+BSV blockchain operations for Claude Code, Codex, and AI agents. 25 operational
+skills cover wallets, identity, transactions, broadcasting, mining, and protocol
+implementation. Codex also receives an explicit-only custom-agent setup skill.
 
 Built by [B-Open](https://github.com/b-open-io). Need hands-on help building on BSV? Check out [bopen.io](https://bopen.io) — our consultancy for blockchain development, wallet integration, and BSV application architecture.
 
@@ -8,12 +10,25 @@ Contributions welcome! Found a way to improve a skill or have a new one to add? 
 
 ## Installation
 
-**Full Plugin** (recommended - includes bitcoin-specialist agent):
+**Claude Code plugin** (includes David, the `bitcoin` agent):
 ```bash
 /plugin install bsv-skills@b-open-io
 ```
 
-**Skills Only** (for other agentic frameworks):
+**Codex plugin** (installs the skills):
+```bash
+codex plugin marketplace add b-open-io/bsv-skills --ref master
+codex plugin add bsv-skills@b-open-io
+```
+
+Codex plugin installation does not silently add a custom agent. To install the
+optional David adapter after installing the plugin, explicitly invoke the
+`codex-agent-setup` skill. It installs `bsv-skills-bitcoin.toml` as a regular
+file in the current project's `.codex/agents/` directory by default. Request
+`--user` only when a user-wide install is intended. Start a new Codex session,
+then invoke David with the runtime name `bsv_skills_bitcoin`.
+
+**Individual skills** (for other agentic frameworks):
 ```bash
 bunx skills add b-open-io/bsv-skills --skill wallet-brc100
 bunx skills add b-open-io/bsv-skills --skill wallet-brc100-go

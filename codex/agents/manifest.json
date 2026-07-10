@@ -1,0 +1,17 @@
+{
+  "schema_version": "1",
+  "generator_schema_version": "1",
+  "manager": "bsv-skills",
+  "agents": [
+    {
+      "source_name": "bitcoin",
+      "source_path": "agents/bitcoin.md",
+      "source_version": "1.0.2",
+      "source_hash": "sha256:b0b034d05116858c11434ccaa131a303d027874aafbdfb44f94a32e99f9eecdf",
+      "generated_file": "bsv-skills-bitcoin.toml",
+      "generated_hash": "sha256:b47f3b4e3763ded64fa0b0adb0639339cc9aefa8a7bbe7a0e57fb75a8eba0761",
+      "agent_name": "bsv_skills_bitcoin",
+      "default_install": true
+    }
+  ]
+}

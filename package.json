@@ -1,7 +1,7 @@
 {
 	"name": "bsv-skills",
-	"version": "0.1.5",
-	"description": "Core BSV blockchain operations plugin for Claude Code with JungleBus streaming support",
+	"version": "0.2.10",
+	"description": "Core BSV blockchain operations plugin for Claude Code and Codex with JungleBus streaming support",
 	"type": "module",
 	"author": "b-open-io",
 	"license": "MIT",
@@ -15,6 +15,20 @@
 		"blockchain",
 		"claude-code",
 		"plugin"
+	],
+	"files": [
+		".claude-plugin",
+		".codex-plugin",
+		"agents",
+		"assets",
+		"codex",
+		"scripts/codex-agents/generate.py",
+		"scripts/codex-agents/install.py",
+		"scripts/codex-agents/lib.py",
+		"scripts/codex-agents/test_install.py",
+		"skills",
+		"README.md",
+		"LICENSE"
 	],
 	"dependencies": {
 		"@1sat/templates": "latest",

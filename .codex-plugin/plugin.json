@@ -1,0 +1,33 @@
+{
+  "name": "bsv-skills",
+  "version": "0.2.10",
+  "description": "Core BSV blockchain skills with an optional David custom-agent adapter for Codex",
+  "author": {
+    "name": "b-open-io",
+    "url": "https://github.com/b-open-io"
+  },
+  "repository": "https://github.com/b-open-io/bsv-skills",
+  "keywords": [
+    "bsv",
+    "bitcoin",
+    "blockchain",
+    "wallet",
+    "agents",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "bsv-skills",
+    "shortDescription": "BSV blockchain operations for Codex.",
+    "longDescription": "BSV transaction, wallet, identity, protocol, mining, and blockchain-operation skills, plus an explicit installer for the optional David Codex custom agent.",
+    "developerName": "b-open-io",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Skills"
+    ],
+    "websiteURL": "https://github.com/b-open-io/bsv-skills",
+    "defaultPrompt": [
+      "Help me build safely on BSV with BSV Skills."
+    ]
+  }
+}
