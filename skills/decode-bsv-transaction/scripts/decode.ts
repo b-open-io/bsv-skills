@@ -181,7 +181,10 @@ async function resolveInputs(tx: Transaction): Promise<Array<{ satoshis: number 
     const vout = input.sourceOutputIndex;
     let src: Transaction | null | undefined = input.sourceTransaction;
 
-    if (!src && !skipFees && input.sourceTXID) {
+    // Coinbase inputs reference an all-zero txid with no prevout to fetch.
+    const isCoinbase = !input.sourceTXID || /^0{64}$/.test(input.sourceTXID);
+
+    if (!src && !skipFees && !isCoinbase && input.sourceTXID) {
       if (!cache.has(input.sourceTXID)) cache.set(input.sourceTXID, await fetchTx(input.sourceTXID));
       src = cache.get(input.sourceTXID);
     }
@@ -206,6 +209,7 @@ async function printTransaction(tx: Transaction, byteSize: number, format: strin
     sequence: input.sequence,
     satoshis: resolvedInputs[i].satoshis,
     address: resolvedInputs[i].address,
+    unlockingScript: input.unlockingScript?.toHex() ?? null,
   }));
 
   const outputs = tx.outputs.map((output, i) => {
@@ -251,6 +255,7 @@ async function printTransaction(tx: Transaction, byteSize: number, format: strin
     const val = inp.satoshis === null ? "value unknown" : `${inp.satoshis} sats`;
     const addr = inp.address ? ` ${inp.address}` : "";
     console.log(`  [${inp.index}] ${inp.txid}:${inp.vout}  ${val}${addr}`);
+    if (inp.unlockingScript) console.log(`        scriptSig: ${inp.unlockingScript}`);
   });
   console.log(`Outputs:  ${result.outputs.length}`);
   result.outputs.forEach(out => {
