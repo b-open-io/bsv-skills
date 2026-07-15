@@ -130,6 +130,35 @@ Values can be:
 - `txid_vout` or `txid` - Direct reference
 - `_N` - Relative vout reference (resolved to `{manifest_txid}_N`)
 
+### Default entry (`.`) — empty path, shared content & collections
+
+When a directory is requested with **no file path**, ORDFS resolves the default
+entry: it serves the `"."` key **in place** if present, otherwise falls back to
+`index.html` (redirect, for web artifacts). `"."` takes precedence, so a
+directory whose primary content is a single non-HTML payload (an image) resolves
+cleanly at its own outpoint URL without an interior filename:
+
+```json
+{ ".": "_0" }
+```
+
+This is the recommended way to **reference shared content**. For a collection or
+any large mint, inscribe the artwork once and make each item an `ord-fs/json`
+directory whose `.` entry points at that image — dedup without re-inscribing, and
+the item's content-type honestly signals "resolve me" (it fails safe, unlike a
+pointer disguised under an `image/*` content-type). Add named leaves alongside
+`.` for a multi-file item:
+
+```json
+{ ".": "<imageOutpoint>", "meta.json": "_1" }
+```
+
+The pointer may be a same-tx relative `_N` or an absolute `<txid>_<vout>`
+(cross-tx, e.g. mint-on-demand). A collection item stays a normal MAP
+`subType:collectionItem` ordinal; only its inscription content becomes a
+reference. Membership keys on MAP `collectionId` + a root-matching authorship
+signature, never on the referenced content.
+
 ### Relative Vout Resolution (`_N`)
 
 ORDFS natively resolves `_N` patterns in directory manifests. When an ord-fs/json entry has a value like `_1`, ORDFS resolves it to `{manifest_txid}_1` — the sibling output in the same transaction.
