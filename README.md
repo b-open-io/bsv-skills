@@ -1,6 +1,6 @@
 ![BSV Skills](assets/banner.png)
 
-BSV blockchain operations for Claude Code, Codex, and AI agents. 25 operational
+BSV blockchain operations for Claude Code, Codex, and AI agents. 26 operational
 skills cover wallets, identity, transactions, broadcasting, mining, and protocol
 implementation. Codex also receives an explicit-only custom-agent setup skill.
 
@@ -31,6 +31,7 @@ then invoke David with the runtime name `bsv_skills_bitcoin`.
 **Individual skills** (for other agentic frameworks):
 ```bash
 bunx skills add b-open-io/bsv-skills --skill wallet-brc100
+bunx skills add b-open-io/bsv-skills --skill yours-wallet
 bunx skills add b-open-io/bsv-skills --skill wallet-brc100-go
 bunx skills add b-open-io/bsv-skills --skill wallet-send-bsv
 bunx skills add b-open-io/bsv-skills --skill broadcast-arc
@@ -62,6 +63,7 @@ bunx skills add b-open-io/bsv-skills --skill estimate-transaction-fee
 | Skill | Description | Triggers |
 |-------|-------------|----------|
 | **wallet-brc100** | BRC-100 wallet implementation + WalletClient + BEEF relay | "create wallet," "BRC-100," "WalletClient," "noSend," "BEEF" |
+| **yours-wallet** | Yours Wallet React integration through the BRC-100 CWI | "Yours Wallet," "connect a BSV wallet," "wallet checkout" |
 | **wallet-brc100-go** | BRC-100 wallet implementation (Go) | "go wallet," "golang wallet" |
 | **wallet-send-bsv** | P2PKH transactions from WIF key | "send BSV," "send from WIF" |
 | **broadcast-arc** | Broadcast transactions via ARC (GorillaPool / TAAL) | "broadcast via ARC," "arc.gorillapool.io," "broadcastMany" |
@@ -91,6 +93,7 @@ bunx skills add b-open-io/bsv-skills --skill estimate-transaction-fee
 
 ### Wallet Development
 - **wallet-brc100** / **wallet-brc100-go** - Full BRC-100 wallet implementation, WalletClient, BEEF relay
+- **yours-wallet** - Connect React web apps to Yours Wallet through the BRC-100 CWI
 - **wallet-send-bsv** - Build and sign P2PKH transactions from a WIF key
 - **broadcast-arc** - Broadcast signed transactions via GorillaPool or TAAL ARC
 - **wallet-encrypt-decrypt** - ECDH encryption/decryption with BSV keys
@@ -135,6 +138,9 @@ Once installed, just ask Claude Code to help with BSV tasks:
 "Help me create a BRC-100 wallet"
 → Uses wallet-brc100 skill
 
+"Add a Pay with Yours Wallet button"
+→ Uses yours-wallet skill
+
 "Send 0.001 BSV to this address"
 → Uses wallet-send-bsv skill
 
@@ -149,6 +155,7 @@ You can also invoke skills directly:
 
 ```
 /wallet-brc100
+/yours-wallet
 /bsv-standards
 /check-bsv-price
 ```

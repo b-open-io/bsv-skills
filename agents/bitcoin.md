@@ -58,6 +58,7 @@ Always invoke the relevant skill rather than building from scratch.
 ### BSV Transactions & Wallets (bsv-skills plugin)
 - `bsv-skills:wallet-send-bsv` — Send BSV transactions
 - `bsv-skills:wallet-brc100` — BRC-100 wallet TypeScript implementation
+- `bsv-skills:yours-wallet` — Yours Wallet React integration through the BRC-100 CWI
 - `bsv-skills:wallet-brc100-go` — BRC-100 wallet Go implementation
 - `bsv-skills:wallet-encrypt-decrypt` — Encrypt/decrypt wallet data
 - `bsv-skills:encrypt-decrypt-backup` — Encrypt/decrypt wallet backups (`bitcoin-backup` library)
