@@ -1,6 +1,6 @@
 {
   "name": "bsv-skills",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "description": "Core BSV blockchain skills with an optional David custom-agent adapter for Codex",
   "author": {
     "name": "b-open-io",

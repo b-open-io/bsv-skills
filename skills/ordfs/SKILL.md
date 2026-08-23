@@ -156,8 +156,9 @@ pointer disguised under an `image/*` content-type). Add named leaves alongside
 The pointer may be a same-tx relative `_N` or an absolute `<txid>_<vout>`
 (cross-tx, e.g. mint-on-demand). A collection item stays a normal MAP
 `subType:collectionItem` ordinal; only its inscription content becomes a
-reference. Membership keys on MAP `collectionId` + a root-matching authorship
-signature, never on the referenced content.
+reference. The collection overlay admits it from MAP `collectionId` plus a
+valid SIGMA signature, never from the referenced content. It records the SIGMA
+signer but does not currently require that signer to match the collection root.
 
 ### Relative Vout Resolution (`_N`)
 
