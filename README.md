@@ -74,7 +74,7 @@ bunx skills add b-open-io/bsv-skills --skill estimate-transaction-fee
 | **message-signing** | BSM, BRC-77, and Sigma signing | "sign message," "verify signature" |
 | **bsv-standards** | BRCs, BitCom protocols, token standards | "what is BRC," "MAP protocol," "AIP" |
 | **key-derivation** | Type42, BIP32, BAP derivation patterns | "derive key," "BRC-42," "BIP32" |
-| **ordfs** | ORDFS gateway API (ordfs.network) | "fetch ordinal," "on-chain content" |
+| **ordfs** | ORDFS gateway, directory defaults, and shared collection content | "fetch ordinal," "on-chain content" |
 | **create-script-template** | Author ScriptTemplate implementations | "create template," "script template" |
 | **review-script-template** | Audit templates against best practices | "review template," "template audit" |
 | **stratum-v1** | Stratum v1 protocol (JSON-RPC over TCP) | "stratum," "mining pool," "share submission" |
