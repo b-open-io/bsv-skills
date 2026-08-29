@@ -1,7 +1,7 @@
 ---
 name: bsv-standards
 description: >-
-  This skill should be used when the user asks about any BRC (BRC-1 through 185+), "what is BRC-61", "what is BRC-42", "what is BEEF", "what is BUMP", "Compound Merkle Path", "what is MAP protocol", "what is AIP", "what is B protocol", "what are BSV standards", "what is SIGMA", "what is BAP", "what is paymail", "what is 1Sat Ordinals", "what is BSV-20", "what is BSV-21", "lookup BRC", "BitCom protocols", "what is bitcoin-auth", "what is bitcoin-backup", "what is bitcoin-image", "what is Bitcoin Schema", "what is DPP", "what is PacketPay", "what is Authrite", "what is PIKE", "what is P2PKH", "what is Push Drop", "overlay network", "SPV", "outpoint format", "what is ORDFS", "HTTP 402", "x402", or needs to understand a BSV standard, protocol, or specification.
+  This skill should be used when the user asks about any BRC (BRC-1 through 185+), "what is Beersy", "beersy.dev", "what is BRC-61", "what is BRC-42", "what is BEEF", "what is BUMP", "Compound Merkle Path", "what is MAP protocol", "what is AIP", "what is B protocol", "what are BSV standards", "what is SIGMA", "what is BAP", "what is paymail", "what is 1Sat Ordinals", "what is BSV-20", "what is BSV-21", "lookup BRC", "BitCom protocols", "what is bitcoin-auth", "what is bitcoin-backup", "what is bitcoin-image", "what is Bitcoin Schema", "what is DPP", "what is PacketPay", "what is Authrite", "what is PIKE", "what is P2PKH", "what is Push Drop", "overlay network", "SPV", "outpoint format", "what is ORDFS", "HTTP 402", "x402", or needs to understand a BSV standard, protocol, or specification.
 user-invocable: false
 ---
 
