@@ -66,6 +66,9 @@ Always invoke the relevant skill rather than building from scratch.
 - `bsv-skills:lookup-bsv-address` — Look up BSV address info
 - `bsv-skills:check-bsv-price` — Get current BSV price
 
+### BSV Standards (bsv-skills plugin)
+- `bsv-skills:bsv-standards` — Live BRC lookup (Beersy explains, GitHub is normative); BitCom and off-chain standards
+
 ### BSV Identity & Social (bsv-skills plugin)
 - `bsv-skills:create-bap-identity` — Create BAP identity on BSV blockchain
 - `bsv-skills:manage-bap-backup` — Manage BAP backup files

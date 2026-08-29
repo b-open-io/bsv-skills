@@ -1,7 +1,7 @@
 {
 	"name": "bsv-skills",
-	"version": "0.2.13",
-	"description": "Core BSV blockchain operations including standards reference (BRCs, BitCom, tokens), key derivation (Type42, BIP32, BAP), ORDFS content gateway, script templates, message signing, wallet operations, identity management, and JungleBus real-time blockchain streaming.",
+	"version": "0.2.14",
+	"description": "Core BSV blockchain operations including live BRC lookup (Beersy + GitHub), BitCom and off-chain standards, key derivation (Type42, BIP32, BAP), ORDFS content gateway, script templates, message signing, wallet operations, identity management, and JungleBus real-time blockchain streaming.",
 	"author": {
 		"name": "b-open-io",
 		"url": "https://github.com/b-open-io"

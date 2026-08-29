@@ -2,7 +2,7 @@
 
 Legacy hierarchical deterministic key derivation for BSV compatibility.
 
-**Official Spec**: https://bsv.brc.dev/key-derivation/0032
+**Official Spec**: https://www.beersy.dev/brc/32 — https://raw.githubusercontent.com/bsv-blockchain/BRCs/master/key-derivation/0032.md
 
 ## Overview
 
@@ -256,4 +256,4 @@ const backup = {
 - **BIP44**: Multi-account hierarchy for deterministic wallets
 - **BRC-42**: Type42 replacement for privacy-sensitive applications
 
-All BSV specs at: https://bsv.brc.dev/key-derivation
+All BSV specs: fetch via the `bsv-standards` skill (Beersy + GitHub).

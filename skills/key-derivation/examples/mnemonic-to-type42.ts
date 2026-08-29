@@ -4,7 +4,7 @@
  * Converts BIP39 mnemonic to a single master key for Type42 derivation.
  * This maintains familiar mnemonic backup while using modern Type42 derivation.
  *
- * Based on: https://bsv.brc.dev/key-derivation (BRC-39 style)
+ * Based on BRC-75 mnemonic + BRC-42 Type42. Fetch: https://www.beersy.dev/brc/75
  */
 
 import { Mnemonic, Hash, PrivateKey, Utils, HD } from "@bsv/sdk";

@@ -2,7 +2,7 @@
 
 Complete specification for BSV's modern key derivation scheme.
 
-**Official Spec**: https://bsv.brc.dev/key-derivation/0042
+**Official Spec**: https://www.beersy.dev/brc/42 — https://raw.githubusercontent.com/bsv-blockchain/BRCs/master/key-derivation/0042.md
 
 ## Core Concept
 
@@ -277,4 +277,4 @@ const valid = verifySchnorrProof(
 - **BRC-93**: Limitations of revelation (solved by BRC-96)
 - **BRC-96**: Schnorr-based verification
 
-All specs at: https://bsv.brc.dev/key-derivation
+All BSV specs: fetch via the `bsv-standards` skill (Beersy + GitHub).

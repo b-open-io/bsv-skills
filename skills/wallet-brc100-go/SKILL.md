@@ -846,7 +846,7 @@ func setupMonitor(
 
 ## 🔗 Additional Resources
 
-- **BRC-100 Specification**: https://bsv.brc.dev/wallet/0100
+- **BRC-100**: https://www.beersy.dev/brc/100 — spec https://raw.githubusercontent.com/bsv-blockchain/BRCs/master/wallet/0100.md
 - **Go Wallet Toolbox**: https://github.com/bsv-blockchain/go-wallet-toolbox
 - **Go SDK**: https://github.com/bsv-blockchain/go-sdk
 - **Examples**: https://github.com/bsv-blockchain/go-wallet-toolbox/tree/master/examples

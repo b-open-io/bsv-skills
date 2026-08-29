@@ -196,16 +196,13 @@ A CLI is also available: `bun add -g bsv-bap` (see **`create-bap-identity`** ski
 
 ## Official Specifications
 
-All BSV key derivation standards are documented at:
+Fetch live (Beersy explains; GitHub is normative). See the `bsv-standards` skill.
 
-**https://bsv.brc.dev/key-derivation**
-
-Key specifications:
-- **BRC-42**: Type42 key derivation scheme
-- **BRC-32**: BIP32 HD key derivation
-- **BRC-43**: Security levels, protocol IDs, key IDs
-- **BRC-69**: Revealing key linkages
-- **BRC-72**: Protecting key linkage information
+- **BRC-42**: https://www.beersy.dev/brc/42 — spec https://raw.githubusercontent.com/bsv-blockchain/BRCs/master/key-derivation/0042.md
+- **BRC-32**: https://www.beersy.dev/brc/32 — spec https://raw.githubusercontent.com/bsv-blockchain/BRCs/master/key-derivation/0032.md
+- **BRC-43**: https://www.beersy.dev/brc/43 — spec https://raw.githubusercontent.com/bsv-blockchain/BRCs/master/key-derivation/0043.md
+- **BRC-69**: https://www.beersy.dev/brc/69 — spec https://raw.githubusercontent.com/bsv-blockchain/BRCs/master/key-derivation/0069.md
+- **BRC-72**: https://www.beersy.dev/brc/72 — spec https://raw.githubusercontent.com/bsv-blockchain/BRCs/master/key-derivation/0072.md
 
 ## Additional Resources
 

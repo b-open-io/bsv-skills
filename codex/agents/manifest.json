@@ -7,9 +7,9 @@
       "source_name": "bitcoin",
       "source_path": "agents/bitcoin.md",
       "source_version": "1.0.2",
-      "source_hash": "sha256:b0b034d05116858c11434ccaa131a303d027874aafbdfb44f94a32e99f9eecdf",
+      "source_hash": "sha256:25a663caac19261f781a9ad3584729b85df4ddc334e9bba79b269a5fdeb09791",
       "generated_file": "bsv-skills-bitcoin.toml",
-      "generated_hash": "sha256:b47f3b4e3763ded64fa0b0adb0639339cc9aefa8a7bbe7a0e57fb75a8eba0761",
+      "generated_hash": "sha256:194ff6bf7e8fca4bedd1f3a7d98ace3cb7fb9cffad9703b9029306ef96670086",
       "agent_name": "bsv_skills_bitcoin",
       "default_install": true
     }

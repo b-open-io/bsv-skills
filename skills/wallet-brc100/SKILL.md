@@ -634,9 +634,9 @@ See [1sat](https://github.com/b-open-io/1sat-sdk) for:
 
 ## Additional Resources
 
-- **BRC-100 Specification**: https://bsv.brc.dev/wallet/0100
-- **BRC-42 (BKDS)**: https://bsv.brc.dev/wallet/0042
-- **BRC-43 (Security Levels)**: https://bsv.brc.dev/wallet/0043
+- **BRC-100**: https://www.beersy.dev/brc/100 — spec https://raw.githubusercontent.com/bsv-blockchain/BRCs/master/wallet/0100.md
+- **BRC-42 (BKDS)**: https://www.beersy.dev/brc/42 — spec https://raw.githubusercontent.com/bsv-blockchain/BRCs/master/key-derivation/0042.md
+- **BRC-43 (Security Levels)**: https://www.beersy.dev/brc/43 — spec https://raw.githubusercontent.com/bsv-blockchain/BRCs/master/key-derivation/0043.md
 - **Wallet Toolbox Docs**: https://bsv-blockchain.github.io/wallet-toolbox
 - **BSV SDK Docs**: https://bsv-blockchain.github.io/ts-sdk
 - **@1sat/wallet-toolbox**: BRC-100 wallet with 1Sat Ordinals support (wraps @bsv/wallet-toolbox)
@@ -647,7 +647,7 @@ See [1sat](https://github.com/b-open-io/1sat-sdk) for:
   - Background monitoring patterns
   - HTTPS server on port 2121 for BRC-100 interface
 
-**Research**: For deep dives into BRC specifications or implementation patterns, use the browser-agent to fetch current documentation from bsv.brc.dev.
+**Research**: Fetch BRC specs live — Beersy explains (`https://www.beersy.dev/brc/{n}`), GitHub is normative. See the `bsv-standards` skill.
 
 ---
 

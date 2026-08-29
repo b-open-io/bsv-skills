@@ -72,7 +72,7 @@ bunx skills add b-open-io/bsv-skills --skill estimate-transaction-fee
 | **manage-bap-backup** | Export identities from .bep files | "export identity," "list members" |
 | **encrypt-decrypt-backup** | Encrypted .bep backup management | "encrypt backup," "decrypt backup" |
 | **message-signing** | BSM, BRC-77, and Sigma signing | "sign message," "verify signature" |
-| **bsv-standards** | BRCs, BitCom protocols, token standards | "what is BRC," "MAP protocol," "AIP" |
+| **bsv-standards** | Live BRC lookup (Beersy + GitHub) plus BitCom and off-chain standards | "what is BRC," "MAP protocol," "AIP" |
 | **key-derivation** | Type42, BIP32, BAP derivation patterns | "derive key," "BRC-42," "BIP32" |
 | **ordfs** | ORDFS gateway API (ordfs.network) | "fetch ordinal," "on-chain content" |
 | **create-script-template** | Author ScriptTemplate implementations | "create template," "script template" |
@@ -105,7 +105,7 @@ bunx skills add b-open-io/bsv-skills --skill estimate-transaction-fee
 - **message-signing** - BSM, BRC-77, Sigma Protocol signing
 
 ### Standards Reference
-- **bsv-standards** - BRC specifications, BitCom protocols, token standards
+- **bsv-standards** - Live BRC lookup (Beersy explains, GitHub is normative); BitCom and off-chain standards locally
 - **key-derivation** - BRC-42 (Type42), BRC-32 (BIP32), BAP derivation
 - **ordfs** - ORDFS gateway API for on-chain content
 
