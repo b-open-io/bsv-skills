@@ -32,7 +32,7 @@
 	],
 	"dependencies": {
 		"@1sat/templates": "latest",
-		"@bsv/sdk": "^1.0.0",
+		"@bsv/sdk": "^2.5.0",
 		"bitcoin-backup": "latest",
 		"bmap-api-types": "latest",
 		"sigma-protocol": "^0.1.9"
